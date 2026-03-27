@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, CreditCard, Upload, Smartphone, Landmark, ArrowLeft, CheckCircle2 } from "lucide-react"
+import { Check, CreditCard, Upload, Smartphone, Landmark, ArrowLeft, CheckCircle2, ExternalLink } from "lucide-react"
 import { templates } from "@/lib/templates"
 
 type PackageId = "standard" | "premium" | "custom"
@@ -131,7 +131,7 @@ function CreateInvitationContent() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to create invitation")
 
-      setStep(4)
+      setStep(5)
     } catch (e) {
       alert(e instanceof Error ? e.message : "Something went wrong")
     } finally {
@@ -144,10 +144,10 @@ function CreateInvitationContent() {
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
-      {step < 4 && (
+      {step < 5 && (
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3, 4].map((s) => (
               <div
                 key={s}
                 className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
@@ -159,6 +159,7 @@ function CreateInvitationContent() {
             ))}
           </div>
           <div className="flex justify-between text-xs text-muted-foreground px-1">
+            <span>Style</span>
             <span>Sections</span>
             <span>Details</span>
             <span>Payment</span>
@@ -167,8 +168,79 @@ function CreateInvitationContent() {
       )}
 
       {step === 1 && (
-        <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
-          <CardHeader>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="text-center space-y-3">
+            <h1 className="text-4xl font-serif text-foreground">Choose your style</h1>
+            <p className="text-muted-foreground text-lg">The theme is just the starting point, customized with your details</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {templates.map((template) => {
+              const isVideo = template.image.endsWith('.mp4')
+              const isSelected = form.templateId === template.id
+              return (
+                <button
+                  key={template.id}
+                  className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all text-left ${
+                    isSelected ? "border-primary ring-2 ring-primary ring-offset-2 scale-[1.02]" : "border-transparent hover:border-primary/50"
+                  }`}
+                  onClick={() => {
+                    update("templateId", template.id)
+                    setStep(2)
+                  }}
+                >
+                  {isVideo ? (
+                    <video
+                      src={template.image}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <img
+                      src={template.image}
+                      alt={template.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-between">
+                    <div className="flex justify-between">
+                      {isSelected && (
+                        <div className="bg-primary text-white rounded-full p-1 self-end shadow-md">
+                          <Check className="w-4 h-4" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-end w-full">
+                      <div className="font-semibold text-white/90 text-lg leading-tight drop-shadow-md">
+                        {template.name}
+                      </div>
+                      <a
+                        href={template.demoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors shadow-sm"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Preview Demo"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-right-4 duration-500">
+          <CardHeader className="flex flex-row items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => setStep(1)}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
             <CardTitle className="text-2xl font-serif">Select Package & Sections</CardTitle>
           </CardHeader>
           <CardContent className="space-y-8">
@@ -229,17 +301,17 @@ function CreateInvitationContent() {
               </div>
             </div>
 
-            <Button className="w-full h-12 text-lg rounded-full" onClick={() => setStep(2)}>
+            <Button className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all" onClick={() => setStep(3)}>
               Next: Invitation Details
             </Button>
           </CardContent>
         </Card>
       )}
 
-      {step === 2 && (
-        <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
+      {step === 3 && (
+        <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-right-4 duration-500">
           <CardHeader className="flex flex-row items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setStep(1)}>
+            <Button variant="ghost" size="icon" onClick={() => setStep(2)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <CardTitle className="text-2xl font-serif">Invitation Details</CardTitle>
@@ -320,17 +392,17 @@ function CreateInvitationContent() {
               </div>
             </div>
 
-            <Button className="w-full h-12 text-lg rounded-full" onClick={() => setStep(3)}>
+            <Button className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all" onClick={() => setStep(4)}>
               Next: Payment ({totalPrice} LE)
             </Button>
           </CardContent>
         </Card>
       )}
 
-      {step === 3 && (
-        <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
+      {step === 4 && (
+        <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-right-4 duration-500">
           <CardHeader className="flex flex-row items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setStep(2)}>
+            <Button variant="ghost" size="icon" onClick={() => setStep(3)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <CardTitle className="text-2xl font-serif">Payment</CardTitle>
@@ -352,7 +424,7 @@ function CreateInvitationContent() {
                   onClick={() => setPaymentMethod("instapay")}
                   className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
                     paymentMethod === "instapay"
-                      ? "border-primary bg-primary/5 shadow-md"
+                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
                       : "border-border hover:border-primary/30"
                   }`}
                 >
@@ -364,7 +436,7 @@ function CreateInvitationContent() {
                   onClick={() => setPaymentMethod("bank")}
                   className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
                     paymentMethod === "bank"
-                      ? "border-primary bg-primary/5 shadow-md"
+                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
                       : "border-border hover:border-primary/30"
                   }`}
                 >
@@ -412,7 +484,7 @@ function CreateInvitationContent() {
             </div>
 
             <Button
-              className="w-full h-12 text-lg rounded-full"
+              className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all"
               disabled={!paymentScreenshot || loading}
               onClick={handlePublish}
             >
@@ -422,8 +494,8 @@ function CreateInvitationContent() {
         </Card>
       )}
 
-      {step === 4 && (
-        <Card className="border-none shadow-2xl bg-card/50 backdrop-blur-sm overflow-hidden">
+      {step === 5 && (
+        <Card className="border-none shadow-2xl bg-card/50 backdrop-blur-sm overflow-hidden animate-in zoom-in-95 duration-500">
           <div className="bg-gradient-to-r from-primary to-teal h-2 w-full" />
           <CardContent className="p-12 text-center space-y-6">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -441,7 +513,7 @@ function CreateInvitationContent() {
             <div className="pt-8">
               <Button
                 variant="outline"
-                className="rounded-full px-8"
+                className="rounded-full px-8 hover:bg-primary/5"
                 onClick={() => router.push("/")}
               >
                 Back to Home
@@ -461,4 +533,5 @@ export default function CreateInvitationPage() {
     </Suspense>
   )
 }
+
 
