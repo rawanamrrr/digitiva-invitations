@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
-import { Menu, X, ChevronRight } from "lucide-react"
+import { Menu, X, ChevronRight, ChevronDown } from "lucide-react"
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -20,193 +20,138 @@ export function Header() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? "glass shadow-md border-b border-border/30 py-4" 
-          : "bg-transparent border-b border-transparent py-6"
+        scrolled
+          ? "backdrop-blur-md bg-background/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-b border-border/10 py-3 md:py-1.5"
+          : "bg-transparent py-4 md:py-2"
       }`}
     >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile Header */}
-        <div className="mobile-header-row w-full flex items-center justify-between md:hidden">
-          <Link href="/" className="flex items-center hover:opacity-75 transition-opacity duration-300">
+        <style>{`
+          @keyframes glass-sweep {
+            0% { left: -150%; }
+            15% { left: 150%; }
+            100% { left: 150%; }
+          }
+          .animate-glass-sweep::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+            transform: skewX(-20deg);
+            animation: glass-sweep 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            z-index: 20;
+            pointer-events: none;
+          }
+        `}</style>
+        {/* Header Content */}
+        <div className="w-full flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center group relative overflow-hidden animate-glass-sweep rounded-md">
             <Image
               src="/logo.png"
               alt="Digitiva"
-              width={120}
-              height={34}
-              className="h-12 sm:h-14 w-auto object-contain"
+              width={280}
+              height={100}
+              className="h-20 md:h-16 lg:h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-105 animate-in fade-in slide-in-from-left-4 duration-1000 ease-out"
               priority
+              quality={100}
             />
           </Link>
 
-          <button
-            className="p-2 rounded-md hover:bg-primary/6 transition-colors duration-300 active:scale-95"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? (
-              <X className="w-5 h-5 text-foreground" />
-            ) : (
-              <Menu className="w-5 h-5 text-foreground" />
-            )}
-          </button>
-        </div>
+          {/* Right Side */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Currency */}
+            <button className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 backdrop-blur-sm rounded-full border border-transparent hover:border-border/10 transition-all duration-300 text-xs sm:text-sm font-medium hover:scale-[1.03] hover:shadow-sm active:scale-[0.97]">
+              <span className="text-sm sm:text-base leading-none" style={{ position: 'relative', top: '-1px' }}>🇪🇬</span>
+              <span className="tracking-wide">EGP</span>
+              <ChevronDown className="w-3 h-3 opacity-70" />
+            </button>
 
-        {/* Desktop Header */}
-        <div className="desktop-header-row hidden md:flex items-center justify-between gap-8">
-          <nav className="flex items-center gap-8 text-sm">
-            <Link
-              href="#weddings"
-              className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2"
-            >
-              Weddings
-            </Link>
-            <Link
-              href="#birthdays"
-              className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2"
-            >
-              Birthdays
-            </Link>
-          </nav>
+            {/* Language */}
+            <button className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 backdrop-blur-sm rounded-full border border-transparent hover:border-border/10 transition-all duration-300 text-xs sm:text-sm font-medium hover:scale-[1.03] hover:shadow-sm active:scale-[0.97]">
+              <span className="tracking-wide">EN</span>
+              <ChevronDown className="w-3 h-3 opacity-70" />
+            </button>
 
-          <Link href="/" className="flex items-center flex-shrink-0 hover:opacity-75 transition-opacity duration-300">
-            <Image
-              src="/logo.png"
-              alt="Digitiva"
-              width={160}
-              height={45}
-              className="h-16 w-auto object-contain"
-              priority
-            />
-          </Link>
-
-          <nav className="flex items-center gap-8 text-sm">
-            <Link
-              href="#packages"
-              className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2"
+            {/* Menu Button */}
+            <button
+              className="p-1.5 sm:p-2 rounded-full bg-foreground/5 hover:bg-foreground/10 backdrop-blur-sm border border-transparent hover:border-border/10 transition-all duration-300 hover:scale-[1.03] hover:shadow-sm active:scale-[0.97] ml-1"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
             >
-              Packages
-            </Link>
-            <Link
-              href="#faqs"
-              className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2"
-            >
-              FAQs
-            </Link>
-            <div className="w-px h-5 bg-border/40" />
-            {status !== "loading" && (
-              <>
-                {session ? (
-                  (session.user as { role?: string })?.role === "admin" ? (
-                    <Link
-                      href="/admin"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-navy-deep transition-colors duration-300 font-medium text-sm"
-                    >
-                      Admin
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/create"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-navy-deep transition-colors duration-300 font-medium text-sm"
-                    >
-                      Create
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  )
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2"
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      href="/register"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-navy-deep transition-colors duration-300 font-medium text-sm"
-                    >
-                      Get Started
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </>
-                )}
-              </>
-            )}
-            <Link
-              href="#contact"
-              className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2"
-            >
-              Contact
-            </Link>
-          </nav>
-        </div>
-
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="mobile-header-menu md:hidden absolute left-4 right-4 top-full mt-3 py-4 glass rounded-md border border-border/30 shadow-md animate-fade-in-down z-50">
-            <nav className="flex flex-col gap-1">
-              {[
-                { label: "Weddings", href: "#weddings" },
-                { label: "Birthdays", href: "#birthdays" },
-                { label: "Packages", href: "#packages" },
-                { label: "FAQs", href: "#faqs" },
-                { label: "Contact", href: "#contact" },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2.5 px-3 rounded-md hover:bg-primary/5 active:scale-95"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="h-px bg-border/40 my-3" />
-              {status !== "loading" && (
-                <>
-                  {session ? (
-                    (session.user as { role?: string })?.role === "admin" ? (
-                      <Link
-                        href="/admin"
-                        className="flex items-center justify-between px-3 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-navy-deep transition-colors duration-300 font-medium text-sm active:scale-95"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Admin Dashboard
-                        <ChevronRight className="w-4 h-4" />
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/create"
-                        className="flex items-center justify-between px-3 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-navy-deep transition-colors duration-300 font-medium text-sm active:scale-95"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Create Invitation
-                        <ChevronRight className="w-4 h-4" />
-                      </Link>
-                    )
-                  ) : (
-                    <>
-                      <Link
-                        href="/login"
-                        className="text-foreground/70 hover:text-foreground transition-colors duration-300 font-medium py-2.5 px-3 rounded-md hover:bg-primary/5 active:scale-95"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Login
-                      </Link>
-                      <Link
-                        href="/register"
-                        className="flex items-center justify-between px-3 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-navy-deep transition-colors duration-300 font-medium text-sm active:scale-95"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Get Started
-                        <ChevronRight className="w-4 h-4" />
-                      </Link>
-                    </>
-                  )}
-                </>
+              {isOpen ? (
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
               )}
-            </nav>
+            </button>
+          </div>
+        </div>
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <div className="absolute right-4 sm:right-6 lg:right-8 top-full mt-3 w-64 md:w-72 rounded-2xl border border-border/10 shadow-[0_8px_30px_rgb(0,0,0,0.08)] z-50 overflow-hidden backdrop-blur-xl bg-background/80 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-2">
+              <nav className="flex flex-col gap-1">
+                {[
+                  { label: "Weddings", href: "#weddings" },
+                  { label: "Birthdays", href: "#birthdays" },
+                  { label: "Packages", href: "#packages" },
+                  { label: "FAQs", href: "#faqs" },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-foreground/80 hover:text-foreground transition-all duration-300 font-medium py-3 px-4 rounded-xl hover:bg-foreground/5 hover:translate-x-1 active:scale-[0.98]"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+
+                <div className="h-px bg-border/40 my-2 mx-2" />
+
+                {status !== "loading" && (
+                  <div className="flex flex-col gap-1 mt-1">
+                    {session ? (
+                      (session.user as { role?: string })?.role === "admin" ? (
+                        <Link
+                          href="/admin"
+                          className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-300 font-medium text-sm active:scale-[0.98] hover:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.15)]"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Admin Dashboard
+                          <ChevronRight className="w-4 h-4 opacity-80" />
+                        </Link>
+                      ) : (
+                        <Link
+                          href="/create"
+                          className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-300 font-medium text-sm active:scale-[0.98] hover:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.15)]"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Create Invitation
+                          <ChevronRight className="w-4 h-4 opacity-80" />
+                        </Link>
+                      )
+                    ) : (
+                      <>
+                        <Link
+                          href="/create"
+                          className="flex items-center justify-between mt-1 px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-300 font-medium text-sm active:scale-[0.98] hover:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.15)]"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Get Started
+                          <ChevronRight className="w-4 h-4 opacity-80" />
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                )}
+              </nav>
+            </div>
           </div>
         )}
       </div>

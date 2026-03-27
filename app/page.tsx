@@ -8,7 +8,6 @@ import { Packages } from "@/components/packages"
 import { Testimonials } from "@/components/testimonials"
 import { FAQ } from "@/components/faq"
 import { CTABanner } from "@/components/cta-banner"
-import { Contact } from "@/components/contact"
 import { Footer } from "@/components/footer"
 
 export default function Home() {
@@ -24,7 +23,6 @@ export default function Home() {
       <Testimonials />
       <FAQ />
       <CTABanner />
-      <Contact />
       <Footer />
     </main>
   )

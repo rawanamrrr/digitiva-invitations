@@ -1,57 +1,57 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, Heart, Cake, PartyPopper, Building2, Sparkles, Users } from "lucide-react"
+import { ArrowRight, Heart, Gem, BookHeart, Cake, Baby, PartyPopper } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 
 const categories = [
   {
-    id: "weddings",
-    title: "Weddings",
+    id: "wedding",
+    title: "Wedding",
     subtitle: "Elegant & Romantic",
     icon: Heart,
     color: "bg-rose-50",
     accentColor: "text-rose-500"
   },
   {
-    id: "birthdays",
-    title: "Birthdays",
+    id: "engagement",
+    title: "Engagement",
+    subtitle: "Sweet & Special",
+    icon: Gem,
+    color: "bg-violet-50",
+    accentColor: "text-violet-500"
+  },
+  {
+    id: "katb-ketab",
+    title: "Katb Ketab",
+    subtitle: "Sacred & Blessed",
+    icon: BookHeart,
+    color: "bg-emerald-50",
+    accentColor: "text-emerald-500"
+  },
+  {
+    id: "birthday",
+    title: "Birthday",
     subtitle: "Fun & Vibrant",
     icon: Cake,
     color: "bg-amber-50",
     accentColor: "text-amber-500"
   },
   {
-    id: "celebrations",
-    title: "Celebrations",
-    subtitle: "Joyful & Memorable",
-    icon: PartyPopper,
-    color: "bg-violet-50",
-    accentColor: "text-violet-500"
-  },
-  {
-    id: "corporate",
-    title: "Corporate",
-    subtitle: "Professional & Sleek",
-    icon: Building2,
-    color: "bg-slate-50",
-    accentColor: "text-slate-500"
-  },
-  {
-    id: "baby",
-    title: "Baby Showers",
-    subtitle: "Sweet & Adorable",
-    icon: Sparkles,
+    id: "baby-shower",
+    title: "Baby Shower",
+    subtitle: "Joyful & Adorable",
+    icon: Baby,
     color: "bg-sky-50",
     accentColor: "text-sky-500"
   },
   {
-    id: "gatherings",
-    title: "Social Events",
-    subtitle: "Casual & Stylish",
-    icon: Users,
-    color: "bg-emerald-50",
-    accentColor: "text-emerald-500"
+    id: "bachelorette",
+    title: "Bachelorette",
+    subtitle: "Fun & Memorable",
+    icon: PartyPopper,
+    color: "bg-fuchsia-50",
+    accentColor: "text-fuchsia-500"
   },
 ]
 
@@ -87,8 +87,8 @@ export function EventCategories() {
                       <div className={`p-2.5 rounded-lg ${category.accentColor}/10`}>
                         <Icon className={`w-5 h-5 ${category.accentColor}`} />
                       </div>
-                      <ArrowRight 
-                        className={`w-4 h-4 transition-transform duration-300 ${hoveredId === category.id ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'}`} 
+                      <ArrowRight
+                        className={`w-4 h-4 transition-transform duration-300 ${hoveredId === category.id ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'}`}
                       />
                     </div>
                   </CardHeader>

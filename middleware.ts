@@ -48,7 +48,7 @@ export default auth(async (req) => {
   const isAuth = !!req.auth
   const isAdmin = (req.auth?.user as { role?: string })?.role === "admin"
   const authRoutes = ["/login", "/register"]
-  const protectedRoutes = ["/create", "/admin", "/payment"]
+  const protectedRoutes = ["/admin", "/payment"]
   const isAuthRoute = authRoutes.some((r) => pathname.startsWith(r))
   const isProtected = protectedRoutes.some((r) => pathname.startsWith(r))
   const isAdminRoute = pathname.startsWith("/admin")
