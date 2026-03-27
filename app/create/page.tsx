@@ -147,6 +147,18 @@ function CreateInvitationContent() {
       }
 
       // 2. Create the invitation via API
+      const sectionLabels = selectedSections.map((id) => {
+        if (id.startsWith("custom_")) {
+          return customSections.find((s) => s.id === id)?.label || id
+        }
+        // Find standard section label
+        for (const pkg of Object.values(PACKAGE_SECTIONS)) {
+          const section = pkg.sections.find((s) => s.id === id)
+          if (section) return section.label
+        }
+        return id
+      })
+
       const res = await fetch("/api/invitations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -158,7 +170,7 @@ function CreateInvitationContent() {
           venue: form.venue,
           templateId: form.templateId,
           packageName: selectedPackage,
-          sections: selectedSections,
+          sections: sectionLabels,
           email: form.email,
           whatsapp: form.whatsapp,
           paymentMethod,
