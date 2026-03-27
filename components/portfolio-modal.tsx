@@ -51,7 +51,7 @@ export function PortfolioModal({ template, onClose }: PortfolioModalProps) {
               See Demo
             </Link>
             <Link
-              href={`/create?template=${template.id}`}
+              href={`/create?template=${template.id}#templates`}
               className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity"
             >
               <Sparkles className="w-4 h-4" />

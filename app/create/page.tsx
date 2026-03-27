@@ -6,7 +6,31 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, CreditCard, Upload, Smartphone, Landmark, ArrowLeft, CheckCircle2, ExternalLink } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Check,
+  CreditCard,
+  Upload,
+  Smartphone,
+  Landmark,
+  ArrowLeft,
+  CheckCircle2,
+  ExternalLink,
+  Clock,
+  MapPin,
+  MessageSquare,
+  ClipboardList,
+  Image as ImageIcon,
+  Music,
+  Heart,
+  HelpCircle,
+} from "lucide-react"
 import { templates } from "@/lib/templates"
 
 type PackageId = "standard" | "premium" | "custom"
@@ -27,7 +51,7 @@ const PACKAGE_SECTIONS: Record<
     sections: [
       { id: "countdown", label: "Countdown timer" },
       { id: "venueMap", label: "Venue map section" },
-      { id: "handwrittenMessage", label: "Messages / wishes section" },
+      { id: "messages", label: "Messages" },
     ],
   },
   premium: {
@@ -37,7 +61,8 @@ const PACKAGE_SECTIONS: Record<
     sections: [
       { id: "countdown", label: "Countdown timer" },
       { id: "venueMap", label: "Venue map section" },
-      { id: "handwrittenMessage", label: "Messages / Our story" },
+      { id: "messages", label: "Messages" },
+      { id: "ourStory", label: "Our Story" },
       { id: "rsvp", label: "RSVP (attendance confirmation)" },
       { id: "photoUpload", label: "Photo upload / gallery section" },
       { id: "song", label: "Background music" },
@@ -50,7 +75,8 @@ const PACKAGE_SECTIONS: Record<
     sections: [
       { id: "countdown", label: "Countdown timer" },
       { id: "venueMap", label: "Venue map section" },
-      { id: "handwrittenMessage", label: "Messages / Our story" },
+      { id: "messages", label: "Messages" },
+      { id: "ourStory", label: "Our Story" },
       { id: "rsvp", label: "RSVP (attendance confirmation)" },
       { id: "photoUpload", label: "Photo upload / gallery section" },
       { id: "song", label: "Background music" },
@@ -67,6 +93,10 @@ function CreateInvitationContent() {
   const [selectedSections, setSelectedSections] = useState<string[]>(
     PACKAGE_SECTIONS.premium.sections.map((s) => s.id),
   )
+  const [customSections, setCustomSections] = useState<{ id: string; label: string }[]>([])
+  const [customBlockLabel, setCustomBlockLabel] = useState("")
+  const [primaryLanguage, setPrimaryLanguage] = useState<"en" | "ar">("en")
+  const [secondaryLanguage, setSecondaryLanguage] = useState<"en" | "ar" | "">("")
   const [paymentMethod, setPaymentMethod] = useState<"instapay" | "bank">("instapay")
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null)
 
@@ -86,7 +116,14 @@ function CreateInvitationContent() {
 
   const handlePackageChange = (pkg: PackageId) => {
     setSelectedPackage(pkg)
-    setSelectedSections(PACKAGE_SECTIONS[pkg].sections.map((s) => s.id))
+    setSelectedSections((prev) => {
+      const custom = prev.filter((id) => id.startsWith("custom_"))
+      return [...PACKAGE_SECTIONS[pkg].sections.map((s) => s.id), ...custom]
+    })
+    // Reset secondary language if switching to standard package
+    if (pkg === "standard") {
+      setSecondaryLanguage("")
+    }
   }
 
   const toggleSection = (id: string) => {
@@ -131,7 +168,7 @@ function CreateInvitationContent() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to create invitation")
 
-      setStep(5)
+      setStep(4)
     } catch (e) {
       alert(e instanceof Error ? e.message : "Something went wrong")
     } finally {
@@ -142,12 +179,42 @@ function CreateInvitationContent() {
   const currentPackageConfig = PACKAGE_SECTIONS[selectedPackage]
   const totalPrice = PACKAGE_SECTIONS[selectedPackage].price
 
+  const sectionIcon = (id: string) => {
+    switch (id) {
+      case "countdown":
+        return Clock
+      case "venueMap":
+        return MapPin
+      case "messages":
+        return MessageSquare
+      case "ourStory":
+        return Heart
+      case "rsvp":
+        return ClipboardList
+      case "photoUpload":
+        return ImageIcon
+      case "song":
+        return Music
+      default:
+        return HelpCircle
+    }
+  }
+
+  const addCustomSection = () => {
+    const label = customBlockLabel.trim()
+    if (!label) return
+    const id = `custom_${Date.now()}`
+    setCustomSections((prev) => [...prev, { id, label }])
+    setSelectedSections((prev) => (prev.includes(id) ? prev : [...prev, id]))
+    setCustomBlockLabel("")
+  }
+
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
-      {step < 5 && (
+      {step < 4 && (
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3, 4].map((s) => (
+            {[1, 2, 3].map((s) => (
               <div
                 key={s}
                 className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
@@ -160,7 +227,6 @@ function CreateInvitationContent() {
           </div>
           <div className="flex justify-between text-xs text-muted-foreground px-1">
             <span>Style</span>
-            <span>Sections</span>
             <span>Details</span>
             <span>Payment</span>
           </div>
@@ -185,7 +251,6 @@ function CreateInvitationContent() {
                   }`}
                   onClick={() => {
                     update("templateId", template.id)
-                    setStep(2)
                   }}
                 >
                   {isVideo ? (
@@ -232,6 +297,176 @@ function CreateInvitationContent() {
               )
             })}
           </div>
+
+          <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-2xl font-serif">Select Package & Sections</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {(Object.keys(PACKAGE_SECTIONS) as PackageId[]).map((id) => {
+                  const pkg = PACKAGE_SECTIONS[id]
+                  const isActive = selectedPackage === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handlePackageChange(id)}
+                      className={`rounded-xl border-2 p-4 text-left transition-all ${
+                        isActive
+                          ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="font-semibold text-foreground">{pkg.label}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{pkg.description}</div>
+                      <div className="mt-2 font-bold text-primary">{pkg.price} LE</div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="space-y-4">
+                <div className="text-sm font-medium text-foreground">Included Sections</div>
+                <div 
+                  className="grid gap-2 sm:gap-3 w-full" 
+                  style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                    width: '100%'
+                  }}
+                >
+                  {currentPackageConfig.sections.map((section) => {
+                    const Icon = sectionIcon(section.id)
+                    const active = selectedSections.includes(section.id)
+                    return (
+                      <button
+                        key={section.id}
+                        type="button"
+                        onClick={() => toggleSection(section.id)}
+                        className={`rounded-2xl border px-1 py-4 text-center transition-all flex flex-col items-center justify-center min-h-[85px] sm:min-h-[110px] w-full ${
+                          active
+                            ? "border-primary bg-primary/5 ring-1 ring-primary"
+                            : "border-border bg-card hover:border-primary/40"
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                        <div className={`text-[9px] sm:text-xs leading-tight font-medium px-0.5 ${active ? "text-foreground" : "text-muted-foreground"}`}>
+                          {section.label}
+                        </div>
+                      </button>
+                    )
+                  })}
+
+                  {customSections.map((section) => {
+                    const active = selectedSections.includes(section.id)
+                    return (
+                      <button
+                        key={section.id}
+                        type="button"
+                        onClick={() => toggleSection(section.id)}
+                        className={`rounded-2xl border px-1 py-4 text-center transition-all flex flex-col items-center justify-center min-h-[85px] sm:min-h-[110px] w-full ${
+                          active
+                            ? "border-primary bg-primary/5 ring-1 ring-primary"
+                            : "border-border bg-card hover:border-primary/40"
+                        }`}
+                      >
+                        <Heart className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                        <div className={`text-[9px] sm:text-xs leading-tight font-medium px-0.5 ${active ? "text-foreground" : "text-muted-foreground"}`}>
+                          {section.label}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <div className="flex gap-3">
+                  <Input
+                    className="rounded-xl h-11"
+                    value={customBlockLabel}
+                    onChange={(e) => setCustomBlockLabel(e.target.value)}
+                    placeholder="Custom block..."
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        addCustomSection()
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl h-11 px-4"
+                    onClick={addCustomSection}
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div className="text-center">
+                  <div className="font-serif text-2xl text-foreground">Languages</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {selectedPackage === "standard" ? "1 language included" : "Up to 2 languages free"}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Select
+                      value={primaryLanguage}
+                      onValueChange={(v) => {
+                        const next = v as "en" | "ar"
+                        setPrimaryLanguage(next)
+                        if (secondaryLanguage === next) setSecondaryLanguage("")
+                      }}
+                    >
+                      <SelectTrigger className="w-full rounded-xl h-11">
+                        <SelectValue placeholder="Select language..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="ar">Arabic</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedPackage !== "standard" && (
+                    <div className="flex gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <Select
+                        value={secondaryLanguage}
+                        onValueChange={(v) => setSecondaryLanguage(v as "en" | "ar")}
+                      >
+                        <SelectTrigger className="w-full rounded-xl h-11">
+                          <SelectValue placeholder="Other language..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {primaryLanguage !== "en" && <SelectItem value="en">English</SelectItem>}
+                          {primaryLanguage !== "ar" && <SelectItem value="ar">Arabic</SelectItem>}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-xl h-11 px-4"
+                        onClick={() => setSecondaryLanguage(secondaryLanguage ? "" : (primaryLanguage === "en" ? "ar" : "en"))}
+                      >
+                        {secondaryLanguage ? "Remove" : "Add"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Button
+                className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all"
+                onClick={() => setStep(2)}
+              >
+                Next: Invitation Details
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       )}
 
@@ -239,79 +474,6 @@ function CreateInvitationContent() {
         <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-right-4 duration-500">
           <CardHeader className="flex flex-row items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => setStep(1)}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <CardTitle className="text-2xl font-serif">Select Package & Sections</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {(Object.keys(PACKAGE_SECTIONS) as PackageId[]).map((id) => {
-                const pkg = PACKAGE_SECTIONS[id]
-                const isActive = selectedPackage === id
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => handlePackageChange(id)}
-                    className={`rounded-xl border-2 p-4 text-left transition-all ${
-                      isActive
-                        ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="font-semibold text-foreground">{pkg.label}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {pkg.description}
-                    </div>
-                    <div className="mt-2 font-bold text-primary">{pkg.price} LE</div>
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-foreground">
-                Included Sections
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {currentPackageConfig.sections.map((section) => (
-                  <label
-                    key={section.id}
-                    className="flex items-start gap-3 rounded-xl border border-border p-4 text-sm cursor-pointer hover:border-primary/60 transition-colors group"
-                  >
-                    <div className="relative flex items-center">
-                      <input
-                        type="checkbox"
-                        className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-border transition-all checked:border-primary checked:bg-primary"
-                        checked={selectedSections.includes(section.id)}
-                        onChange={() => toggleSection(section.id)}
-                      />
-                      <Check className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity left-[3px]" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-foreground group-hover:text-primary transition-colors">{section.label}</span>
-                      {section.helper && (
-                        <span className="text-xs text-muted-foreground">
-                          {section.helper}
-                        </span>
-                      )}
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <Button className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all" onClick={() => setStep(3)}>
-              Next: Invitation Details
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {step === 3 && (
-        <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-right-4 duration-500">
-          <CardHeader className="flex flex-row items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setStep(2)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <CardTitle className="text-2xl font-serif">Invitation Details</CardTitle>
@@ -392,17 +554,17 @@ function CreateInvitationContent() {
               </div>
             </div>
 
-            <Button className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all" onClick={() => setStep(4)}>
+            <Button className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all" onClick={() => setStep(3)}>
               Next: Payment ({totalPrice} LE)
             </Button>
           </CardContent>
         </Card>
       )}
 
-      {step === 4 && (
+      {step === 3 && (
         <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-right-4 duration-500">
           <CardHeader className="flex flex-row items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setStep(3)}>
+            <Button variant="ghost" size="icon" onClick={() => setStep(2)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <CardTitle className="text-2xl font-serif">Payment</CardTitle>
@@ -494,7 +656,7 @@ function CreateInvitationContent() {
         </Card>
       )}
 
-      {step === 5 && (
+      {step === 4 && (
         <Card className="border-none shadow-2xl bg-card/50 backdrop-blur-sm overflow-hidden animate-in zoom-in-95 duration-500">
           <div className="bg-gradient-to-r from-primary to-teal h-2 w-full" />
           <CardContent className="p-12 text-center space-y-6">
