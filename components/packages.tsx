@@ -11,16 +11,15 @@ const packages = [
     price: "500",
     icon: Star,
     popular: false,
-    gradient: "from-rose-light/50 to-cream",
     features: [
       { ar: "تصميم الدعوة بتمبليت جاهز", en: "Ready template invitation design" },
       { ar: "عداد تنازلي لموعد المناسبة", en: "Countdown timer for the event" },
-      { ar: "موقع المناسبة + جوجل مابس لمكان المناسبة", en: "Event location + Google Maps" },
+      { ar: "موقع المناسبة + جوجل مابس", en: "Event location + Google Maps" },
       { ar: "قسم لاستقبال الرسائل", en: "Messages section" },
-      { ar: "متاحه بلغه واحده فقط", en: "Available in one language only" },
-      { ar: "صلاحية لمدة 2 شهور", en: "Valid for 2 months" },
-      { ar: "لينك مخصوص باسامي العروسين", en: "Custom link with couple names" },
-      { ar: "امكانية تعديل 3 مرات", en: "3 revisions allowed" },
+      { ar: "لغة واحدة", en: "One language" },
+      { ar: "صلاحية 2 شهور", en: "Valid for 2 months" },
+      { ar: "رابط مخصص", en: "Custom link" },
+      { ar: "3 تعديلات", en: "3 revisions" },
     ],
   },
   {
@@ -29,17 +28,16 @@ const packages = [
     price: "600",
     icon: Crown,
     popular: true,
-    gradient: "from-primary to-rose-deep",
     features: [
-      { ar: "تشمل كل مميزات الباقة Standard", en: "Includes all Standard features" },
-      { ar: "قسم رسائل بخط اليد بعدة الوان", en: "Handwritten messages in multiple colors" },
-      { ar: 'قسم "قصتنا" لعرض قصة العروسين', en: '"Our Story" section' },
-      { ar: "قسم لرفع الصور على الدرايف الخاص بالعروسين", en: "Photo upload to couple's drive" },
-      { ar: "قسم RSVP لتاكيد الحضور", en: "RSVP confirmation section" },
-      { ar: "تصميم مميز يناسب الفرح", en: "Unique design for the celebration" },
-      { ar: "اضافة اغنية للويب سايت", en: "Background music for website" },
-      { ar: "متاحة بلغتين(عربي/انجليزي)", en: "Available in 2 languages (AR/EN)" },
-      { ar: "امكانية تعديل 5 مرات", en: "5 revisions allowed" },
+      { ar: "جميع مميزات Standard", en: "All Standard features" },
+      { ar: "رسائل بخط اليد ملونة", en: "Handwritten colored messages" },
+      { ar: 'قسم "قصتنا"', en: '"Our Story" section' },
+      { ar: "رفع الصور", en: "Photo upload" },
+      { ar: "RSVP متقدم", en: "Advanced RSVP" },
+      { ar: "تصميم فريد", en: "Unique design" },
+      { ar: "موسيقى خلفية", en: "Background music" },
+      { ar: "لغتين (عربي/انجليزي)", en: "2 languages (AR/EN)" },
+      { ar: "5 تعديلات", en: "5 revisions" },
     ],
   },
   {
@@ -48,13 +46,11 @@ const packages = [
     price: "900",
     icon: Sparkles,
     popular: false,
-    gradient: "from-gold/30 to-cream",
     features: [
-      { ar: "تصميم خاص بالكامل حسب ذوقك و طلبك", en: "Fully custom design per your taste" },
-      { ar: "اختيار الالوان والتفاصيل بحرية", en: "Free choice of colors and details" },
-      { ar: "امكانية اضافة اي اقسام او افكار خاصة", en: "Add any sections or special ideas" },
-      { ar: "كل مميزات الباقة Premium", en: "All Premium package features" },
-
+      { ar: "تصميم خاص بالكامل", en: "Fully custom design" },
+      { ar: "اختيار الألوان بحرية", en: "Free color choice" },
+      { ar: "إضافة أقسام خاصة", en: "Custom sections" },
+      { ar: "جميع مميزات Premium", en: "All Premium features" },
     ],
   },
 ]
@@ -63,32 +59,25 @@ export function Packages() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   return (
-    <section id="packages" className="py-12 sm:py-20 lg:py-28 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-card via-teal-light/15 to-card" />
-
-      {/* Decorative elements */}
-      <div className="hidden sm:block absolute top-16 -left-10 w-72 h-72 bg-teal/10 rounded-full blur-3xl" />
-      <div className="hidden sm:block absolute bottom-16 -right-8 w-64 h-64 bg-emerald/10 rounded-full blur-3xl" />
-      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="text-center mb-10 sm:mb-16 lg:mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full mb-4 sm:mb-6 border border-teal/20">
-            <Sparkles className="w-4 h-4 text-teal animate-sparkle" />
-            <span className="text-sm font-medium text-primary">Choose Your Perfect Package</span>
+    <section id="packages" className="py-16 sm:py-32 lg:py-40 relative overflow-hidden px-4 sm:px-6 lg:px-8 bg-background">
+      <div className="max-w-7xl mx-auto relative">
+        <div className="text-center mb-16 sm:mb-28">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-border/40 mb-6 sm:mb-8">
+            <Sparkles className="w-3.5 h-3.5 text-teal" />
+            <span className="text-xs sm:text-sm font-medium text-foreground/75">Choose Your Plan</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-4xl lg:text-6xl font-semibold text-foreground mb-3 sm:mb-4">
-            Investment in
-            <span className="font-script text-3xl sm:text-5xl lg:text-7xl text-teal font-normal block mt-2">
-              Unforgettable Memories
+          <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
+            Simple, Transparent
+            <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">
+              Pricing
             </span>
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Every package is crafted with love and attention to detail
+          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            Choose the perfect plan for your celebration. All packages include free consultation and 100% satisfaction guarantee.
           </p>
         </div>
 
-        <div className="flex flex-col gap-6 sm:gap-8 lg:grid lg:grid-cols-3 lg:gap-6 xl:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10 lg:gap-10">
           {packages.map((pkg, index) => {
             const Icon = pkg.icon
             const isHovered = hoveredIndex === index
@@ -96,84 +85,81 @@ export function Packages() {
             return (
               <div
                 key={pkg.name}
-                className={`relative group ${pkg.popular ? "lg:-mt-6 lg:mb-6" : ""}`}
+                className={`relative group transition-all duration-300 ${
+                  pkg.popular ? "md:scale-105 md:-my-4" : ""
+                }`}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 {/* Popular badge */}
                 {pkg.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                    <div className="px-5 py-1.5 bg-gradient-to-r from-emerald to-teal text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1.5">
+                    <div className="inline-flex items-center gap-1 px-3.5 py-1 bg-gradient-to-r from-teal to-emerald text-white text-xs font-semibold rounded-md shadow-md">
                       <Crown className="w-3.5 h-3.5" />
                       MOST POPULAR
                     </div>
                   </div>
                 )}
 
-                {/* Card */}
+                {/* Package Card */}
                 <div
-                  className={`relative rounded-3xl overflow-hidden transition-all duration-500 ${
+                  className={`relative h-full rounded-md overflow-hidden transition-all duration-300 ${
                     pkg.popular
-                      ? "bg-gradient-to-b from-primary via-teal to-navy-deep text-primary-foreground shadow-2xl shadow-teal/40"
-                      : "bg-card border border-border/50 shadow-xl hover:shadow-2xl"
-                  } ${isHovered && !pkg.popular ? "scale-[1.02] border-teal/30" : ""}`}
+                      ? "bg-gradient-to-br from-primary via-teal to-primary/80 text-primary-foreground shadow-lg border border-teal/30"
+                      : "bg-card border border-border/70 hover:border-primary/40 shadow-md hover:shadow-lg"
+                  } ${
+                    isHovered && !pkg.popular ? "shadow-lg" : ""
+                  }`}
                 >
-                  {/* Shimmer effect on hover */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full transition-transform duration-700 ${isHovered ? "translate-x-full" : ""}`}
-                  />
-
-                  <div className="relative p-4 sm:p-6 lg:p-8">
-                    {/* Icon and Header */}
-                    <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+                  <div className="relative p-6 sm:p-10 flex flex-col h-full">
+                    {/* Header */}
+                    <div className="mb-6 sm:mb-10">
                       <div
-                        className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl mb-3 sm:mb-4 lg:mb-5 transition-transform duration-300 ${
-                          isHovered ? "scale-110 rotate-3" : ""
-                        } ${
+                        className={`inline-flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-md mb-3 sm:mb-4 transition-transform duration-300 ${
                           pkg.popular
-                            ? "bg-primary-foreground/20 backdrop-blur-sm"
-                            : "bg-gradient-to-br from-teal/10 to-emerald/10"
+                            ? "bg-primary-foreground/15"
+                            : "bg-teal/8"
                         }`}
                       >
                         <Icon
-                          className={`w-7 h-7 sm:w-9 sm:h-9 lg:w-10 lg:h-10 ${
+                          className={`w-5.5 h-5.5 sm:w-6 sm:h-6 ${
                             pkg.popular ? "text-primary-foreground" : "text-teal"
                           }`}
                         />
                       </div>
 
                       <h3
-                        className={`font-serif text-lg sm:text-xl lg:text-2xl font-semibold mb-1 ${
+                        className={`font-serif text-base sm:text-xl font-semibold mb-1 ${
                           pkg.popular ? "text-primary-foreground" : "text-foreground"
                         }`}
                       >
                         {pkg.name}
                       </h3>
                       <p
-                        className={`font-serif text-sm sm:text-base lg:text-lg ${
+                        className={`text-xs sm:text-sm font-medium ${
                           pkg.popular ? "text-primary-foreground/80" : "text-muted-foreground"
                         }`}
                       >
                         {pkg.nameAr}
                       </p>
 
-                      {/* Price with enhanced styling */}
+                      {/* Price */}
                       <div
-                        className={`mt-4 sm:mt-5 lg:mt-6 pt-4 sm:pt-5 lg:pt-6 border-t ${
-                          pkg.popular ? "border-primary-foreground/20" : "border-border"
+                        className={`mt-6 pt-6 border-t ${
+                          pkg.popular ? "border-primary-foreground/20" : "border-border/50"
                         }`}
                       >
-                        <div className="flex items-baseline justify-center gap-1">
+                        <div className="flex items-baseline gap-1 justify-center">
                           <span
-                            className={`text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight ${
+                            className={`text-4xl sm:text-5xl font-bold ${
                               pkg.popular ? "text-primary-foreground" : "text-teal"
                             }`}
                           >
                             {pkg.price}
                           </span>
                           <span
-                            className={`text-base sm:text-lg font-medium ${
-                              pkg.popular ? "text-primary-foreground/70" : "text-muted-foreground"
+                            className={`text-base font-medium ${
+                              pkg.popular ? "text-primary-foreground/80" : "text-muted-foreground"
                             }`}
                           >
                             LE
@@ -183,23 +169,23 @@ export function Packages() {
                     </div>
 
                     {/* Features List */}
-                    <ul className="space-y-2 sm:space-y-3 lg:space-y-4 mb-4 sm:mb-6 lg:mb-8" dir="rtl">
+                    <ul className="space-y-3 mb-8 flex-grow" dir="rtl">
                       {pkg.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <div
-                            className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center mt-0.5 ${
-                              pkg.popular ? "bg-primary-foreground/20" : "bg-teal/10"
+                            className={`flex-shrink-0 w-5 h-5 rounded-sm flex items-center justify-center mt-0.5 ${
+                              pkg.popular ? "bg-primary-foreground/20" : "bg-teal/8"
                             }`}
                           >
                             <Check
-                              className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${
+                              className={`w-3.5 h-3.5 ${
                                 pkg.popular ? "text-primary-foreground" : "text-teal"
                               }`}
                             />
                           </div>
                           <span
-                            className={`text-xs sm:text-sm lg:text-base leading-snug sm:leading-relaxed ${
-                              pkg.popular ? "text-primary-foreground/90" : "text-muted-foreground"
+                            className={`text-sm leading-relaxed ${
+                              pkg.popular ? "text-primary-foreground/95" : "text-muted-foreground"
                             }`}
                           >
                             {feature.ar}
@@ -211,14 +197,14 @@ export function Packages() {
                     {/* CTA Button */}
                     <Link
                       href="/create"
-                      className={`group/btn flex items-center justify-center gap-2 w-full py-3 sm:py-3.5 lg:py-4 text-center font-medium rounded-2xl transition-all duration-300 ${
+                      className={`flex items-center justify-center gap-2 w-full py-3 font-medium rounded-md transition-all duration-300 active:scale-95 ${
                         pkg.popular
-                          ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg"
-                          : "bg-gradient-to-r from-primary to-teal text-primary-foreground hover:from-navy-deep hover:to-primary shadow-lg shadow-teal/20"
-                      } hover:scale-[1.02]`}
+                          ? "bg-primary-foreground text-primary hover:bg-primary-foreground/95 shadow-md"
+                          : "bg-primary text-primary-foreground hover:bg-navy-deep shadow-sm hover:shadow-md"
+                      }`}
                     >
-                      <span>Create Your Invitation</span>
-                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover/btn:-translate-x-1" />
+                      <span>Get Started</span>
+                      <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                     </Link>
                   </div>
                 </div>
@@ -227,12 +213,15 @@ export function Packages() {
           })}
         </div>
 
-        <div className="mt-12 sm:mt-16 text-center">
-          <p className="text-muted-foreground text-sm sm:text-base flex items-center justify-center gap-2 flex-wrap">
+        {/* Footer note */}
+        <div className="mt-20 sm:mt-24 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md glass border border-border/40">
             <Sparkles className="w-4 h-4 text-teal" />
-            <span>جميع الباقات تشمل استشارة مجانية و ضمان رضا 100%</span>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Free consultation</span> • 100% satisfaction guaranteed
+            </p>
             <Sparkles className="w-4 h-4 text-teal" />
-          </p>
+          </div>
         </div>
       </div>
     </section>

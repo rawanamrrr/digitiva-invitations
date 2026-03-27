@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export default function PaymentCompletePage() {
+function PaymentCompleteContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const invitationId = searchParams.get("invitationId")
@@ -119,5 +119,13 @@ export default function PaymentCompletePage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function PaymentCompletePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <PaymentCompleteContent />
+    </Suspense>
   )
 }

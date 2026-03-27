@@ -6,68 +6,83 @@ const features = [
   {
     icon: Smartphone,
     title: "Mobile Perfect",
-    description: "Your invitation looks stunning on any device - phones, tablets, or desktops.",
-    color: "bg-rose-100 text-rose-600",
+    description: "Stunning responsive design that looks beautiful on every device.",
+    color: "bg-teal/8 text-teal",
   },
   {
     icon: Palette,
     title: "Fully Customizable",
-    description: "Colors, fonts, images - everything can be tailored to match your vision.",
-    color: "bg-violet-100 text-violet-600",
+    description: "Complete creative freedom with unlimited color and design options.",
+    color: "bg-primary/8 text-primary",
   },
   {
     icon: Zap,
-    title: "Instant Delivery",
-    description: "Share your invitation link instantly via WhatsApp, email, or social media.",
-    color: "bg-amber-100 text-amber-600",
+    title: "Instant Sharing",
+    description: "Share instantly across WhatsApp, email, social media, and more.",
+    color: "bg-emerald/8 text-emerald",
   },
   {
     icon: Heart,
-    title: "Beautiful Animations",
-    description: "Delightful micro-interactions that make your invitation feel alive.",
-    color: "bg-emerald-100 text-emerald-600",
+    title: "Animations & Effects",
+    description: "Delightful interactions and smooth animations that wow your guests.",
+    color: "bg-rose/8 text-rose",
   },
   {
     icon: Share2,
     title: "Easy RSVP",
-    description: "Guests can respond in seconds. You get organized responses instantly.",
-    color: "bg-sky-100 text-sky-600",
+    description: "Simple one-click responses with instant guest confirmations.",
+    color: "bg-sky/8 text-sky",
   },
   {
     icon: BarChart3,
-    title: "Track Responses",
-    description: "Real-time dashboard to see who's coming, dietary needs, and more.",
-    color: "bg-orange-100 text-orange-600",
+    title: "Analytics & Tracking",
+    description: "Real-time insights on guest responses, attendance, and more.",
+    color: "bg-orange/8 text-orange",
   },
 ]
 
 export function FeaturesShowcase() {
   return (
-    <section className="py-24 lg:py-32 px-6 lg:px-8 bg-secondary/30">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="font-serif text-3xl lg:text-5xl font-semibold text-foreground mb-4">
-            Why choose <span className="font-script text-4xl lg:text-6xl text-primary font-normal">Digitiva?</span>
+    <section className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 bg-background">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16 sm:mb-28">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-border/40 mb-6 sm:mb-8">
+            <Zap className="w-3.5 h-3.5 text-teal" />
+            <span className="text-xs sm:text-sm font-medium text-foreground/75">Powerful Features</span>
+          </div>
+          <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
+            Everything You Need to Create
+            <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">
+              Perfect Invitations
+            </span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            We combine beautiful design with powerful features to create invitations that wow your guests.
+          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            Combine beautiful design with powerful features to create invitations that truly impress your guests.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group bg-card rounded-2xl p-8 border border-border hover:border-primary/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="group relative bg-card rounded-md p-8 border border-border/60 hover:border-primary/30 transition-all duration-300 hover:shadow-md overflow-hidden"
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div
-                className={`w-14 h-14 ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}
-              >
-                <feature.icon className="w-7 h-7" />
+              {/* Subtle hover effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-primary/3 to-transparent transition-opacity duration-300" />
+              
+              <div className="relative">
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 ${feature.color} rounded-md flex items-center justify-center mb-4 sm:mb-5 transition-transform duration-300`}>
+                  <feature.icon className="w-6 h-6 sm:w-7 sm:h-7" />
+                </div>
+                
+                <h3 className="font-serif text-base sm:text-lg font-semibold text-foreground mb-2.5 sm:mb-3">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
-              <h3 className="font-serif text-xl font-semibold text-card-foreground mb-3">{feature.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>

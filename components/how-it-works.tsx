@@ -8,65 +8,69 @@ const steps = [
     icon: MessageSquare,
     title: "Tell Us Your Vision",
     description: "Share your event details, preferred style, and any inspiration you have in mind.",
-    color: "bg-rose-500",
+    color: "bg-teal/8 text-teal",
   },
   {
     number: "02",
     icon: Paintbrush,
     title: "We Design Magic",
     description: "Our designers craft a stunning, personalized invitation that captures your celebration's essence.",
-    color: "bg-violet-500",
+    color: "bg-primary/8 text-primary",
   },
   {
     number: "03",
     icon: Rocket,
     title: "Review & Launch",
     description: "Approve your design, and we'll launch your beautiful invitation website within days.",
-    color: "bg-amber-500",
+    color: "bg-emerald/8 text-emerald",
   },
   {
     number: "04",
     icon: PartyPopper,
     title: "Celebrate!",
     description: "Share with your guests and watch the RSVPs roll in. Time to party!",
-    color: "bg-emerald-500",
+    color: "bg-rose/8 text-rose",
   },
 ]
 
 export function HowItWorks() {
   return (
-    <section id="process" className="py-24 lg:py-32 px-6 lg:px-8 bg-primary text-primary-foreground overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="font-serif text-3xl lg:text-5xl font-semibold mb-4">
-            How it <span className="font-script text-4xl lg:text-6xl font-normal opacity-90">works</span>
+    <section id="process" className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 bg-background relative overflow-hidden">
+      <div className="max-w-6xl mx-auto relative">
+        <div className="text-center mb-16 sm:mb-28">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-border/40 mb-6 sm:mb-8">
+            <Rocket className="w-3.5 h-3.5 text-teal" />
+            <span className="text-xs sm:text-sm font-medium text-foreground/75">Simple Process</span>
+          </div>
+          <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
+            How it
+            <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">Works</span>
           </h2>
-          <p className="text-primary-foreground/70 text-lg max-w-2xl mx-auto">
-            From your idea to a stunning invitation in just a few simple steps.
+          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            From your idea to a stunning invitation in just four simple steps.
           </p>
         </div>
 
         <div className="relative">
-          {/* Connection line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-primary-foreground/20 -translate-y-1/2" />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
             {steps.map((step, index) => (
-              <div key={step.number} className="relative text-center">
-                {/* Step circle */}
-                <div className="relative z-10 w-20 h-20 mx-auto mb-6">
-                  <div
-                    className={`w-full h-full ${step.color} rounded-full flex items-center justify-center shadow-lg`}
-                  >
-                    <step.icon className="w-8 h-8 text-white" />
+              <div key={step.number} className="relative">
+                <div className="bg-card rounded-md border border-border/60 p-8 sm:p-10 h-full hover:border-primary/30 hover:shadow-md transition-all duration-300 relative group">
+                  {/* Icon and number */}
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className={`w-12 h-12 rounded-md ${step.color} flex items-center justify-center flex-shrink-0 transition-transform duration-300`}>
+                      <step.icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-2xl font-semibold text-primary/25">{step.number}</span>
                   </div>
-                  <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary-foreground text-primary rounded-full flex items-center justify-center text-sm font-bold">
-                    {index + 1}
-                  </span>
-                </div>
 
-                <h3 className="font-serif text-xl font-semibold mb-3">{step.title}</h3>
-                <p className="text-primary-foreground/70 leading-relaxed text-sm">{step.description}</p>
+                  <h3 className="font-serif text-lg font-semibold text-foreground mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                    {step.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
