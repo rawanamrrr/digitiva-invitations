@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Cormorant_Garamond, Great_Vibes, Cinzel, Noto_Naskh_Arabic } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SessionProvider } from "@/components/providers/session-provider"
+import { SiteLanguageProvider } from "@/contexts/SiteLanguageContext"
 import "./globals.css"
 
 const _inter = Inter({ subsets: ["latin"] })
@@ -43,9 +44,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${_notoNaskh.variable} font-sans antialiased`}>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <SiteLanguageProvider>{children}</SiteLanguageProvider>
+        </SessionProvider>
         <Analytics />
       </body>
     </html>

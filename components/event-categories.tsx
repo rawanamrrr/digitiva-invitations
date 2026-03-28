@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { ArrowRight, Heart, Gem, BookHeart, Cake, Baby, PartyPopper } from "lucide-react"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 
 const categories = [
@@ -57,27 +58,30 @@ const categories = [
 
 export function EventCategories() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const { t } = useSiteLanguage()
 
   return (
-    <section className="py-16 lg:py-24 px-6 lg:px-8 bg-card">
+    <section id="weddings" className="py-16 lg:py-24 px-6 lg:px-8 bg-card scroll-mt-24">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="font-serif text-3xl lg:text-5xl font-semibold text-card-foreground mb-4">
-            Invitations for{" "}
-            <span className="font-script text-4xl lg:text-6xl text-primary font-normal">every occasion</span>
+            {t("categories.title1")}{" "}
+            <span className="font-script text-4xl lg:text-6xl text-primary font-normal">
+              {t("categories.title2")}
+            </span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            From intimate gatherings to grand celebrations, find the perfect invitation style for your special moment.
-          </p>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t("categories.sub")}</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 categories-grid">
           {categories.map((category) => {
             const Icon = category.icon
+            const anchorId = category.id === "birthday" ? "birthdays" : undefined
             return (
               <div
                 key={category.id}
-                className="group relative"
+                id={anchorId}
+                className="group relative scroll-mt-24"
                 onMouseEnter={() => setHoveredId(category.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
@@ -93,8 +97,12 @@ export function EventCategories() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <CardTitle className="text-lg font-medium mb-1">{category.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{category.subtitle}</p>
+                    <CardTitle className="text-lg font-medium mb-1">
+                      {t(`cat.${category.id === "katb-ketab" ? "katb" : category.id === "baby-shower" ? "baby" : category.id}.title`)}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {t(`cat.${category.id === "katb-ketab" ? "katb" : category.id === "baby-shower" ? "baby" : category.id}.sub`)}
+                    </p>
                   </CardContent>
                 </Card>
               </div>

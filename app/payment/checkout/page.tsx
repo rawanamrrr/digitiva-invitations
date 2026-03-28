@@ -3,12 +3,14 @@
 import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CreditCard } from "lucide-react"
 
 function CheckoutContent() {
+  const { t } = useSiteLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const invitationId = searchParams.get("invitationId")
@@ -33,7 +35,7 @@ function CheckoutContent() {
       if (!res.ok) throw new Error(data.error || "Failed")
       router.push(`/payment/complete?invitationId=${invitationId}`)
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Payment failed")
+      alert(e instanceof Error ? e.message : t("pay.alert.failed"))
     } finally {
       setLoading(false)
     }
@@ -47,14 +49,14 @@ function CheckoutContent() {
         <div className="glass rounded-2xl p-8 shadow-xl border border-primary/10">
           <div className="flex items-center gap-2 mb-6">
             <CreditCard className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-serif font-bold">Complete Payment</h1>
+            <h1 className="text-2xl font-serif font-bold">{t("pay.checkout.title")}</h1>
           </div>
           <p className="text-muted-foreground mb-6">
-            Premium invitation — $9.99 (UI demo)
+            {t("pay.checkout.subtitle")}
           </p>
           <form onSubmit={handlePay} className="space-y-4">
             <div>
-              <Label>Card Number</Label>
+              <Label>{t("pay.checkout.card")}</Label>
               <Input
                 value={card.number}
                 onChange={(e) =>
@@ -66,7 +68,7 @@ function CheckoutContent() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Expiry</Label>
+                <Label>{t("pay.checkout.expiry")}</Label>
                 <Input
                   value={card.expiry}
                   onChange={(e) =>
@@ -76,7 +78,7 @@ function CheckoutContent() {
                 />
               </div>
               <div>
-                <Label>CVC</Label>
+                <Label>{t("pay.checkout.cvc")}</Label>
                 <Input
                   value={card.cvc}
                   onChange={(e) =>
@@ -87,17 +89,17 @@ function CheckoutContent() {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Processing..." : "Pay Now"}
+              {loading ? t("pay.checkout.processing") : t("pay.checkout.pay")}
             </Button>
           </form>
           <p className="mt-4 text-xs text-muted-foreground text-center">
-            Payment UI only — no real charges. Click Pay to simulate success.
+            {t("pay.checkout.note")}
           </p>
           <Link
             href="/create"
             className="block mt-4 text-center text-sm text-primary hover:underline"
           >
-            Cancel
+            {t("pay.checkout.cancel")}
           </Link>
         </div>
       </div>
@@ -105,9 +107,14 @@ function CheckoutContent() {
   )
 }
 
+function CheckoutFallback() {
+  const { t } = useSiteLanguage()
+  return <div className="min-h-screen flex items-center justify-center">{t("common.loading")}</div>
+}
+
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<CheckoutFallback />}>
       <CheckoutContent />
     </Suspense>
   )

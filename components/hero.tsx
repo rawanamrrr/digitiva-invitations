@@ -1,10 +1,12 @@
 "use client"
 
-import { ArrowRight, Sparkles, Zap, Star } from "lucide-react"
+import { ArrowRight, Sparkles, Star } from "lucide-react"
 import Link from "next/link"
 import { DeviceMockup } from "./device-mockup"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 export function Hero() {
+  const { t } = useSiteLanguage()
   return (
     <section className="relative min-h-screen pt-28 md:pt-20 pb-0 overflow-hidden bg-background">
       {/* Subtle animated background elements */}
@@ -20,9 +22,7 @@ export function Hero() {
             style={{ animationDelay: "0.05s" }}
           >
             <Sparkles className="w-3.5 h-3.5 text-teal flex-shrink-0" />
-            <span className="text-xs font-medium text-foreground/75">
-              Trusted by 500+ couples
-            </span>
+            <span className="text-xs font-medium text-foreground/75">{t("hero.badge")}</span>
           </div>
 
           {/* Main heading - Larger for minimalist impact */}
@@ -30,10 +30,10 @@ export function Hero() {
             className="text-4xl sm:text-6xl lg:text-7xl font-serif font-semibold leading-tight tracking-tight text-foreground animate-fade-in-up mb-4 sm:mb-6"
             style={{ animationDelay: "0.1s" }}
           >
-            Create Invitations That
+            {t("hero.title1")}
             <span className="block mt-2 sm:mt-4">
               <span className="font-script text-5xl sm:text-7xl lg:text-8xl text-teal font-normal tracking-wide">
-                Leave Impressions
+                {t("hero.title2")}
               </span>
             </span>
           </h1>
@@ -43,8 +43,7 @@ export function Hero() {
             className="mt-4 sm:mt-8 text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-in-up"
             style={{ animationDelay: "0.15s" }}
           >
-            Design stunning, personalized digital invitations in minutes. Perfect for weddings, birthdays, celebrations 
-            and every special moment that deserves to shine.
+            {t("hero.sub")}
           </p>
 
           {/* CTA Buttons */}
@@ -56,14 +55,14 @@ export function Hero() {
               href="#packages"
               className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium bg-primary hover:bg-navy-deep text-primary-foreground rounded-md transition-colors duration-300 active:scale-95"
             >
-              Start Creating
-              <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              {t("hero.startCreating")}
+              <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 rtl:rotate-180" />
             </Link>
             <Link
-              href="#work"
+              href="#templates"
               className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium text-foreground rounded-md hover:bg-secondary/60 transition-colors duration-300 border border-border/50 active:scale-95"
             >
-              See Our Work
+              {t("hero.seeWork")}
               <Sparkles className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </Link>
           </div>
@@ -85,8 +84,8 @@ export function Hero() {
                 ))}
               </div>
               <div>
-                <p className="font-medium text-foreground">500+ Happy Events</p>
-                <p className="text-sm text-muted-foreground">Created and celebrated</p>
+                <p className="font-medium text-foreground">{t("hero.events")}</p>
+                <p className="text-sm text-muted-foreground">{t("hero.eventsSub")}</p>
               </div>
             </div>
             <div className="w-px h-12 bg-border/30 hidden sm:block" />
@@ -97,8 +96,8 @@ export function Hero() {
                 ))}
               </div>
               <div>
-                <p className="font-medium text-foreground">5.0 Ratings</p>
-                <p className="text-sm text-muted-foreground">From our users</p>
+                <p className="font-medium text-foreground">{t("hero.rating")}</p>
+                <p className="text-sm text-muted-foreground">{t("hero.ratingSub")}</p>
               </div>
             </div>
           </div>

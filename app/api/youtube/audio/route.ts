@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get title safely
-    const title = info.videoDetails?.title || info.basicInfo?.title || "Unknown"
+    const title = info.videoDetails?.title ?? "Unknown"
 
     // Return the audio stream URL
     return NextResponse.json({

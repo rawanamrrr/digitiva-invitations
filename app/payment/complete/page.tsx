@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Button } from "@/components/ui/button"
 
 function PaymentCompleteContent() {
-  const router = useRouter()
+  const { t } = useSiteLanguage()
   const searchParams = useSearchParams()
   const invitationId = searchParams.get("invitationId")
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
@@ -41,7 +42,7 @@ function PaymentCompleteContent() {
         {status === "loading" && (
           <>
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Completing payment...</p>
+            <p className="text-muted-foreground">{t("pay.complete.loading")}</p>
           </>
         )}
         {status === "success" && (
@@ -61,14 +62,14 @@ function PaymentCompleteContent() {
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-serif font-bold mb-2">Payment Complete</h1>
+            <h1 className="text-2xl font-serif font-bold mb-2">{t("pay.complete.title")}</h1>
             <p className="text-muted-foreground mb-6">
-              Your invitation is now live!
+              {t("pay.complete.subtitle")}
             </p>
             {slug && (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Your invitation is live at:
+                  {t("pay.complete.liveAt")}
                 </p>
                 <Link
                   href={`/invite/${slug}`}
@@ -78,13 +79,13 @@ function PaymentCompleteContent() {
                 </Link>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <Link href={`/invite/${slug}`} target="_blank">
-                    <Button>View Invitation</Button>
+                    <Button>{t("pay.complete.view")}</Button>
                   </Link>
                   <Link href="/create">
-                    <Button variant="outline">Create Another</Button>
+                    <Button variant="outline">{t("pay.complete.createAnother")}</Button>
                   </Link>
                   <Link href="/">
-                    <Button variant="outline">Back Home</Button>
+                    <Button variant="outline">{t("pay.complete.home")}</Button>
                   </Link>
                 </div>
               </div>
@@ -108,12 +109,12 @@ function PaymentCompleteContent() {
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-serif font-bold mb-2">Something went wrong</h1>
+            <h1 className="text-2xl font-serif font-bold mb-2">{t("pay.complete.errorTitle")}</h1>
             <p className="text-muted-foreground mb-6">
-              Please try again or contact support.
+              {t("pay.complete.errorSub")}
             </p>
             <Link href="/create">
-              <Button>Try Again</Button>
+              <Button>{t("pay.complete.tryAgain")}</Button>
             </Link>
           </>
         )}
@@ -122,9 +123,14 @@ function PaymentCompleteContent() {
   )
 }
 
+function CompleteFallback() {
+  const { t } = useSiteLanguage()
+  return <div className="min-h-screen flex items-center justify-center">{t("common.loading")}</div>
+}
+
 export default function PaymentCompletePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<CompleteFallback />}>
       <PaymentCompleteContent />
     </Suspense>
   )

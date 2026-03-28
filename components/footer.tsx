@@ -1,11 +1,15 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Instagram, Facebook, Twitter } from "lucide-react"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 export function Footer() {
+  const { t } = useSiteLanguage()
+
   return (
     <footer className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary via-teal to-navy-deep text-primary-foreground relative overflow-hidden">
-      {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-primary-foreground/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-48 h-48 bg-emerald/10 rounded-full blur-3xl" />
 
@@ -22,10 +26,7 @@ export function Footer() {
                 priority
               />
             </Link>
-            <p className="opacity-80 max-w-md leading-relaxed text-sm sm:text-base">
-              Creating stunning, custom event invitation websites that capture the essence of your celebration. Every
-              design tells a unique story.
-            </p>
+            <p className="opacity-80 max-w-md leading-relaxed text-sm sm:text-base">{t("foot.tagline")}</p>
             <div className="flex gap-3 mt-6">
               <a
                 href="#"
@@ -52,50 +53,52 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-base">Quick Links</h3>
+            <h3 className="font-semibold mb-4 text-base">{t("foot.quick")}</h3>
             <nav className="space-y-3 text-sm">
-              <Link href="#work" className="block opacity-70 hover:opacity-100 transition-opacity">
-                Portfolio
+              <Link href="#templates" className="block opacity-70 hover:opacity-100 transition-opacity">
+                {t("foot.portfolio")}
               </Link>
               <Link href="#packages" className="block opacity-70 hover:opacity-100 transition-opacity">
-                Packages
+                {t("foot.packages")}
               </Link>
               <Link href="#faqs" className="block opacity-70 hover:opacity-100 transition-opacity">
-                FAQs
+                {t("foot.faqs")}
               </Link>
               <Link href="#contact" className="block opacity-70 hover:opacity-100 transition-opacity">
-                Contact
+                {t("foot.contact")}
               </Link>
             </nav>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-base">Event Types</h3>
+            <h3 className="font-semibold mb-4 text-base">{t("foot.events")}</h3>
             <nav className="space-y-3 text-sm">
-              <Link href="#" className="block opacity-70 hover:opacity-100 transition-opacity">
-                Weddings
+              <Link href="#weddings" className="block opacity-70 hover:opacity-100 transition-opacity">
+                {t("foot.weddings")}
+              </Link>
+              <Link href="#birthdays" className="block opacity-70 hover:opacity-100 transition-opacity">
+                {t("foot.birthdays")}
               </Link>
               <Link href="#" className="block opacity-70 hover:opacity-100 transition-opacity">
-                Birthdays
+                {t("foot.corporate")}
               </Link>
               <Link href="#" className="block opacity-70 hover:opacity-100 transition-opacity">
-                Corporate Events
-              </Link>
-              <Link href="#" className="block opacity-70 hover:opacity-100 transition-opacity">
-                Baby Showers
+                {t("foot.baby")}
               </Link>
             </nav>
           </div>
         </div>
 
         <div className="pt-6 sm:pt-8 border-t border-primary-foreground/20 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs sm:text-sm opacity-70">© {new Date().getFullYear()} Digitiva. All rights reserved.</p>
+          <p className="text-xs sm:text-sm opacity-70">
+            © {new Date().getFullYear()} Digitiva. {t("foot.rights")}
+          </p>
           <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm opacity-70">
             <Link href="#" className="hover:opacity-100 transition-opacity">
-              Privacy Policy
+              {t("foot.privacy")}
             </Link>
             <Link href="#" className="hover:opacity-100 transition-opacity">
-              Terms of Service
+              {t("foot.terms")}
             </Link>
           </div>
         </div>

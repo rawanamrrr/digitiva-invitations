@@ -3,8 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 export default function RegisterPage() {
+  const { t } = useSiteLanguage()
   const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -23,7 +25,7 @@ export default function RegisterPage() {
 
     const data = await res.json()
     if (!res.ok) {
-      setError(data.error || "Registration failed")
+      setError(data.error || t("auth.register.error"))
       return
     }
 
@@ -36,7 +38,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="glass rounded-2xl p-8 shadow-xl border border-primary/10">
           <h1 className="text-2xl font-serif font-bold text-center mb-6">
-            Create Account
+            {t("auth.register.title")}
           </h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -45,7 +47,7 @@ export default function RegisterPage() {
               </p>
             )}
             <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+              <label className="block text-sm font-medium mb-1">{t("auth.register.name")}</label>
               <input
                 type="text"
                 value={name}
@@ -55,7 +57,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
+              <label className="block text-sm font-medium mb-1">{t("auth.register.email")}</label>
               <input
                 type="email"
                 value={email}
@@ -65,7 +67,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Password</label>
+              <label className="block text-sm font-medium mb-1">{t("auth.register.password")}</label>
               <input
                 type="password"
                 value={password}
@@ -75,20 +77,20 @@ export default function RegisterPage() {
                 minLength={8}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Min 8 characters
+                {t("auth.register.hint")}
               </p>
             </div>
             <button
               type="submit"
               className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition"
             >
-              Register
+              {t("auth.register.submit")}
             </button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {t("auth.register.hasAccount")}{" "}
             <Link href="/login" className="text-primary font-medium hover:underline">
-              Sign In
+              {t("auth.register.signIn")}
             </Link>
           </p>
         </div>

@@ -1,7 +1,22 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
+import { cookies } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/server"
+import {
+  DEFAULT_LOCALE,
+  SITE_LOCALE_COOKIE,
+  isSiteLocale,
+  type SiteLocale,
+} from "@/lib/site-locales"
+import { siteT } from "@/lib/site-translations"
 import { InviteClient } from "./invite-client"
+
+async function requestLocale(): Promise<SiteLocale> {
+  const jar = await cookies()
+  const raw = jar.get(SITE_LOCALE_COOKIE)?.value
+  if (raw && isSiteLocale(raw)) return raw
+  return DEFAULT_LOCALE
+}
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -28,15 +43,35 @@ async function getInvitation(slug: string, incrementView = false) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
+  const locale = await requestLocale()
   const inv = await getInvitation(slug, false)
-  if (!inv) return { title: "Invitation Not Found" }
+  if (!inv) {
+    return { title: siteT(locale, "invite.meta.notFoundTitle") }
+  }
+
+  const bride = String(inv.bride_name ?? "")
+  const groom = String(inv.groom_name ?? "")
+  const date = String(inv.event_date ?? "")
+  const venue = String(inv.venue ?? "")
+
+  const title = siteT(locale, "invite.meta.title")
+    .replace("{bride}", bride)
+    .replace("{groom}", groom)
+  const description = siteT(locale, "invite.meta.description")
+    .replace("{bride}", bride)
+    .replace("{groom}", groom)
+    .replace("{date}", date)
+    .replace("{venue}", venue)
+  const ogDescription = siteT(locale, "invite.meta.ogDescription")
+    .replace("{date}", date)
+    .replace("{venue}", venue)
 
   return {
-    title: `${inv.bride_name} & ${inv.groom_name} | Wedding Invitation`,
-    description: `Join ${inv.bride_name} and ${inv.groom_name} on ${inv.event_date} at ${inv.venue}`,
+    title,
+    description,
     openGraph: {
-      title: `${inv.bride_name} & ${inv.groom_name}`,
-      description: `Wedding Invitation - ${inv.event_date} at ${inv.venue}`,
+      title: `${bride} & ${groom}`,
+      description: ogDescription,
       images: inv.couple_image ? [inv.couple_image] : [],
     },
   }

@@ -44,56 +44,18 @@ import {
   MessageCircle,
 } from "lucide-react"
 import { templates } from "@/lib/templates"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 type PackageId = "standard" | "premium" | "custom"
 
-const EXTRAS = [
-  {
-    id: "custom_music",
-    label: "Custom music",
-    description: "Your song playing when opening the invitation",
-    price: 100,
-    icon: Music,
-  },
-  {
-    id: "custom_wax_seal",
-    label: "Custom wax seal",
-    description: "Add your wedding logo or any custom design to your seal",
-    price: 100,
-    icon: PenTool,
-    popular: true,
-  },
-  {
-    id: "custom_illustration",
-    label: "Custom illustration",
-    description: "Illustration of your venue or special place",
-    price: 100,
-    icon: Heart,
-    popular: true,
-  },
-  {
-    id: "animated_video",
-    label: "Animated video",
-    description: "Your invitation comes to life with a unique animation",
-    price: 100,
-    icon: Video,
-    popular: true,
-  },
-  {
-    id: "custom_domain",
-    label: "Custom domain",
-    description: "Your own web address (e.g. paula-and-marcos.com)",
-    price: 600,
-    icon: Globe,
-  },
-  {
-    id: "express_delivery",
-    label: "Express delivery",
-    description: "72h to 120h",
-    price: 100,
-    icon: Zap,
-  },
-]
+const EXTRA_DEFS = [
+  { id: "custom_music", price: 100, icon: Music },
+  { id: "custom_wax_seal", price: 100, icon: PenTool, popular: true as const },
+  { id: "custom_illustration", price: 100, icon: Heart, popular: true as const },
+  { id: "animated_video", price: 100, icon: Video, popular: true as const },
+  { id: "custom_domain", price: 600, icon: Globe },
+  { id: "express_delivery", price: 100, icon: Zap },
+] as const
 
 const PACKAGE_LIMITS = {
   standard: 3,
@@ -103,38 +65,26 @@ const PACKAGE_LIMITS = {
 
 const SECTION_PRICE = 50
 
-const ALL_SECTIONS = [
-  { id: "countdown", label: "Countdown timer" },
-  { id: "venueMap", label: "Venue map section" },
-  { id: "messages", label: "Messages" },
-  { id: "ourStory", label: "Our Story" },
-  { id: "timeline", label: "Timeline" },
-  { id: "guestNotes", label: "Guest Notes" },
-  { id: "dressCode", label: "Dress Code" },
-  { id: "rsvp", label: "RSVP" },
-  { id: "photoUpload", label: "Gallery" },
-  { id: "song", label: "Background music" },
-]
+const SECTION_IDS = [
+  "countdown",
+  "venueMap",
+  "messages",
+  "ourStory",
+  "timeline",
+  "guestNotes",
+  "dressCode",
+  "rsvp",
+  "photoUpload",
+  "song",
+] as const
 
-const PACKAGE_SECTIONS: Record<
-  PackageId,
-  {
-    label: string
-    price: number
-    description: string
-    sections: string[]
-  }
-> = {
+const PACKAGE_CORE: Record<PackageId, { price: number; sections: string[] }> = {
   standard: {
-    label: "Standard Package",
     price: 500,
-    description: "Template + 3 included sections",
     sections: ["countdown", "venueMap", "messages"],
   },
   premium: {
-    label: "Premium Package",
     price: 600,
-    description: "Template + 7 included sections",
     sections: [
       "countdown",
       "venueMap",
@@ -146,16 +96,62 @@ const PACKAGE_SECTIONS: Record<
     ],
   },
   custom: {
-    label: "Customized Package",
     price: 900,
-    description: "Total control over your invitation",
     sections: [],
   },
 }
 
 function CreateInvitationContent() {
+  const { t } = useSiteLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const allSections = useMemo(
+    () =>
+      SECTION_IDS.map((id) => ({
+        id,
+        label: t(`create.sec.${id}`),
+      })),
+    [t],
+  )
+
+  const extras = useMemo(
+    () =>
+      EXTRA_DEFS.map((e) => ({
+        ...e,
+        label: t(`create.extra.${e.id}`),
+        description: t(`create.extra.${e.id}.desc`),
+      })),
+    [t],
+  )
+
+  const packageSections = useMemo(
+    (): Record<
+      PackageId,
+      { label: string; price: number; description: string; sections: string[] }
+    > => ({
+      standard: {
+        label: t("pkg.std.name"),
+        price: PACKAGE_CORE.standard.price,
+        description: t("create.pkg.standard.desc"),
+        sections: PACKAGE_CORE.standard.sections,
+      },
+      premium: {
+        label: t("pkg.prem.name"),
+        price: PACKAGE_CORE.premium.price,
+        description: t("create.pkg.premium.desc"),
+        sections: PACKAGE_CORE.premium.sections,
+      },
+      custom: {
+        label: t("pkg.cust.name"),
+        price: PACKAGE_CORE.custom.price,
+        description: t("create.pkg.custom.desc"),
+        sections: PACKAGE_CORE.custom.sections,
+      },
+    }),
+    [t],
+  )
+
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState<PackageId>("premium")
@@ -195,12 +191,11 @@ function CreateInvitationContent() {
     
     // Email validation
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = "Please enter a valid email address"
+      newErrors.email = t("create.err.email")
     }
-    
-    // WhatsApp validation
+
     if (form.whatsapp && form.whatsapp.length < 6) {
-      newErrors.whatsapp = "Please enter a valid phone number"
+      newErrors.whatsapp = t("create.err.whatsapp")
     }
 
     setErrors(newErrors)
@@ -240,7 +235,7 @@ function CreateInvitationContent() {
         fd.append("file", paymentScreenshot)
         const uploadRes = await fetch("/api/upload", { method: "POST", body: fd })
         const uploadData = await uploadRes.json()
-        if (!uploadRes.ok) throw new Error(uploadData.error || "Upload failed")
+        if (!uploadRes.ok) throw new Error(uploadData.error || t("create.publish.error.upload"))
         screenshotUrl = uploadData.url
       }
 
@@ -250,12 +245,12 @@ function CreateInvitationContent() {
           return customSections.find((s) => s.id === id)?.label || id
         }
         // Find standard section label
-        const section = ALL_SECTIONS.find((s) => s.id === id)
+        const section = allSections.find((s) => s.id === id)
         return section ? section.label : id
       })
 
       const extraLabels = selectedExtras.map((id) => {
-        return EXTRAS.find((e) => e.id === id)?.label || id
+        return extras.find((e) => e.id === id)?.label || id
       })
 
       console.log("Publishing with payload:", {
@@ -296,19 +291,18 @@ function CreateInvitationContent() {
       const data = await res.json()
       if (!res.ok) {
         console.error("Server error data:", JSON.stringify(data, null, 2))
-        throw new Error(data.error || "Failed to create invitation")
+        throw new Error(data.error || t("create.publish.error.create"))
       }
 
       setStep(4)
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Something went wrong")
+      alert(e instanceof Error ? e.message : t("create.publish.error.generic"))
     } finally {
       setLoading(false)
     }
   }
 
-  const currentPackageConfig = PACKAGE_SECTIONS[selectedPackage]
-  const basePrice = PACKAGE_SECTIONS[selectedPackage].price
+  const basePrice = packageSections[selectedPackage].price
   const limit = PACKAGE_LIMITS[selectedPackage]
   
   // Calculate extra sections cost
@@ -317,7 +311,7 @@ function CreateInvitationContent() {
   const sectionsExtraPrice = extraSectionsCount * SECTION_PRICE
 
   const extrasPrice = selectedExtras.reduce((sum, id) => {
-    const extra = EXTRAS.find((e) => e.id === id)
+    const extra = extras.find((e) => e.id === id)
     return sum + (extra?.price || 0)
   }, 0)
   
@@ -388,9 +382,9 @@ function CreateInvitationContent() {
             ))}
           </div>
           <div className="flex justify-between text-xs text-muted-foreground px-1">
-            <span>Style</span>
-            <span>Details</span>
-            <span>Payment</span>
+            <span>{t("create.step.style")}</span>
+            <span>{t("create.step.details")}</span>
+            <span>{t("create.step.payment")}</span>
           </div>
         </div>
       )}
@@ -398,8 +392,8 @@ function CreateInvitationContent() {
       {step === 1 && (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-32">
           <div className="text-center space-y-3">
-            <h1 className="text-4xl font-serif text-foreground">Choose your style</h1>
-            <p className="text-muted-foreground text-lg">The theme is just the starting point, customized with your details</p>
+            <h1 className="text-4xl font-serif text-foreground">{t("create.chooseStyle.title")}</h1>
+            <p className="text-muted-foreground text-lg">{t("create.chooseStyle.sub")}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {templates.map((template) => {
@@ -449,7 +443,7 @@ function CreateInvitationContent() {
                         rel="noreferrer"
                         className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors shadow-sm"
                         onClick={(e) => e.stopPropagation()}
-                        title="Preview Demo"
+                        title={t("create.previewDemo")}
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
@@ -462,12 +456,12 @@ function CreateInvitationContent() {
 
           <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-2xl font-serif">Select Package & Sections</CardTitle>
+              <CardTitle className="text-2xl font-serif">{t("create.selectPackage")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {(Object.keys(PACKAGE_SECTIONS) as PackageId[]).map((id) => {
-                  const pkg = PACKAGE_SECTIONS[id]
+                {(Object.keys(packageSections) as PackageId[]).map((id) => {
+                  const pkg = packageSections[id]
                   const isActive = selectedPackage === id
                   return (
                     <button
@@ -491,9 +485,9 @@ function CreateInvitationContent() {
               {selectedPackage === "custom" ? (
                 <div className="space-y-8 py-8 animate-in fade-in slide-in-from-top-4 duration-500">
                   <div className="text-center space-y-4">
-                    <h3 className="text-2xl font-serif text-foreground">Tell us your vision</h3>
+                    <h3 className="text-2xl font-serif text-foreground">{t("create.custom.title")}</h3>
                     <p className="text-muted-foreground max-w-md mx-auto">
-                      For customized packages, our team will work with you directly to bring your unique vision to life. Contact us through any of these platforms:
+                      {t("create.custom.sub")}
                     </p>
                   </div>
 
@@ -505,7 +499,7 @@ function CreateInvitationContent() {
                       className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-green-500/20 bg-green-500/5 hover:bg-green-500/10 transition-all group"
                     >
                       <MessageCircle className="w-8 h-8 mb-3 text-green-600 group-hover:scale-110 transition-transform" />
-                      <span className="font-semibold text-green-700">WhatsApp</span>
+                      <span className="font-semibold text-green-700">{t("create.contact.whatsapp")}</span>
                     </a>
 
                     <a
@@ -515,7 +509,7 @@ function CreateInvitationContent() {
                       className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-pink-500/20 bg-pink-500/5 hover:bg-pink-500/10 transition-all group"
                     >
                       <Instagram className="w-8 h-8 mb-3 text-pink-600 group-hover:scale-110 transition-transform" />
-                      <span className="font-semibold text-pink-700">Instagram</span>
+                      <span className="font-semibold text-pink-700">{t("create.contact.instagram")}</span>
                     </a>
 
                     <a
@@ -523,7 +517,7 @@ function CreateInvitationContent() {
                       className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-blue-500/20 bg-blue-500/5 hover:bg-blue-500/10 transition-all group"
                     >
                       <Mail className="w-8 h-8 mb-3 text-blue-600 group-hover:scale-110 transition-transform" />
-                      <span className="font-semibold text-blue-700">Email</span>
+                      <span className="font-semibold text-blue-700">{t("create.contact.email")}</span>
                     </a>
                   </div>
                 </div>
@@ -532,15 +526,17 @@ function CreateInvitationContent() {
                   <div className="space-y-4">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-foreground">Select Sections</div>
+                    <div className="text-sm font-medium text-foreground">{t("create.sections.title")}</div>
                     <div className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full uppercase tracking-tight">
-                      Extra sections +{SECTION_PRICE} LE each
+                      {t("create.sections.extraEach").replace("{price}", String(SECTION_PRICE))}
                     </div>
                   </div>
                   <div className="text-[11px] text-primary font-medium">
-                    {selectedPackage === "standard" ? "Pick any 3 sections (Included)" : 
-                     selectedPackage === "premium" ? "Pick any 7 sections (Included)" : 
-                     "Pick any sections"}
+                    {selectedPackage === "standard"
+                      ? t("create.sections.pick3")
+                      : selectedPackage === "premium"
+                        ? t("create.sections.pick7")
+                        : t("create.sections.pickAny")}
                   </div>
                 </div>
                 <div 
@@ -551,15 +547,15 @@ function CreateInvitationContent() {
                     width: '100%'
                   }}
                 >
-                  {ALL_SECTIONS.map((section, index) => {
+                  {allSections.map((section, index) => {
                     const Icon = sectionIcon(section.id)
                     const active = selectedSections.includes(section.id)
                     
                     // Logic: First 3 (Standard) or 7 (Premium) selected sections are free.
                     // Others are +50.
                     const selectedIndex = selectedSections.indexOf(section.id)
-                    const isExtra = active && selectedPackage !== "custom" && selectedIndex >= limit
-                    
+                    const isExtra = active && selectedIndex >= limit
+
                     return (
                       <button
                         key={section.id}
@@ -573,7 +569,7 @@ function CreateInvitationContent() {
                       >
                         {isExtra && (
                           <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            +50 EGP
+                            {t("create.section.badgeExtra")}
                           </div>
                         )}
                         <Icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
@@ -587,7 +583,7 @@ function CreateInvitationContent() {
                   {customSections.map((section, index) => {
                     const active = selectedSections.includes(section.id)
                     const selectedIndex = selectedSections.indexOf(section.id)
-                    const isExtra = active && selectedPackage !== "custom" && selectedIndex >= limit
+                    const isExtra = active && selectedIndex >= limit
 
                     return (
                       <button
@@ -602,7 +598,7 @@ function CreateInvitationContent() {
                       >
                         {isExtra && (
                           <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            +50 EGP
+                            {t("create.section.badgeExtra")}
                           </div>
                         )}
                         <Heart className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
@@ -619,7 +615,7 @@ function CreateInvitationContent() {
                     className="rounded-xl h-11"
                     value={customBlockLabel}
                     onChange={(e) => setCustomBlockLabel(e.target.value)}
-                    placeholder="Custom block..."
+                    placeholder={t("create.customBlock.placeholder")}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault()
@@ -640,9 +636,9 @@ function CreateInvitationContent() {
 
               <div className="space-y-4 pt-2">
                 <div className="text-center">
-                  <div className="font-serif text-2xl text-foreground">Languages</div>
+                  <div className="font-serif text-2xl text-foreground">{t("create.lang.title")}</div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {selectedPackage === "standard" ? "1 language included" : "Up to 2 languages free"}
+                    {selectedPackage === "standard" ? t("create.lang.sub1") : t("create.lang.sub2")}
                   </div>
                 </div>
 
@@ -657,11 +653,11 @@ function CreateInvitationContent() {
                       }}
                     >
                       <SelectTrigger className="w-full rounded-xl h-11">
-                        <SelectValue placeholder="Select language..." />
+                        <SelectValue placeholder={t("create.lang.selectPrimary")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="ar">Arabic</SelectItem>
+                        <SelectItem value="en">{t("create.lang.en")}</SelectItem>
+                        <SelectItem value="ar">{t("create.lang.ar")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -673,11 +669,11 @@ function CreateInvitationContent() {
                         onValueChange={(v) => setSecondaryLanguage(v as "en" | "ar")}
                       >
                         <SelectTrigger className="w-full rounded-xl h-11">
-                          <SelectValue placeholder="Other language..." />
+                          <SelectValue placeholder={t("create.lang.selectSecondary")} />
                         </SelectTrigger>
                         <SelectContent>
-                          {primaryLanguage !== "en" && <SelectItem value="en">English</SelectItem>}
-                          {primaryLanguage !== "ar" && <SelectItem value="ar">Arabic</SelectItem>}
+                          {primaryLanguage !== "en" && <SelectItem value="en">{t("create.lang.en")}</SelectItem>}
+                          {primaryLanguage !== "ar" && <SelectItem value="ar">{t("create.lang.ar")}</SelectItem>}
                         </SelectContent>
                       </Select>
                       <Button
@@ -686,7 +682,7 @@ function CreateInvitationContent() {
                         className="rounded-xl h-11 px-4 shrink-0"
                         onClick={() => setSecondaryLanguage(secondaryLanguage ? "" : (primaryLanguage === "en" ? "ar" : "en"))}
                       >
-                        {secondaryLanguage ? "Remove" : "Add"}
+                        {secondaryLanguage ? t("create.lang.remove") : t("create.lang.add")}
                       </Button>
                     </div>
                   )}
@@ -695,12 +691,12 @@ function CreateInvitationContent() {
 
               <div className="space-y-6 pt-4">
                 <div className="text-center space-y-1">
-                  <h3 className="font-serif text-3xl text-foreground">Extras</h3>
-                  <p className="text-sm text-muted-foreground">Add the touches you want</p>
+                  <h3 className="font-serif text-3xl text-foreground">{t("create.extras.title")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("create.extras.sub")}</p>
                 </div>
 
                 <div className="space-y-3">
-                  {EXTRAS.map((extra) => {
+                  {extras.map((extra) => {
                     const active = selectedExtras.includes(extra.id)
                     const Icon = extra.icon
                     return (
@@ -728,9 +724,9 @@ function CreateInvitationContent() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-foreground">{extra.label}</span>
-                            {extra.popular && (
+                            {"popular" in extra && extra.popular && (
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 uppercase tracking-tight">
-                                Popular
+                                {t("create.extras.popular")}
                               </span>
                             )}
                           </div>
@@ -755,11 +751,13 @@ function CreateInvitationContent() {
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border z-50">
           <div className="max-w-md mx-auto">
             <div className="text-center text-[11px] text-muted-foreground mb-2">
-              {selectedSections.length} blocks · +{sectionsExtraPrice + extrasPrice} LE extras
+              {t("create.bottom.summary")
+                .replace("{count}", String(selectedSections.length))
+                .replace("{extra}", String(sectionsExtraPrice + extrasPrice))}
             </div>
             {!canProceedToStep2 && (
               <div className="text-center text-[11px] text-muted-foreground mb-2">
-                {!form.templateId ? "Select a template" : "Select at least 1 section"}
+                {!form.templateId ? t("create.bottom.needTemplate") : t("create.bottom.needSection")}
               </div>
             )}
             <Button
@@ -773,7 +771,8 @@ function CreateInvitationContent() {
               }}
             >
               <span className="relative z-10 flex items-center justify-center gap-2 uppercase tracking-wide">
-                PAY {totalPrice} LE <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                {t("create.bottom.pay").replace("{price}", String(totalPrice))}{" "}
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
               </span>
               <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </Button>
@@ -787,32 +786,32 @@ function CreateInvitationContent() {
             <Button variant="ghost" size="icon" onClick={() => setStep(1)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <CardTitle className="text-2xl font-serif">Invitation Details</CardTitle>
+            <CardTitle className="text-2xl font-serif">{t("create.details.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Bride&apos;s Name</Label>
+                <Label>{t("create.label.bride")}</Label>
                 <Input
                   className="rounded-xl h-11"
                   value={form.brideName}
                   onChange={(e) => update("brideName", e.target.value)}
-                  placeholder="Sarah"
+                  placeholder={t("create.ph.bride")}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Groom&apos;s Name</Label>
+                <Label>{t("create.label.groom")}</Label>
                 <Input
                   className="rounded-xl h-11"
                   value={form.groomName}
                   onChange={(e) => update("groomName", e.target.value)}
-                  placeholder="John"
+                  placeholder={t("create.ph.groom")}
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Event Date</Label>
+                <Label>{t("create.label.eventDate")}</Label>
                 <Input
                   className="rounded-xl h-11"
                   type="date"
@@ -821,48 +820,48 @@ function CreateInvitationContent() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Event Time</Label>
+                <Label>{t("create.label.eventTime")}</Label>
                 <Input
                   className="rounded-xl h-11"
                   value={form.eventTime}
                   onChange={(e) => update("eventTime", e.target.value)}
-                  placeholder="6:00 PM"
+                  placeholder={t("create.ph.eventTime")}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Venue Name</Label>
+              <Label>{t("create.label.venue")}</Label>
               <Input
                 className="rounded-xl h-11"
                 value={form.venue}
                 onChange={(e) => update("venue", e.target.value)}
-                placeholder="Grand Ballroom"
+                placeholder={t("create.ph.venue")}
               />
             </div>
             
             <div className="pt-4 border-t border-border space-y-4">
-              <div className="text-sm font-semibold text-primary uppercase tracking-wider">Contact Information</div>
+              <div className="text-sm font-semibold text-primary uppercase tracking-wider">{t("create.contactInfo")}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className={errors.email ? "text-destructive" : ""}>Email Address</Label>
+                  <Label className={errors.email ? "text-destructive" : ""}>{t("create.label.emailAddr")}</Label>
                   <Input
                     className={`rounded-xl h-11 ${errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
                     type="email"
                     value={form.email}
                     onChange={(e) => update("email", e.target.value)}
-                    placeholder="your@email.com"
+                    placeholder={t("create.ph.email")}
                   />
                   {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label className={errors.whatsapp ? "text-destructive" : ""}>WhatsApp Number</Label>
+                  <Label className={errors.whatsapp ? "text-destructive" : ""}>{t("create.label.whatsapp")}</Label>
                   <div className="flex gap-2">
                     <Select
                       value={form.countryCode}
                       onValueChange={(val) => update("countryCode" as any, val)}
                     >
                       <SelectTrigger className="w-[160px] rounded-xl h-11 shrink-0">
-                        <SelectValue placeholder="Country" />
+                        <SelectValue placeholder={t("create.countryPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent className="max-h-[300px]">
                         {countries.map((c) => (
@@ -884,7 +883,7 @@ function CreateInvitationContent() {
                         const val = e.target.value.replace(/\D/g, '')
                         update("whatsapp", val)
                       }}
-                      placeholder="123456789"
+                      placeholder={t("create.ph.phone")}
                     />
                   </div>
                   {errors.whatsapp && <p className="text-xs text-destructive mt-1">{errors.whatsapp}</p>}
@@ -900,7 +899,7 @@ function CreateInvitationContent() {
                 }
               }}
             >
-              Next: Payment ({totalPrice} LE)
+              {t("create.nextPayment").replace("{price}", String(totalPrice))}
             </Button>
           </CardContent>
         </Card>
@@ -912,19 +911,19 @@ function CreateInvitationContent() {
             <Button variant="ghost" size="icon" onClick={() => setStep(2)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <CardTitle className="text-2xl font-serif">Payment</CardTitle>
+            <CardTitle className="text-2xl font-serif">{t("create.payment.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-8">
             <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex justify-between items-center">
               <div>
-                <p className="text-sm text-muted-foreground font-medium uppercase">Total Amount</p>
+                <p className="text-sm text-muted-foreground font-medium uppercase">{t("create.payment.totalLabel")}</p>
                 <p className="text-3xl font-bold text-primary">{totalPrice} LE</p>
               </div>
               <CreditCard className="w-10 h-10 text-primary opacity-20" />
             </div>
 
             <div className="space-y-4">
-              <Label className="text-lg font-medium">Select Payment Method</Label>
+              <Label className="text-lg font-medium">{t("create.payment.method")}</Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -936,7 +935,7 @@ function CreateInvitationContent() {
                   }`}
                 >
                   <Smartphone className="w-8 h-8 mb-2 text-primary" />
-                  <span className="font-semibold">InstaPay</span>
+                  <span className="font-semibold">{t("create.payment.instapay")}</span>
                 </button>
                 <button
                   type="button"
@@ -948,29 +947,40 @@ function CreateInvitationContent() {
                   }`}
                 >
                   <Landmark className="w-8 h-8 mb-2 text-primary" />
-                  <span className="font-semibold">Bank Transfer</span>
+                  <span className="font-semibold">{t("create.payment.bank")}</span>
                 </button>
               </div>
             </div>
 
             <div className="p-6 rounded-2xl bg-muted/50 border border-border space-y-3">
-              <p className="font-semibold text-foreground">Payment Details:</p>
+              <p className="font-semibold text-foreground">{t("create.payment.detailsHeading")}</p>
               {paymentMethod === "instapay" ? (
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Address: <span className="text-foreground font-mono">user@instapay</span></p>
-                  <p className="text-sm text-muted-foreground">Name: <span className="text-foreground">Digitiva Invitations</span></p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.addrLabel")} <span className="text-foreground font-mono">user@instapay</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.payeeLabel")} <span className="text-foreground">Digitiva Invitations</span>
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Bank: <span className="text-foreground font-mono">CIB Bank</span></p>
-                  <p className="text-sm text-muted-foreground">Account: <span className="text-foreground font-mono">1234 5678 9012 3456</span></p>
-                  <p className="text-sm text-muted-foreground">Name: <span className="text-foreground">Digitiva Co.</span></p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.bankLabel")} <span className="text-foreground font-mono">CIB Bank</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.accountLabel")}{" "}
+                    <span className="text-foreground font-mono">1234 5678 9012 3456</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.payeeLabel")} <span className="text-foreground">Digitiva Co.</span>
+                  </p>
                 </div>
               )}
             </div>
 
             <div className="space-y-4">
-              <Label className="text-lg font-medium">Upload Payment Screenshot</Label>
+              <Label className="text-lg font-medium">{t("create.payment.uploadLabel")}</Label>
               <div className="relative border-2 border-dashed border-border rounded-2xl p-8 transition-colors hover:border-primary/50 text-center cursor-pointer group">
                 <input
                   type="file"
@@ -983,9 +993,9 @@ function CreateInvitationContent() {
                     <Upload className="w-6 h-6 text-primary" />
                   </div>
                   <p className="text-sm font-medium text-foreground">
-                    {paymentScreenshot ? paymentScreenshot.name : "Click to upload screenshot"}
+                    {paymentScreenshot ? paymentScreenshot.name : t("create.payment.uploadCTA")}
                   </p>
-                  <p className="text-xs text-muted-foreground">PNG, JPG up to 10MB</p>
+                  <p className="text-xs text-muted-foreground">{t("create.payment.uploadTypes")}</p>
                 </div>
               </div>
             </div>
@@ -995,7 +1005,7 @@ function CreateInvitationContent() {
               disabled={!paymentScreenshot || loading}
               onClick={handlePublish}
             >
-              {loading ? "Processing..." : "Submit Payment"}
+              {loading ? t("create.payment.processing") : t("create.payment.submit")}
             </Button>
           </CardContent>
         </Card>
@@ -1008,17 +1018,13 @@ function CreateInvitationContent() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-12 h-12 text-green-600 animate-in zoom-in duration-500" />
             </div>
-            <h2 className="text-3xl font-serif font-bold text-foreground">Payment Received!</h2>
+            <h2 className="text-3xl font-serif font-bold text-foreground">{t("create.success.title")}</h2>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
-              Thank you for choosing Digitiva. Your invitation is being crafted by our team.
+              {t("create.success.body")}
             </p>
             <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 inline-block space-y-2">
-              <p className="font-semibold text-primary">
-                Your invitation will be ready and sent to you within 72 hours on your email or WhatsApp number.
-              </p>
-              <p className="text-sm text-primary/80 font-medium">
-                One of our team will contact you within the next 24 hours.
-              </p>
+              <p className="font-semibold text-primary">{t("create.success.note1")}</p>
+              <p className="text-sm text-primary/80 font-medium">{t("create.success.note2")}</p>
             </div>
             <div className="pt-8">
               <Button
@@ -1026,7 +1032,7 @@ function CreateInvitationContent() {
                 className="rounded-full px-8 hover:bg-primary/5"
                 onClick={() => router.push("/")}
               >
-                Back to Home
+                {t("create.success.home")}
               </Button>
             </div>
           </CardContent>
@@ -1036,9 +1042,14 @@ function CreateInvitationContent() {
   )
 }
 
+function CreateFallback() {
+  const { t } = useSiteLanguage()
+  return <div className="flex items-center justify-center min-h-screen">{t("common.loading")}</div>
+}
+
 export default function CreateInvitationPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+    <Suspense fallback={<CreateFallback />}>
       <CreateInvitationContent />
     </Suspense>
   )

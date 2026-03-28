@@ -6,8 +6,10 @@ import { PortfolioCard } from "./portfolio-card"
 import { PortfolioModal } from "./portfolio-modal"
 import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "./ui/button"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 export function PortfolioGrid() {
+  const { t } = useSiteLanguage()
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -25,13 +27,13 @@ export function PortfolioGrid() {
         <div className="text-center mb-16 lg:mb-24">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase mb-4">
             <Sparkles className="w-3 h-3" />
-            <span>Templates</span>
+            <span>{t("portfolio.badge")}</span>
           </div>
           <h2 className="font-serif text-4xl lg:text-7xl font-medium text-foreground mb-6">
-            Choose your <span className="italic font-light">style</span>
+            {t("portfolio.title1")} <span className="italic font-light">{t("portfolio.title2")}</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto font-light leading-relaxed">
-            Swipe through our meticulously crafted designs to find the one that tells your unique story.
+            {t("portfolio.sub")}
           </p>
         </div>
       </div>

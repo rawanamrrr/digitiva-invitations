@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { templates } from "@/lib/templates"
@@ -22,7 +23,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 
-type Invitation = {
+export type Invitation = {
   id: string
   bride_name: string
   groom_name: string
@@ -49,14 +50,27 @@ type Invitation = {
   created_at?: string
 }
 
-// Section label map
-const SECTION_LABELS: Record<string, string> = {
-  countdown: "Countdown Timer",
-  venueMap: "Venue Map",
-  handwrittenMessage: "Messages / Wishes",
-  rsvp: "RSVP (Attendance)",
-  photoUpload: "Photo Gallery",
-  song: "Background Music",
+const SECTION_ADMIN_KEYS: Record<string, string> = {
+  countdown: "admin.sec.countdown",
+  venueMap: "admin.sec.venueMap",
+  handwrittenMessage: "admin.sec.handwrittenMessage",
+  rsvp: "admin.sec.rsvp",
+  photoUpload: "admin.sec.photoUpload",
+  song: "admin.sec.song",
+  messages: "admin.sec.messages",
+  ourStory: "admin.sec.ourStory",
+  timeline: "admin.sec.timeline",
+  guestNotes: "admin.sec.guestNotes",
+  dressCode: "admin.sec.dressCode",
+}
+
+const EXTRA_CREATE_KEYS: Record<string, string> = {
+  custom_music: "create.extra.custom_music",
+  custom_wax_seal: "create.extra.custom_wax_seal",
+  custom_illustration: "create.extra.custom_illustration",
+  animated_video: "create.extra.animated_video",
+  custom_domain: "create.extra.custom_domain",
+  express_delivery: "create.extra.express_delivery",
 }
 
 function OrderDetailsModal({
@@ -66,7 +80,21 @@ function OrderDetailsModal({
   invitation: Invitation
   onClose: () => void
 }) {
-  const template = templates.find((t) => t.id === invitation.template_id)
+  const { t } = useSiteLanguage()
+  const template = templates.find((tmpl) => tmpl.id === invitation.template_id)
+
+  const sectionLabel = (section: string) => {
+    const key = SECTION_ADMIN_KEYS[section]
+    return key ? t(key) : section
+  }
+
+  const extraLabel = (extra: string) => {
+    const key = EXTRA_CREATE_KEYS[extra]
+    return key ? t(key) : extra
+  }
+
+  const payStatusLabel =
+    invitation.payment_status === "paid" ? t("admin.inv.paid") : t("admin.inv.unpaid")
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -89,7 +117,7 @@ function OrderDetailsModal({
           <div className="flex items-center justify-between p-5">
             <div>
               <h2 className="text-xl font-serif font-bold text-foreground">
-                Order Details
+                {t("admin.inv.orderDetails")}
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {invitation.bride_name} & {invitation.groom_name}
@@ -119,7 +147,7 @@ function OrderDetailsModal({
               ) : (
                 <AlertCircle className="w-3.5 h-3.5" />
               )}
-              {invitation.is_published ? "Published" : "Draft"}
+              {invitation.is_published ? t("admin.inv.published") : t("admin.inv.draft")}
             </span>
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
@@ -129,11 +157,11 @@ function OrderDetailsModal({
               }`}
             >
               <CreditCard className="w-3.5 h-3.5" />
-              Payment: {invitation.payment_status}
+              {t("admin.table.payment")}: {payStatusLabel}
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 border border-blue-500/20">
               <Eye className="w-3.5 h-3.5" />
-              {invitation.view_count ?? 0} views
+              {invitation.view_count ?? 0} {t("admin.inv.views")}
             </span>
           </div>
 
@@ -142,7 +170,7 @@ function OrderDetailsModal({
             <section className="rounded-xl border border-border p-4 space-y-3">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-primary flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Contact Information
+                {t("admin.inv.contact")}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {invitation.email && (
@@ -165,20 +193,20 @@ function OrderDetailsModal({
           <section className="rounded-xl border border-border p-4 space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              Event Details
+              {t("admin.inv.eventDetails")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-muted-foreground">Bride:</span>{" "}
+                <span className="text-muted-foreground">{t("admin.inv.bride")}</span>{" "}
                 <span className="font-medium text-foreground">{invitation.bride_name}</span>
               </div>
               <div>
-                <span className="text-muted-foreground">Groom:</span>{" "}
+                <span className="text-muted-foreground">{t("admin.inv.groom")}</span>{" "}
                 <span className="font-medium text-foreground">{invitation.groom_name}</span>
               </div>
               {invitation.event_date && (
                 <div>
-                  <span className="text-muted-foreground">Date:</span>{" "}
+                  <span className="text-muted-foreground">{t("admin.inv.date")}</span>{" "}
                   <span className="font-medium text-foreground">
                     {new Date(invitation.event_date).toLocaleDateString("en-US", {
                       year: "numeric",
@@ -190,7 +218,7 @@ function OrderDetailsModal({
               )}
               {invitation.event_time && (
                 <div>
-                  <span className="text-muted-foreground">Time:</span>{" "}
+                  <span className="text-muted-foreground">{t("admin.inv.time")}</span>{" "}
                   <span className="font-medium text-foreground">{invitation.event_time}</span>
                 </div>
               )}
@@ -212,7 +240,7 @@ function OrderDetailsModal({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-primary hover:underline mt-1"
                     >
-                      View on Map <ExternalLink className="w-3 h-3" />
+                      {t("admin.inv.viewMap")} <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
                 </div>
@@ -224,7 +252,7 @@ function OrderDetailsModal({
           <section className="rounded-xl border border-border p-4 space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary flex items-center gap-2">
               <Palette className="w-4 h-4" />
-              Template
+              {t("admin.inv.design")}
             </h3>
             {template ? (
               <div className="flex items-center gap-4">
@@ -252,7 +280,7 @@ function OrderDetailsModal({
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Template ID: <span className="font-mono">{invitation.template_id || "N/A"}</span>
+                {t("admin.inv.templateId")} <span className="font-mono">{invitation.template_id || t("admin.inv.na")}</span>
               </p>
             )}
             {invitation.custom_theme_color && (
@@ -261,7 +289,7 @@ function OrderDetailsModal({
                   className="w-5 h-5 rounded-full border border-border"
                   style={{ backgroundColor: invitation.custom_theme_color }}
                 />
-                <span className="text-muted-foreground">Custom color:</span>
+                <span className="text-muted-foreground">{t("admin.inv.customColor")}</span>
                 <span className="font-mono text-foreground text-xs">{invitation.custom_theme_color}</span>
               </div>
             )}
@@ -271,11 +299,11 @@ function OrderDetailsModal({
           <section className="rounded-xl border border-border p-4 space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary flex items-center gap-2">
               <Package className="w-4 h-4" />
-              Package & Sections
+              {t("admin.table.package")} · {t("create.sections.title")}
             </h3>
             {invitation.package_name && (
               <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-sm font-semibold text-primary capitalize">
-                {invitation.package_name} Package
+                {invitation.package_name} · {t("admin.table.package")}
               </div>
             )}
             {invitation.sections && invitation.sections.length > 0 && (
@@ -285,21 +313,21 @@ function OrderDetailsModal({
                     key={section}
                     className="px-2.5 py-1 rounded-full bg-muted text-xs font-medium text-foreground border border-border"
                   >
-                    {SECTION_LABELS[section] || section}
+                    {sectionLabel(section)}
                   </span>
                 ))}
               </div>
             )}
             {invitation.extras && invitation.extras.length > 0 && (
               <div className="space-y-2 mt-4">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selected Extras:</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.inv.selectedExtras")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {invitation.extras.map((extra) => (
                     <span
                       key={extra}
                       className="px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 text-xs font-medium border border-orange-500/20"
                     >
-                      {extra}
+                      {extraLabel(extra)}
                     </span>
                   ))}
                 </div>
@@ -311,23 +339,23 @@ function OrderDetailsModal({
           <section className="rounded-xl border border-border p-4 space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary flex items-center gap-2">
               <CreditCard className="w-4 h-4" />
-              Payment Details
+              {t("admin.inv.paymentDetails")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-muted-foreground">Method:</span>{" "}
+                <span className="text-muted-foreground">{t("admin.inv.method")}</span>{" "}
                 <span className="font-medium text-foreground capitalize">
-                  {invitation.payment_method || "N/A"}
+                  {invitation.payment_method || t("admin.inv.na")}
                 </span>
               </div>
               <div>
-                <span className="text-muted-foreground">Status:</span>{" "}
+                <span className="text-muted-foreground">{t("admin.inv.status")}</span>{" "}
                 <span
                   className={`font-medium capitalize ${
                     invitation.payment_status === "paid" ? "text-emerald-600" : "text-amber-600"
                   }`}
                 >
-                  {invitation.payment_status}
+                  {payStatusLabel}
                 </span>
               </div>
             </div>
@@ -337,12 +365,12 @@ function OrderDetailsModal({
               <div className="mt-3">
                 <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
                   <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                  Payment Screenshot
+                  {t("admin.inv.paymentScreenshot")}
                 </p>
                 <div className="rounded-lg border border-border overflow-hidden bg-muted/30">
                   <img
                     src={invitation.payment_screenshot}
-                    alt="Payment screenshot"
+                    alt={t("admin.inv.screenshotAlt")}
                     className="w-full max-h-[400px] object-contain"
                   />
                 </div>
@@ -355,13 +383,17 @@ function OrderDetailsModal({
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" />
-                Created:{" "}
+                {t("admin.inv.created")}{" "}
                 {invitation.created_at
                   ? new Date(invitation.created_at).toLocaleDateString()
-                  : "N/A"}
+                  : t("admin.inv.na")}
               </div>
-              <div className="font-mono">Slug: {invitation.slug}</div>
-              <div>ID: {invitation.id.slice(0, 8)}…</div>
+              <div className="font-mono">
+                {t("admin.inv.slug")} {invitation.slug}
+              </div>
+              <div>
+                {t("admin.inv.id")} {invitation.id.slice(0, 8)}…
+              </div>
             </div>
           </section>
         </div>
@@ -372,12 +404,12 @@ function OrderDetailsModal({
             <Link href={`/invite/${invitation.slug}`} target="_blank">
               <Button variant="outline" size="sm" className="gap-1.5">
                 <ExternalLink className="w-3.5 h-3.5" />
-                View Invitation
+                {t("admin.inv.viewInvitation")}
               </Button>
             </Link>
           )}
           <Button variant="outline" size="sm" onClick={onClose}>
-            Close
+            {t("admin.inv.close")}
           </Button>
         </div>
       </div>
@@ -386,8 +418,12 @@ function OrderDetailsModal({
 }
 
 export function AdminInvitations({ invitations }: { invitations: Invitation[] }) {
+  const { t } = useSiteLanguage()
   const [list, setList] = useState(invitations)
   const [selectedInvitation, setSelectedInvitation] = useState<Invitation | null>(null)
+
+  const paymentLabel = (status: string) =>
+    status === "paid" ? t("admin.inv.paid") : t("admin.inv.unpaid")
 
   const togglePublish = async (id: string, current: boolean) => {
     const res = await fetch(`/api/invitations/${id}`, {
@@ -408,7 +444,7 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
   }
 
   const deleteInv = async (id: string) => {
-    if (!confirm("Delete this invitation?")) return
+    if (!confirm(t("admin.table.deleteConfirm"))) return
     const res = await fetch(`/api/invitations/${id}`, { method: "DELETE" })
     if (res.ok) setList((p) => p.filter((i) => i.id !== id))
   }
@@ -419,12 +455,12 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="text-left p-3">Couple</th>
-              <th className="text-left p-3">Package</th>
-              <th className="text-left p-3">Status</th>
-              <th className="text-left p-3">Payment</th>
-              <th className="text-left p-3">Views</th>
-              <th className="text-left p-3">Actions</th>
+              <th className="text-left p-3">{t("admin.table.couple")}</th>
+              <th className="text-left p-3">{t("admin.table.package")}</th>
+              <th className="text-left p-3">{t("admin.table.status")}</th>
+              <th className="text-left p-3">{t("admin.table.payment")}</th>
+              <th className="text-left p-3">{t("admin.table.views")}</th>
+              <th className="text-left p-3">{t("admin.table.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -445,7 +481,7 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
                       inv.is_published ? "bg-green-100 text-green-800" : "bg-gray-100"
                     }`}
                   >
-                    {inv.is_published ? "Published" : "Draft"}
+                    {inv.is_published ? t("admin.inv.published") : t("admin.inv.draft")}
                   </span>
                 </td>
                 <td className="p-3">
@@ -456,7 +492,7 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
                         : "bg-amber-100 text-amber-800"
                     }`}
                   >
-                    {inv.payment_status}
+                    {paymentLabel(inv.payment_status)}
                   </span>
                 </td>
                 <td className="p-3">{inv.view_count ?? 0}</td>
@@ -468,12 +504,12 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
                       className="text-primary border-primary/30 hover:bg-primary/5"
                       onClick={() => setSelectedInvitation(inv)}
                     >
-                      Details
+                      {t("admin.table.details")}
                     </Button>
                     {inv.is_published && (
                       <Link href={`/invite/${inv.slug}`} target="_blank">
                         <Button variant="outline" size="sm">
-                          View
+                          {t("admin.table.view")}
                         </Button>
                       </Link>
                     )}
@@ -482,14 +518,14 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
                       size="sm"
                       onClick={() => togglePublish(inv.id, inv.is_published)}
                     >
-                      {inv.is_published ? "Deactivate" : "Activate"}
+                      {inv.is_published ? t("admin.table.deactivate") : t("admin.table.activate")}
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => deleteInv(inv.id)}
                     >
-                      Delete
+                      {t("admin.table.delete")}
                     </Button>
                   </div>
                 </td>

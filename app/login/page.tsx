@@ -4,8 +4,10 @@ import { useState, Suspense } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 function LoginContent() {
+  const { t } = useSiteLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
@@ -37,7 +39,7 @@ function LoginContent() {
       <div className="w-full max-w-md">
         <div className="glass rounded-2xl p-8 shadow-xl border border-primary/10">
           <h1 className="text-2xl font-serif font-bold text-center mb-6">
-            Sign In
+            {t("auth.login.title")}
           </h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -46,7 +48,7 @@ function LoginContent() {
               </p>
             )}
             <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
+              <label className="block text-sm font-medium mb-1">{t("auth.login.email")}</label>
               <input
                 type="email"
                 value={email}
@@ -56,7 +58,7 @@ function LoginContent() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Password</label>
+              <label className="block text-sm font-medium mb-1">{t("auth.login.password")}</label>
               <input
                 type="password"
                 value={password}
@@ -69,13 +71,13 @@ function LoginContent() {
               type="submit"
               className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition"
             >
-              Sign In
+              {t("auth.login.submit")}
             </button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            {t("auth.login.noAccount")}{" "}
             <Link href="/register" className="text-primary font-medium hover:underline">
-              Register
+              {t("auth.login.register")}
             </Link>
           </p>
         </div>
@@ -84,9 +86,16 @@ function LoginContent() {
   )
 }
 
+function LoginFallback() {
+  const { t } = useSiteLanguage()
+  return (
+    <div className="flex items-center justify-center min-h-screen">{t("common.loading")}</div>
+  )
+}
+
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+    <Suspense fallback={<LoginFallback />}>
       <LoginContent />
     </Suspense>
   )
