@@ -40,6 +40,7 @@ type Invitation = {
   song_url?: string
   package_name?: string
   sections?: string[] | null
+  extras?: string[] | null
   custom_theme_color?: string
   email?: string
   whatsapp?: string
@@ -287,6 +288,21 @@ function OrderDetailsModal({
                     {SECTION_LABELS[section] || section}
                   </span>
                 ))}
+              </div>
+            )}
+            {invitation.extras && invitation.extras.length > 0 && (
+              <div className="space-y-2 mt-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selected Extras:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {invitation.extras.map((extra) => (
+                    <span
+                      key={extra}
+                      className="px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 text-xs font-medium border border-orange-500/20"
+                    >
+                      {extra}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </section>

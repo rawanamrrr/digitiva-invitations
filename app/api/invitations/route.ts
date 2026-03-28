@@ -12,26 +12,26 @@ function buildGoogleMapsSearchUrl(venue: string, venueAddress?: string) {
 const createSchema = z.object({
   brideName: z.string().min(1).max(100),
   groomName: z.string().min(1).max(100),
-  eventDate: z.string(),
+  eventDate: z.string().min(1),
   eventTime: z.string().min(1).max(50),
   venue: z.string().min(1).max(200),
-  venueAddress: z.string().optional(),
-  // Map URL is optional; if omitted we fall back to a generic map link
-  venueMapUrl: z.string().url().optional().or(z.literal("")),
-  venueMapImage: z.string().url().optional().or(z.literal("")),
+  venueAddress: z.string().optional().nullable(),
+  venueMapUrl: z.string().url().optional().or(z.literal("")).nullable(),
+  venueMapImage: z.string().url().optional().or(z.literal("")).nullable(),
   templateId: z.string().min(1),
-  coupleImage: z.string().optional(),
-  songUrl: z.string().url().optional().or(z.literal("")),
-  songType: z.enum(["mp3", "youtube"]).optional(),
-  youtubeVideoId: z.string().min(1).max(50).optional(),
+  coupleImage: z.string().optional().nullable(),
+  songUrl: z.string().url().optional().or(z.literal("")).nullable(),
+  songType: z.enum(["mp3", "youtube"]).optional().nullable(),
+  youtubeVideoId: z.string().min(1).max(50).optional().nullable(),
   packageName: z.enum(["standard", "premium", "custom"]),
-  sections: z.array(z.string()).optional(),
-  customThemeColor: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
-  whatsapp: z.string().optional(),
-  paymentMethod: z.enum(["instapay", "bank"]).optional(),
-  paymentScreenshot: z.string().optional(),
-})
+  sections: z.array(z.string()).optional().nullable(),
+  extras: z.array(z.string()).optional().nullable(),
+  customThemeColor: z.string().optional().nullable(),
+  email: z.string().email().optional().or(z.literal("")).nullable(),
+  whatsapp: z.string().optional().nullable(),
+  paymentMethod: z.enum(["instapay", "bank"]).optional().nullable(),
+  paymentScreenshot: z.string().optional().nullable(),
+});
 
 export async function GET() {
   const session = await auth()
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
 
     const venueMapUrl = d.venueMapUrl?.trim()
       ? d.venueMapUrl.trim()
-      : buildGoogleMapsSearchUrl(d.venue, d.venueAddress)
+      : buildGoogleMapsSearchUrl(d.venue, d.venueAddress ?? undefined)
 
     const songUrl = d.songType === "youtube" && d.youtubeVideoId?.trim()
       ? `youtube:${d.youtubeVideoId.trim()}`
@@ -99,6 +99,7 @@ export async function POST(req: Request) {
         song_url: songUrl,
         package_name: d.packageName,
         sections: d.sections?.length ? d.sections : null,
+        extras: d.extras?.length ? d.extras : null,
         custom_theme_color: d.customThemeColor || null,
         email: d.email || null,
         whatsapp: d.whatsapp || null,
