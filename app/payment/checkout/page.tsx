@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +12,7 @@ import { CreditCard } from "lucide-react"
 
 function CheckoutContent() {
   const { t } = useSiteLanguage()
+  const { currency, currencyShort } = useSiteCurrency()
   const router = useRouter()
   const searchParams = useSearchParams()
   const invitationId = searchParams.get("invitationId")
@@ -29,7 +31,7 @@ function CheckoutContent() {
       const res = await fetch("/api/payment/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ invitationId }),
+        body: JSON.stringify({ invitationId, orderCurrency: currency }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed")
@@ -53,6 +55,7 @@ function CheckoutContent() {
           </div>
           <p className="text-muted-foreground mb-6">
             {t("pay.checkout.subtitle")}
+            <span className="block mt-2 font-mono text-foreground">{currencyShort}</span>
           </p>
           <form onSubmit={handlePay} className="space-y-4">
             <div>

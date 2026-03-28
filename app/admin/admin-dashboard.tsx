@@ -1,7 +1,10 @@
 "use client"
 
+import { Suspense } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
+import { getCurrencyMeta, isSiteCurrency } from "@/lib/site-currencies"
 import { AdminInvitations, type Invitation } from "./admin-invitations"
 
 type UserRow = {
@@ -10,6 +13,21 @@ type UserRow = {
   email: string | null
   role: string | null
   created_at: string
+}
+
+function AdminOrderBanner() {
+  const { t } = useSiteLanguage()
+  const params = useSearchParams()
+  const code = params.get("orderCurrency")
+  if (!code || !isSiteCurrency(code)) return null
+  return (
+    <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground mb-6">
+      {t("admin.banner.lastOrderCurrency").replace(
+        "{currency}",
+        getCurrencyMeta(code).short,
+      )}
+    </div>
+  )
 }
 
 export function AdminDashboard({
@@ -23,6 +41,9 @@ export function AdminDashboard({
 
   return (
     <div className="space-y-8">
+      <Suspense fallback={null}>
+        <AdminOrderBanner />
+      </Suspense>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-serif font-bold">{t("admin.title")}</h1>
         <Link href="/" className="text-sm text-primary hover:underline">

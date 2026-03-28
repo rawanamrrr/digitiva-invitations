@@ -3,11 +3,13 @@
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Button } from "@/components/ui/button"
 
 function PaymentCompleteContent() {
   const { t } = useSiteLanguage()
+  const { currency } = useSiteCurrency()
   const searchParams = useSearchParams()
   const invitationId = searchParams.get("invitationId")
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
@@ -22,7 +24,7 @@ function PaymentCompleteContent() {
     fetch("/api/payment/complete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ invitationId }),
+      body: JSON.stringify({ invitationId, orderCurrency: currency }),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -34,7 +36,7 @@ function PaymentCompleteContent() {
         }
       })
       .catch(() => setStatus("error"))
-  }, [invitationId])
+  }, [invitationId, currency])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-background px-4">

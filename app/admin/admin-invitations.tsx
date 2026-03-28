@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
+import { getCurrencyMeta, isSiteCurrency } from "@/lib/site-currencies"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { templates } from "@/lib/templates"
@@ -47,6 +48,7 @@ export type Invitation = {
   whatsapp?: string
   payment_method?: string
   payment_screenshot?: string
+  order_currency?: string | null
   created_at?: string
 }
 
@@ -342,6 +344,17 @@ function OrderDetailsModal({
               {t("admin.inv.paymentDetails")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              {invitation.order_currency &&
+                isSiteCurrency(invitation.order_currency) && (
+                  <div>
+                    <span className="text-muted-foreground">
+                      {t("admin.inv.orderCurrency")}
+                    </span>{" "}
+                    <span className="font-mono font-medium text-foreground">
+                      {getCurrencyMeta(invitation.order_currency).short}
+                    </span>
+                  </div>
+                )}
               <div>
                 <span className="text-muted-foreground">{t("admin.inv.method")}</span>{" "}
                 <span className="font-medium text-foreground capitalize">
@@ -457,6 +470,7 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
             <tr>
               <th className="text-left p-3">{t("admin.table.couple")}</th>
               <th className="text-left p-3">{t("admin.table.package")}</th>
+              <th className="text-left p-3">{t("admin.th.currency")}</th>
               <th className="text-left p-3">{t("admin.table.status")}</th>
               <th className="text-left p-3">{t("admin.table.payment")}</th>
               <th className="text-left p-3">{t("admin.table.views")}</th>
@@ -474,6 +488,11 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
                   <span className="px-2 py-0.5 rounded text-xs bg-primary/10 text-primary font-medium capitalize">
                     {inv.package_name || "—"}
                   </span>
+                </td>
+                <td className="p-3 font-mono text-xs text-muted-foreground">
+                  {inv.order_currency && isSiteCurrency(inv.order_currency)
+                    ? getCurrencyMeta(inv.order_currency).short
+                    : "—"}
                 </td>
                 <td className="p-3">
                   <span

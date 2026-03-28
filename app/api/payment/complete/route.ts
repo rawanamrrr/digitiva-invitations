@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { createAdminClient } from "@/lib/supabase/server"
+import { isSiteCurrency } from "@/lib/site-currencies"
 
 export async function POST(req: Request) {
   const session = await auth()
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { invitationId } = await req.json()
+  const { invitationId, orderCurrency } = await req.json()
   if (!invitationId) {
     return NextResponse.json(
       { error: "invitationId required" },
@@ -27,9 +28,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
+  const updatePayload: Record<string, unknown> = {
+    payment_status: "paid",
+    is_published: true,
+  }
+  if (typeof orderCurrency === "string" && isSiteCurrency(orderCurrency)) {
+    updatePayload.order_currency = orderCurrency
+  }
+
   const { data, error } = await supabase
     .from("invitations")
-    .update({ payment_status: "paid", is_published: true })
+    .update(updatePayload)
     .eq("id", invitationId)
     .select()
     .single()

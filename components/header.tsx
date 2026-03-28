@@ -5,16 +5,21 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { Menu, X, ChevronRight, ChevronDown } from "lucide-react"
+import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
+import { SITE_CURRENCIES, type SiteCurrencyCode } from "@/lib/site-currencies"
 import { SITE_LOCALES, type SiteLocale } from "@/lib/site-locales"
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+  const [currencyOpen, setCurrencyOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { data: session, status } = useSession()
   const { t, locale, setLocale, isRTL } = useSiteLanguage()
+  const { currency, setCurrency, currencyShort, currencyEmoji } = useSiteCurrency()
   const langRef = useRef<HTMLDivElement>(null)
+  const currencyRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -24,8 +29,12 @@ export function Header() {
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      if (langRef.current && !langRef.current.contains(target)) {
         setLangOpen(false)
+      }
+      if (currencyRef.current && !currencyRef.current.contains(target)) {
+        setCurrencyOpen(false)
       }
     }
     document.addEventListener("mousedown", close)
@@ -77,16 +86,53 @@ export function Header() {
           </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 backdrop-blur-sm rounded-full border border-transparent hover:border-border/10 transition-all duration-300 text-xs sm:text-sm font-medium hover:scale-[1.03] hover:shadow-sm active:scale-[0.97]"
-            >
-              <span className="text-sm sm:text-base leading-none" style={{ position: "relative", top: "-1px" }}>
-                🇪🇬
-              </span>
-              <span className="tracking-wide">{t("header.currency")}</span>
-              <ChevronDown className="w-3 h-3 opacity-70" />
-            </button>
+            <div className="relative" ref={currencyRef}>
+              <button
+                type="button"
+                onClick={() => setCurrencyOpen((v) => !v)}
+                className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 backdrop-blur-sm rounded-full border border-transparent hover:border-border/10 transition-all duration-300 text-xs sm:text-sm font-medium hover:scale-[1.03] hover:shadow-sm active:scale-[0.97]"
+                aria-expanded={currencyOpen}
+                aria-haspopup="listbox"
+                aria-label={t("header.currency")}
+              >
+                <span
+                  className="text-sm sm:text-base leading-none"
+                  style={{ position: "relative", top: "-1px" }}
+                >
+                  {currencyEmoji}
+                </span>
+                <span className="tracking-wide">{currencyShort}</span>
+                <ChevronDown
+                  className={`w-3 h-3 opacity-70 transition-transform ${currencyOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {currencyOpen && (
+                <div
+                  className="absolute end-0 top-full mt-2 w-56 max-h-72 overflow-y-auto rounded-xl border border-border/10 shadow-lg bg-background/95 backdrop-blur-xl z-[60] py-1"
+                  role="listbox"
+                >
+                  {SITE_CURRENCIES.map((c) => (
+                    <button
+                      key={c.code}
+                      type="button"
+                      role="option"
+                      aria-selected={currency === c.code}
+                      onClick={() => {
+                        setCurrency(c.code as SiteCurrencyCode)
+                        setCurrencyOpen(false)
+                      }}
+                      className={`w-full text-start px-3 py-2.5 text-sm flex items-center justify-between gap-2 hover:bg-foreground/5 ${currency === c.code ? "bg-primary/10 font-medium" : ""}`}
+                    >
+                      <span className="flex items-center gap-2 min-w-0">
+                        <span className="shrink-0">{c.emoji}</span>
+                        <span className="truncate">{t(`currency.${c.code}`)}</span>
+                      </span>
+                      <span className="text-muted-foreground text-xs shrink-0">{c.short}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className="relative" ref={langRef}>
               <button

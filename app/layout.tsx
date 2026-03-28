@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Cormorant_Garamond, Great_Vibes, Cinzel, Noto_Naskh_Arabic } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SessionProvider } from "@/components/providers/session-provider"
+import { SiteCurrencyProvider } from "@/contexts/SiteCurrencyContext"
 import { SiteLanguageProvider } from "@/contexts/SiteLanguageContext"
 import "./globals.css"
 
@@ -47,7 +48,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${_notoNaskh.variable} font-sans antialiased`}>
         <SessionProvider>
-          <SiteLanguageProvider>{children}</SiteLanguageProvider>
+          <SiteLanguageProvider>
+            <SiteCurrencyProvider>{children}</SiteCurrencyProvider>
+          </SiteLanguageProvider>
         </SessionProvider>
         <Analytics />
       </body>

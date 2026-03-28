@@ -3,6 +3,7 @@
 import { Check, Star, Crown, Sparkles, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 const packageDefs = [
@@ -51,6 +52,7 @@ const packageDefs = [
 export function Packages() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const { t, isRTL } = useSiteLanguage()
+  const { currencyShort } = useSiteCurrency()
 
   return (
     <section id="packages" className="py-16 sm:py-32 lg:py-40 relative overflow-hidden px-4 sm:px-6 lg:px-8 bg-background">
@@ -150,7 +152,7 @@ export function Packages() {
                               pkg.popular ? "text-primary-foreground/80" : "text-muted-foreground"
                             }`}
                           >
-                            {t("pkg.currency")}
+                            {currencyShort}
                           </span>
                         </div>
                       </div>

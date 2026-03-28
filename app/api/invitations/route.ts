@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"
 import { createAdminClient } from "@/lib/supabase/server"
 import { generateSlug } from "@/utils/generateSlug"
 import { z } from "zod"
+import { isSiteCurrency } from "@/lib/site-currencies"
 
 function buildGoogleMapsSearchUrl(venue: string, venueAddress?: string) {
   const query = [venue, venueAddress].filter(Boolean).join(" ").trim()
@@ -31,6 +32,9 @@ const createSchema = z.object({
   whatsapp: z.string().optional().nullable(),
   paymentMethod: z.enum(["instapay", "bank"]).optional().nullable(),
   paymentScreenshot: z.string().optional().nullable(),
+  orderCurrency: z
+    .string()
+    .refine((v) => isSiteCurrency(v), { message: "Invalid order currency" }),
 });
 
 export async function GET() {
@@ -105,6 +109,7 @@ export async function POST(req: Request) {
         whatsapp: d.whatsapp || null,
         payment_method: d.paymentMethod || null,
         payment_screenshot: d.paymentScreenshot || null,
+        order_currency: d.orderCurrency,
         slug,
         payment_status: "pending",
         is_published: false,

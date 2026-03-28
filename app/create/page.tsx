@@ -21,7 +21,6 @@ import {
   Smartphone,
   Landmark,
   ArrowLeft,
-  CheckCircle2,
   ExternalLink,
   Clock,
   MapPin,
@@ -32,6 +31,7 @@ import {
   Heart,
   HelpCircle,
   ArrowRight,
+  CheckCircle2,
   Globe,
   Zap,
   Video,
@@ -44,6 +44,7 @@ import {
   MessageCircle,
 } from "lucide-react"
 import { templates } from "@/lib/templates"
+import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 type PackageId = "standard" | "premium" | "custom"
@@ -103,6 +104,7 @@ const PACKAGE_CORE: Record<PackageId, { price: number; sections: string[] }> = {
 
 function CreateInvitationContent() {
   const { t } = useSiteLanguage()
+  const { currencyShort, currency } = useSiteCurrency()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -286,6 +288,7 @@ function CreateInvitationContent() {
           whatsapp: `${form.countryCode}${form.whatsapp}`,
           paymentMethod,
           paymentScreenshot: screenshotUrl,
+          orderCurrency: currency,
         }),
       })
       const data = await res.json()
@@ -476,7 +479,9 @@ function CreateInvitationContent() {
                     >
                       <div className="font-semibold text-foreground">{pkg.label}</div>
                       <div className="text-xs text-muted-foreground mt-1">{pkg.description}</div>
-                      <div className="mt-2 font-bold text-primary">{pkg.price} LE</div>
+                      <div className="mt-2 font-bold text-primary">
+                        {pkg.price} {currencyShort}
+                      </div>
                     </button>
                   )
                 })}
@@ -528,7 +533,9 @@ function CreateInvitationContent() {
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-medium text-foreground">{t("create.sections.title")}</div>
                     <div className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full uppercase tracking-tight">
-                      {t("create.sections.extraEach").replace("{price}", String(SECTION_PRICE))}
+                      {t("create.sections.extraEach")
+                        .replace("{price}", String(SECTION_PRICE))
+                        .replace("{currency}", currencyShort)}
                     </div>
                   </div>
                   <div className="text-[11px] text-primary font-medium">
@@ -569,7 +576,10 @@ function CreateInvitationContent() {
                       >
                         {isExtra && (
                           <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            {t("create.section.badgeExtra")}
+                            {t("create.section.badgeExtra").replace(
+                              "{currency}",
+                              currencyShort,
+                            )}
                           </div>
                         )}
                         <Icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
@@ -598,7 +608,10 @@ function CreateInvitationContent() {
                       >
                         {isExtra && (
                           <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            {t("create.section.badgeExtra")}
+                            {t("create.section.badgeExtra").replace(
+                              "{currency}",
+                              currencyShort,
+                            )}
                           </div>
                         )}
                         <Heart className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
@@ -733,7 +746,7 @@ function CreateInvitationContent() {
                           <p className="text-xs text-muted-foreground line-clamp-1">{extra.description}</p>
                         </div>
                         <div className="text-sm font-bold text-foreground shrink-0">
-                          +{extra.price} LE
+                          +{extra.price} {currencyShort}
                         </div>
                       </button>
                     )
@@ -753,7 +766,8 @@ function CreateInvitationContent() {
             <div className="text-center text-[11px] text-muted-foreground mb-2">
               {t("create.bottom.summary")
                 .replace("{count}", String(selectedSections.length))
-                .replace("{extra}", String(sectionsExtraPrice + extrasPrice))}
+                .replace("{extra}", String(sectionsExtraPrice + extrasPrice))
+                .replace("{currency}", currencyShort)}
             </div>
             {!canProceedToStep2 && (
               <div className="text-center text-[11px] text-muted-foreground mb-2">
@@ -771,7 +785,9 @@ function CreateInvitationContent() {
               }}
             >
               <span className="relative z-10 flex items-center justify-center gap-2 uppercase tracking-wide">
-                {t("create.bottom.pay").replace("{price}", String(totalPrice))}{" "}
+                {t("create.bottom.pay")
+                  .replace("{price}", String(totalPrice))
+                  .replace("{currency}", currencyShort)}{" "}
                 <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
               </span>
               <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -899,7 +915,9 @@ function CreateInvitationContent() {
                 }
               }}
             >
-              {t("create.nextPayment").replace("{price}", String(totalPrice))}
+              {t("create.nextPayment")
+                .replace("{price}", String(totalPrice))
+                .replace("{currency}", currencyShort)}
             </Button>
           </CardContent>
         </Card>
@@ -917,7 +935,9 @@ function CreateInvitationContent() {
             <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex justify-between items-center">
               <div>
                 <p className="text-sm text-muted-foreground font-medium uppercase">{t("create.payment.totalLabel")}</p>
-                <p className="text-3xl font-bold text-primary">{totalPrice} LE</p>
+                <p className="text-3xl font-bold text-primary">
+                  {totalPrice} {currencyShort}
+                </p>
               </div>
               <CreditCard className="w-10 h-10 text-primary opacity-20" />
             </div>
@@ -1026,7 +1046,7 @@ function CreateInvitationContent() {
               <p className="font-semibold text-primary">{t("create.success.note1")}</p>
               <p className="text-sm text-primary/80 font-medium">{t("create.success.note2")}</p>
             </div>
-            <div className="pt-8">
+            <div className="pt-8 flex flex-col sm:flex-row gap-3 justify-center items-center">
               <Button
                 variant="outline"
                 className="rounded-full px-8 hover:bg-primary/5"
