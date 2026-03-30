@@ -45,6 +45,7 @@ export const EN: Record<string, string> = {
   "categories.title2": "every occasion",
   "categories.sub":
     "From intimate gatherings to grand celebrations, find the perfect invitation style for your special moment.",
+  "categories.footer": "And much more! We can create a custom invitation for any occasion you can imagine.",
   "cat.wedding.title": "Wedding",
   "cat.wedding.sub": "Elegant & Romantic",
   "cat.engagement.title": "Engagement",
@@ -486,6 +487,7 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
     "categories.title2": "كل المناسبات",
     "categories.sub":
       "من التجمعات الحميمية إلى الاحتفالات الكبرى، اختر أسلوب الدعوة المناسب لمناسبتك.",
+    "categories.footer": "وأكثر من ذلك بكثير! يمكننا إنشاء دعوة مخصصة لأي مناسبة تتخيلها.",
     "cat.wedding.title": "زفاف",
     "cat.wedding.sub": "أنيق ورومانسي",
     "cat.engagement.title": "خطوبة",

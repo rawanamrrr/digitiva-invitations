@@ -30,6 +30,7 @@ export const PT_FULL: Record<string, string> = {
   "categories.title1": "Convites para",
   "categories.title2": "cada ocasião",
   "categories.sub": "Do encontro íntimo à grande festa — encontre o seu estilo.",
+  "categories.footer": "E muito mais! Podemos criar um convite personalizado para qualquer ocasião que você imaginar.",
   "cat.wedding.title": "Casamento",
   "cat.wedding.sub": "Elegante e romântico",
   "cat.engagement.title": "Noivado",

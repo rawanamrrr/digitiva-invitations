@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, Heart, Gem, BookHeart, Cake, Baby, PartyPopper } from "lucide-react"
+import { ArrowRight, Heart, Gem, BookHeart, Cake, Baby, PartyPopper, Sparkles } from "lucide-react"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 
@@ -58,7 +58,7 @@ const categories = [
 
 export function EventCategories() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const { t } = useSiteLanguage()
+  const { t, isRTL } = useSiteLanguage()
 
   return (
     <section id="weddings" className="py-16 lg:py-24 px-6 lg:px-8 bg-card scroll-mt-24">
@@ -81,26 +81,21 @@ export function EventCategories() {
               <div
                 key={category.id}
                 id={anchorId}
-                className="group relative scroll-mt-24"
+                className="group relative scroll-mt-24 h-full"
                 onMouseEnter={() => setHoveredId(category.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <Card className={`h-full transition-all duration-300 hover:shadow-md ${category.color} hover:shadow-primary/10`}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <div className={`p-2.5 rounded-lg ${category.accentColor}/10`}>
-                        <Icon className={`w-5 h-5 ${category.accentColor}`} />
-                      </div>
-                      <ArrowRight
-                        className={`w-4 h-4 transition-transform duration-300 ${hoveredId === category.id ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'}`}
-                      />
+                <Card
+                  className={`h-full min-w-0 overflow-hidden border-none shadow-none bg-transparent transition-all duration-500 hover:scale-[1.02]`}
+                >
+                  <CardContent className="p-0 flex flex-col items-center text-center">
+                    <div className={`mb-3 p-3 rounded-xl ${category.color} ${category.accentColor} transition-colors duration-300 group-hover:bg-primary/5 group-hover:text-primary relative`}>
+                      <Icon className="w-6 h-6 sm:w-8 h-8" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <CardTitle className="text-lg font-medium mb-1">
+                    <CardTitle className="text-xs sm:text-sm font-medium mb-1 text-foreground/80 group-hover:text-primary transition-colors">
                       {t(`cat.${category.id === "katb-ketab" ? "katb" : category.id === "baby-shower" ? "baby" : category.id}.title`)}
                     </CardTitle>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground/60 px-2">
                       {t(`cat.${category.id === "katb-ketab" ? "katb" : category.id === "baby-shower" ? "baby" : category.id}.sub`)}
                     </p>
                   </CardContent>
@@ -108,6 +103,12 @@ export function EventCategories() {
               </div>
             )
           })}
+        </div>
+
+        <div className="mt-12 text-center">
+          <p className="text-xs sm:text-sm text-muted-foreground/60 tracking-tight">
+            {t("categories.footer")}
+          </p>
         </div>
       </div>
     </section>

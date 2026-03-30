@@ -30,6 +30,7 @@ export const RU_FULL: Record<string, string> = {
   "categories.title1": "Приглашения на",
   "categories.title2": "любой случай",
   "categories.sub": "От камерного вечера до большого праздника — найдите свой стиль.",
+  "categories.footer": "И многое другое! Мы можем создать индивидуальное приглашение для любого случая, который вы можете себе представить.",
   "cat.wedding.title": "Свадьба",
   "cat.wedding.sub": "Элегантно и романтично",
   "cat.engagement.title": "Помолвка",

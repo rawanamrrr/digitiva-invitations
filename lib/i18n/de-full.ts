@@ -30,6 +30,7 @@ export const DE_FULL: Record<string, string> = {
   "categories.title1": "Einladungen für",
   "categories.title2": "jeden Anlass",
   "categories.sub": "Vom intimen Treffen bis zur großen Feier – finden Sie Ihren Stil.",
+  "categories.footer": "Und vieles mehr! Wir können eine individuelle Einladung für jeden Anlass erstellen, den Sie sich vorstellen können.",
   "cat.wedding.title": "Hochzeit",
   "cat.wedding.sub": "Elegant & romantisch",
   "cat.engagement.title": "Verlobung",

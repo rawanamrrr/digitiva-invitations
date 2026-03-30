@@ -30,6 +30,7 @@ export const ZH_FULL: Record<string, string> = {
   "categories.title1": "适用于",
   "categories.title2": "每种场合",
   "categories.sub": "从私人聚会到盛大庆典，找到属于你的风格。",
+  "categories.footer": "还有更多！我们可以为您能想象到的任何场合创建定制邀请函。",
   "cat.wedding.title": "婚礼",
   "cat.wedding.sub": "优雅浪漫",
   "cat.engagement.title": "订婚",

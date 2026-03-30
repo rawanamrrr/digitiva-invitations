@@ -30,6 +30,7 @@ export const HI_FULL: Record<string, string> = {
   "categories.title1": "हर मौके के लिए",
   "categories.title2": "निमंत्रण",
   "categories.sub": "निजी मुलाकात से बड़े उत्सव तक — अपनी शैली चुनें।",
+  "categories.footer": "और भी बहुत कुछ! हम आपके द्वारा कल्पना किए जाने वाले किसी भी अवसर के लिए कस्टम निमंत्रण बना सकते हैं।",
   "cat.wedding.title": "शादी",
   "cat.wedding.sub": "सुरुचिपूर्ण और रोमांटिक",
   "cat.engagement.title": "सगाई",

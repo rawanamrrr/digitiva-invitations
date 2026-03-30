@@ -105,9 +105,6 @@ export function Hero() {
 
         {/* Device mockups */}
         <div className="relative mt-20 sm:mt-28 lg:mt-32 flex justify-center items-end gap-4 lg:gap-8 pb-0">
-          <div className="hidden lg:block animate-float-delayed">
-            <DeviceMockup type="laptop" />
-          </div>
           <div className="animate-float z-10">
             <DeviceMockup type="phone" />
           </div>

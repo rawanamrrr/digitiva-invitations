@@ -30,6 +30,7 @@ export const ES_FULL: Record<string, string> = {
   "categories.title1": "Invitaciones para",
   "categories.title2": "cada ocasión",
   "categories.sub": "Del encuentro íntimo a la gran celebración, encuentra tu estilo.",
+  "categories.footer": "¡Y mucho más! Podemos crear una invitación personalizada para cualquier ocasión que te imagines.",
   "cat.wedding.title": "Boda",
   "cat.wedding.sub": "Elegante y romántica",
   "cat.engagement.title": "Compromiso",
