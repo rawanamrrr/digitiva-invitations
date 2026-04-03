@@ -168,19 +168,19 @@ export const EN: Record<string, string> = {
     "Most invitations are ready within 5-7 business days from design approval. Rush orders can be completed in 2-3 days for an additional fee.",
   "faq.q1": "Can I make changes after the invitation is created?",
   "faq.a1":
-    "We offer unlimited revisions during the design phase and minor updates after launch. Your invitation can evolve as your plans change.",
+    "We offer unlimited revisions during the design phase and minor updates after launch.",
   "faq.q2": "How do my guests RSVP?",
   "faq.a2":
-    "Guests simply click a button on your invitation to respond. They can also add dietary requirements, song requests, or any other information you need.",
+    "Guests simply enter their name and click RSVP to confirm their attendance. You'll receive an instant email notification with their confirmation and any additional details they've provided.",
   "faq.q3": "Is my invitation mobile-friendly?",
   "faq.a3":
-    "Yes! All our invitations are fully responsive and look beautiful on any device - smartphones, tablets, and desktops.",
+    "Yes! All our invitations are fully responsive and look beautiful on any device - smartphones and tablets.",
   "faq.q4": "Can I see a preview before purchasing?",
   "faq.a4":
     "We offer a free consultation where we discuss your vision and show you relevant examples from our portfolio.",
   "faq.q5": "What's included in the price?",
   "faq.a5":
-    "Our packages include custom design, development, hosting for 1 year, RSVP management, unlimited guest access, and ongoing support. No hidden fees!",
+    "Our packages include custom design, development, hosting for 2 months, email RSVP management, unlimited guest access, and ongoing support. No hidden fees!",
 
   "cta.badge": "Ready to Impress Your Guests?",
   "cta.title1": "Create Your",
