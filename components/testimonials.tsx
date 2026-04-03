@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react"
-import Image from "next/image"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 const COUNT = 3
@@ -73,15 +72,6 @@ export function Testimonials() {
             </blockquote>
 
             <div className="flex flex-col items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden ring-3 ring-teal/20">
-                <Image
-                  src="/placeholder.svg?height=80&width=80"
-                  alt={t(`test.a${i}`)}
-                  width={64}
-                  height={64}
-                  className="w-full h-full object-cover"
-                />
-              </div>
               <div className="text-center">
                 <p className="font-semibold text-foreground text-base sm:text-lg">{t(`test.a${i}`)}</p>
                 <p className="text-sm sm:text-base text-muted-foreground">

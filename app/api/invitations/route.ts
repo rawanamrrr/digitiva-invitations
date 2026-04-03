@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server"
 import { generateSlug } from "@/utils/generateSlug"
 import { z } from "zod"
 import { isSiteCurrency } from "@/lib/site-currencies"
+import bcrypt from "bcryptjs"
 
 function buildGoogleMapsSearchUrl(venue: string, venueAddress?: string) {
   const query = [venue, venueAddress].filter(Boolean).join(" ").trim()
@@ -37,6 +38,40 @@ const createSchema = z.object({
     .refine((v) => isSiteCurrency(v), { message: "Invalid order currency" }),
 });
 
+async function getOrCreateGuestUserId(supabase: ReturnType<typeof createAdminClient>) {
+  const email = "guest@digitiva.local"
+
+  const { data: existing } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .single()
+
+  if (existing?.id) return existing.id as string
+
+  const password_hash = await bcrypt.hash(Math.random().toString(36).slice(2), 12)
+
+  const { data: created, error } = await supabase
+    .from("users")
+    .insert({ name: "Guest", email, password_hash, role: "user" })
+    .select("id")
+    .single()
+
+  if (!error && created?.id) return created.id as string
+
+  const { data: existingAfter } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .single()
+
+  if (!existingAfter?.id) {
+    throw new Error("Failed to create guest user")
+  }
+
+  return existingAfter.id as string
+}
+
 export async function GET() {
   const session = await auth()
   if (!session?.user?.id) {
@@ -59,12 +94,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
+    const session = await auth()
     const body = await req.json()
     const parsed = createSchema.safeParse(body)
     if (!parsed.success) {
@@ -78,6 +109,10 @@ export async function POST(req: Request) {
     const supabase = createAdminClient()
     const d = parsed.data
 
+    const userId = session?.user?.id
+      ? ((session.user as { id: string }).id as string)
+      : await getOrCreateGuestUserId(supabase)
+
     const venueMapUrl = d.venueMapUrl?.trim()
       ? d.venueMapUrl.trim()
       : buildGoogleMapsSearchUrl(d.venue, d.venueAddress ?? undefined)
@@ -89,7 +124,7 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from("invitations")
       .insert({
-        user_id: (session.user as { id: string }).id,
+        user_id: userId,
         bride_name: d.brideName,
         groom_name: d.groomName,
         event_date: d.eventDate,

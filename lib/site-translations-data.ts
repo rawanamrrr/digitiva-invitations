@@ -189,8 +189,6 @@ export const EN: Record<string, string> = {
     "Join hundreds of happy couples and event organizers who have wowed their guests with stunning Digitiva invitations.",
   "cta.primary": "Start Creating Now",
   "cta.secondary": "View Examples",
-  "cta.note1": "Free consultation included",
-  "cta.note2": "No credit card required",
 
   "foot.tagline":
     "Creating stunning, custom event invitation websites that capture the essence of your celebration. Every design tells a unique story.",
@@ -615,8 +613,6 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
       "انضم لمئات الأزواج والمنظمين الذين أبهروا ضيوفهم بدعوات Digitiva.",
     "cta.primary": "ابدأ الإنشاء الآن",
     "cta.secondary": "شاهد الأمثلة",
-    "cta.note1": "استشارة مجانية مشمولة",
-    "cta.note2": "دون بطاقة ائتمان",
     "foot.tagline":
       "نصمم مواقع دعوة فعاليات مذهلة تعكس روح احتفالك. كل تصميم يروي قصة فريدة.",
     "foot.quick": "روابط سريعة",

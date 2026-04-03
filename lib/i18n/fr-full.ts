@@ -23,7 +23,7 @@ export const FR_FULL: Record<string, string> = {
       "Concevez de superbes invitations numériques en minutes. Mariages, anniversaires et tous vos moments uniques.",
     "hero.startCreating": "Commencer",
     "hero.seeWork": "Voir nos réalisations",
-    "hero.events": "500+ événements",
+    "hero.events": "50+ événements",
     "hero.eventsSub": "Créés et célébrés",
     "hero.rating": "Note 5.0",
     "hero.ratingSub": "De nos utilisateurs",

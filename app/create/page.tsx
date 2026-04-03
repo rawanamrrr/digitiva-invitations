@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense, useMemo } from "react"
+import { useState, useEffect, Suspense, useMemo, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,6 +46,7 @@ import {
 import { templates } from "@/lib/templates"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
+import { SITE_LOCALES, type SiteLocale } from "@/lib/site-locales"
 
 type PackageId = "standard" | "premium" | "custom"
 
@@ -65,6 +66,14 @@ const PACKAGE_LIMITS = {
 }
 
 const SECTION_PRICE = 50
+
+const LANGUAGE_PRICE = 50
+
+const INCLUDED_LANGUAGES: Record<PackageId, number> = {
+  standard: 1,
+  premium: 2,
+  custom: 0,
+}
 
 const SECTION_IDS = [
   "countdown",
@@ -161,8 +170,9 @@ function CreateInvitationContent() {
   const [selectedExtras, setSelectedExtras] = useState<string[]>([])
   const [customSections, setCustomSections] = useState<{ id: string; label: string }[]>([])
   const [customBlockLabel, setCustomBlockLabel] = useState("")
-  const [primaryLanguage, setPrimaryLanguage] = useState<"en" | "ar">("en")
-  const [secondaryLanguage, setSecondaryLanguage] = useState<"en" | "ar" | "">("")
+  const [selectedLanguages, setSelectedLanguages] = useState<SiteLocale[]>(["en"])
+  const [requestedLanguage, setRequestedLanguage] = useState("")
+  const [customLanguages, setCustomLanguages] = useState<string[]>([])
   const [paymentMethod, setPaymentMethod] = useState<"instapay" | "bank">("instapay")
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null)
 
@@ -215,11 +225,27 @@ function CreateInvitationContent() {
   const handlePackageChange = (pkg: PackageId) => {
     setSelectedPackage(pkg)
     setSelectedSections([])
-    // Reset secondary language if switching to standard package
-    if (pkg === "standard") {
-      setSecondaryLanguage("")
-    }
+    setSelectedLanguages((prev) => {
+      const included = INCLUDED_LANGUAGES[pkg]
+      if (included <= 0) return prev
+      const next = prev.length ? prev : (["en"] as SiteLocale[])
+      return next.slice(0, Math.max(1, included))
+    })
   }
+
+  const didInitPackageFromUrl = useRef(false)
+
+  useEffect(() => {
+    if (didInitPackageFromUrl.current) return
+    const p = searchParams.get("package")
+    if (p === "standard" || p === "premium" || p === "custom") {
+      const next = p as PackageId
+      if (next !== selectedPackage) {
+        handlePackageChange(next)
+      }
+    }
+    didInitPackageFromUrl.current = true
+  }, [searchParams, selectedPackage])
 
   const toggleSection = (id: string) => {
     setSelectedSections((prev) =>
@@ -255,6 +281,17 @@ function CreateInvitationContent() {
         return extras.find((e) => e.id === id)?.label || id
       })
 
+      const selectedLanguageLabels = selectedLanguages
+        .map((code) => SITE_LOCALES.find((l) => l.code === code)?.label)
+        .filter(Boolean)
+        .map((label) => `Language: ${label}`)
+
+      const customLanguageLabels = customLanguages.map((l) => `Custom language: ${l}`)
+
+      const extraLabelsWithLanguageRequest = requestedLanguage.trim()
+        ? [...extraLabels, ...selectedLanguageLabels, ...customLanguageLabels, `Requested language: ${requestedLanguage.trim()}`]
+        : [...extraLabels, ...selectedLanguageLabels, ...customLanguageLabels]
+
       console.log("Publishing with payload:", {
         brideName: form.brideName,
         groomName: form.groomName,
@@ -264,7 +301,7 @@ function CreateInvitationContent() {
         templateId: form.templateId,
         packageName: selectedPackage,
         sections: sectionLabels,
-        extras: extraLabels,
+        extras: extraLabelsWithLanguageRequest,
         email: form.email,
         whatsapp: form.whatsapp,
         paymentMethod,
@@ -283,7 +320,7 @@ function CreateInvitationContent() {
           templateId: form.templateId,
           packageName: selectedPackage,
           sections: sectionLabels,
-          extras: extraLabels,
+          extras: extraLabelsWithLanguageRequest,
           email: form.email || null,
           whatsapp: `${form.countryCode}${form.whatsapp}`,
           paymentMethod,
@@ -307,6 +344,8 @@ function CreateInvitationContent() {
 
   const basePrice = packageSections[selectedPackage].price
   const limit = PACKAGE_LIMITS[selectedPackage]
+  const includedLanguages = INCLUDED_LANGUAGES[selectedPackage]
+  const totalLanguagesCount = selectedLanguages.length + customLanguages.length
   
   // Calculate extra sections cost
   const totalSelectedSections = selectedSections.length
@@ -317,8 +356,11 @@ function CreateInvitationContent() {
     const extra = extras.find((e) => e.id === id)
     return sum + (extra?.price || 0)
   }, 0)
+
+  const extraLanguagesCount = selectedPackage === "custom" ? 0 : Math.max(0, totalLanguagesCount - includedLanguages)
+  const languagesExtraPrice = extraLanguagesCount * LANGUAGE_PRICE
   
-  const totalPrice = basePrice + sectionsExtraPrice + extrasPrice
+  const totalPrice = basePrice + sectionsExtraPrice + extrasPrice + languagesExtraPrice
 
   const canProceedToStep2 = Boolean(form.templateId) && selectedSections.length > 0
 
@@ -394,68 +436,72 @@ function CreateInvitationContent() {
 
       {step === 1 && (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-32">
-          <div className="text-center space-y-3">
-            <h1 className="text-4xl font-serif text-foreground">{t("create.chooseStyle.title")}</h1>
-            <p className="text-muted-foreground text-lg">{t("create.chooseStyle.sub")}</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {templates.map((template) => {
-              const isVideo = template.image.endsWith('.mp4')
-              const isSelected = form.templateId === template.id
-              return (
-                <button
-                  key={template.id}
-                  className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all text-left ${
-                    isSelected ? "border-primary ring-2 ring-primary ring-offset-2 scale-[1.02]" : "border-transparent hover:border-primary/50"
-                  }`}
-                  onClick={() => {
-                    update("templateId", template.id)
-                  }}
-                >
-                  {isVideo ? (
-                    <video
-                      src={template.image}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <img
-                      src={template.image}
-                      alt={template.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-between">
-                    <div className="flex justify-between">
-                      {isSelected && (
-                        <div className="bg-primary text-white rounded-full p-1 self-end shadow-md">
-                          <Check className="w-4 h-4" />
-                        </div>
+          {selectedPackage !== "custom" && (
+            <>
+              <div className="text-center space-y-3">
+                <h1 className="text-4xl font-serif text-foreground">{t("create.chooseStyle.title")}</h1>
+                <p className="text-muted-foreground text-lg">{t("create.chooseStyle.sub")}</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {templates.map((template) => {
+                  const isVideo = template.image.endsWith('.mp4')
+                  const isSelected = form.templateId === template.id
+                  return (
+                    <button
+                      key={template.id}
+                      className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all text-left ${
+                        isSelected ? "border-primary ring-2 ring-primary ring-offset-2 scale-[1.02]" : "border-transparent hover:border-primary/50"
+                      }`}
+                      onClick={() => {
+                        update("templateId", template.id)
+                      }}
+                    >
+                      {isVideo ? (
+                        <video
+                          src={template.image}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <img
+                          src={template.image}
+                          alt={template.name}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
                       )}
-                    </div>
-                    <div className="flex justify-between items-end w-full">
-                      <div className="font-semibold text-white/90 text-lg leading-tight drop-shadow-md">
-                        {template.name}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-between">
+                        <div className="flex justify-between">
+                          {isSelected && (
+                            <div className="bg-primary text-white rounded-full p-1 self-end shadow-md">
+                              <Check className="w-4 h-4" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex justify-between items-end w-full">
+                          <div className="font-semibold text-white/90 text-lg leading-tight drop-shadow-md">
+                            {template.name}
+                          </div>
+                          <a
+                            href={template.demoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors shadow-sm"
+                            onClick={(e) => e.stopPropagation()}
+                            title={t("create.previewDemo")}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        </div>
                       </div>
-                      <a
-                        href={template.demoUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors shadow-sm"
-                        onClick={(e) => e.stopPropagation()}
-                        title={t("create.previewDemo")}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          )}
 
           <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
             <CardHeader>
@@ -653,52 +699,114 @@ function CreateInvitationContent() {
                   <div className="text-xs text-muted-foreground mt-1">
                     {selectedPackage === "standard" ? t("create.lang.sub1") : t("create.lang.sub2")}
                   </div>
+                  <div className="text-[11px] text-muted-foreground mt-2">
+                    +{LANGUAGE_PRICE} EGP {" "}
+                    {selectedPackage === "standard"
+                      ? `(${Math.max(0, totalLanguagesCount - 1)} extra)`
+                      : `(${Math.max(0, totalLanguagesCount - 2)} extra)`}
+                  </div>
                 </div>
 
                 <div className="space-y-3">
-                  <div>
-                    <Select
-                      value={primaryLanguage}
-                      onValueChange={(v) => {
-                        const next = v as "en" | "ar"
-                        setPrimaryLanguage(next)
-                        if (secondaryLanguage === next) setSecondaryLanguage("")
+                  <div className="space-y-2">
+                    {selectedLanguages.map((code, idx) => (
+                      <div key={code} className="flex gap-3">
+                        <Select
+                          value={code}
+                          onValueChange={(v) => {
+                            const next = v as SiteLocale
+                            setSelectedLanguages((prev) => {
+                              if (prev.includes(next)) return prev
+                              const copy = [...prev]
+                              copy[idx] = next
+                              return copy
+                            })
+                          }}
+                        >
+                          <SelectTrigger className="w-full rounded-xl h-11">
+                            <SelectValue placeholder={idx === 0 ? t("create.lang.selectPrimary") : t("create.lang.selectSecondary")} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {SITE_LOCALES.filter((l) => !selectedLanguages.includes(l.code) || l.code === code).map((l) => (
+                              <SelectItem key={l.code} value={l.code}>
+                                {l.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {idx > 0 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="rounded-xl h-11 px-4 shrink-0"
+                            onClick={() => setSelectedLanguages((prev) => prev.filter((_, i) => i !== idx))}
+                          >
+                            {t("create.lang.remove")}
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-xl h-11 w-full"
+                      onClick={() => {
+                        const available = SITE_LOCALES.find((l) => !selectedLanguages.includes(l.code))
+                        if (!available) return
+                        setSelectedLanguages((prev) => [...prev, available.code])
                       }}
                     >
-                      <SelectTrigger className="w-full rounded-xl h-11">
-                        <SelectValue placeholder={t("create.lang.selectPrimary")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">{t("create.lang.en")}</SelectItem>
-                        <SelectItem value="ar">{t("create.lang.ar")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      {t("create.lang.add")}
+                    </Button>
 
-                  {selectedPackage !== "standard" && (
-                    <div className="flex gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <Select
-                        value={secondaryLanguage}
-                        onValueChange={(v) => setSecondaryLanguage(v as "en" | "ar")}
-                      >
-                        <SelectTrigger className="w-full rounded-xl h-11">
-                          <SelectValue placeholder={t("create.lang.selectSecondary")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {primaryLanguage !== "en" && <SelectItem value="en">{t("create.lang.en")}</SelectItem>}
-                          {primaryLanguage !== "ar" && <SelectItem value="ar">{t("create.lang.ar")}</SelectItem>}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="rounded-xl h-11 px-4 shrink-0"
-                        onClick={() => setSecondaryLanguage(secondaryLanguage ? "" : (primaryLanguage === "en" ? "ar" : "en"))}
-                      >
-                        {secondaryLanguage ? t("create.lang.remove") : t("create.lang.add")}
-                      </Button>
+                    <div className="pt-2">
+                      <div className="text-[11px] text-muted-foreground mb-2">
+                        Can’t find your language? Write it here.
+                      </div>
+                      <div className="flex gap-3">
+                        <Input
+                          className="rounded-xl h-11"
+                          value={requestedLanguage}
+                          onChange={(e) => setRequestedLanguage(e.target.value)}
+                          placeholder="Type your language..."
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-xl h-11 px-4 shrink-0"
+                          onClick={() => {
+                            const v = requestedLanguage.trim()
+                            if (!v) return
+                            setCustomLanguages((prev) => (prev.includes(v) ? prev : [...prev, v]))
+                            setRequestedLanguage("")
+                          }}
+                        >
+                          {t("create.lang.add")}
+                        </Button>
+                      </div>
+
+                      {customLanguages.length > 0 && (
+                        <div className="pt-2 space-y-2">
+                          {customLanguages.map((l) => (
+                            <div key={l} className="flex gap-3">
+                              <div className="flex-1 rounded-xl h-11 border border-border bg-muted/40 px-4 flex items-center text-sm text-foreground">
+                                {l}
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="rounded-xl h-11 px-4 shrink-0"
+                                onClick={() => setCustomLanguages((prev) => prev.filter((x) => x !== l))}
+                              >
+                                {t("create.lang.remove")}
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
@@ -766,7 +874,7 @@ function CreateInvitationContent() {
             <div className="text-center text-[11px] text-muted-foreground mb-2">
               {t("create.bottom.summary")
                 .replace("{count}", String(selectedSections.length))
-                .replace("{extra}", String(sectionsExtraPrice + extrasPrice))
+                .replace("{extra}", String(sectionsExtraPrice + extrasPrice + languagesExtraPrice))
                 .replace("{currency}", currencyShort)}
             </div>
             {!canProceedToStep2 && (

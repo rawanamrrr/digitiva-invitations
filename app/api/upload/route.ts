@@ -1,15 +1,9 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
 import { createAdminClient } from "@/lib/supabase/server"
 
 const BUCKET = "uploads"
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
     const formData = await req.formData()
     const file = formData.get("file") as File | null
@@ -28,7 +22,7 @@ export async function POST(req: Request) {
     // Generate a unique filename
     const ext = file.name.split(".").pop() || "png"
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
-    const filePath = `${(session.user as { id: string }).id}/${fileName}`
+    const filePath = `public/${fileName}`
 
     const bytes = await file.arrayBuffer()
     const { error } = await supabase.storage

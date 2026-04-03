@@ -36,12 +36,6 @@ export function CTABanner() {
             {t("cta.secondary")}
           </Link>
         </div>
-
-        <p className="text-xs sm:text-sm text-muted-foreground mt-7 sm:mt-8">
-          <span className="font-medium text-foreground">{t("cta.note1")}</span>
-          {" • "}
-          {t("cta.note2")}
-        </p>
       </div>
     </section>
   )

@@ -180,7 +180,9 @@ export function Packages() {
                     </ul>
 
                     <Link
-                      href="/create"
+                      href={`/create?package=${
+                        pkg.id === "std" ? "standard" : pkg.id === "prem" ? "premium" : "custom"
+                      }`}
                       className={`flex items-center justify-center gap-2 w-full py-3 font-medium rounded-md transition-all duration-300 active:scale-95 ${
                         pkg.popular
                           ? "bg-primary-foreground text-primary hover:bg-primary-foreground/95 shadow-md"
