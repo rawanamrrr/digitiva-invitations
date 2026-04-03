@@ -58,10 +58,6 @@ export function Packages() {
     <section id="packages" className="py-16 sm:py-32 lg:py-40 relative overflow-hidden px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto relative">
         <div className="text-center mb-16 sm:mb-28">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-border/40 mb-6 sm:mb-8">
-            <Sparkles className="w-3.5 h-3.5 text-teal" />
-            <span className="text-xs sm:text-sm font-medium text-foreground/75">{t("pkg.badge")}</span>
-          </div>
           <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
             {t("pkg.h2a")}
             <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">
@@ -203,13 +199,11 @@ export function Packages() {
 
         <div className="mt-20 sm:mt-24 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md glass border border-border/40">
-            <Sparkles className="w-4 h-4 text-teal" />
             <p className="text-xs sm:text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{t("pkg.footer1")}</span>
               {" • "}
               {t("pkg.footer2")}
             </p>
-            <Sparkles className="w-4 h-4 text-teal" />
           </div>
         </div>
       </div>

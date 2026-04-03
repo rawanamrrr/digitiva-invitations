@@ -10,11 +10,6 @@ export function CTABanner() {
   return (
     <section className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-background">
       <div className="relative max-w-5xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 glass rounded-md text-primary text-sm font-medium mb-6 sm:mb-8 border border-border/40">
-          <Zap className="w-3.5 h-3.5 text-teal" />
-          {t("cta.badge")}
-        </div>
-
         <h2 className="font-serif text-2xl sm:text-4xl lg:text-6xl font-semibold text-foreground mb-4 sm:mb-6 leading-tight">
           {t("cta.title1")}
           <span className="block font-script text-3xl sm:text-5xl lg:text-7xl text-teal font-normal mt-2.5">
@@ -38,7 +33,6 @@ export function CTABanner() {
             href="#templates"
             className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium text-foreground rounded-md hover:bg-secondary/60 transition-all duration-300 border border-border/50 active:scale-95"
           >
-            <Sparkles className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-teal" />
             {t("cta.secondary")}
           </Link>
         </div>

@@ -25,10 +25,6 @@ export function Contact() {
           {/* Left column - Info */}
           <div className="space-y-10 sm:space-y-12">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-border/40 mb-6 sm:mb-8">
-                <Sparkles className="w-3.5 h-3.5 text-teal" />
-                <span className="text-xs sm:text-sm font-medium text-foreground/75">Get Started</span>
-              </div>
               <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-5">
                 Let's create
                 <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">

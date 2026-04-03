@@ -14,10 +14,6 @@ export function FAQ() {
     <section id="faqs" className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16 sm:mb-28">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md glass border border-border/40 mb-6 sm:mb-8">
-            <ChevronDown className="w-3.5 h-3.5 text-teal rotate-180" />
-            <span className="text-xs sm:text-sm font-medium text-foreground/75">{t("faq.badge")}</span>
-          </div>
           <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
             {t("faq.title1")}
             <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">

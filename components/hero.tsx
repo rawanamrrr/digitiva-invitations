@@ -16,15 +16,6 @@ export function Hero() {
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto pt-6 sm:pt-12 lg:pt-16">
-          {/* Floating badge */}
-          <div
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md glass border border-border/40 mb-6 sm:mb-8 animate-fade-in-down text-center"
-            style={{ animationDelay: "0.05s" }}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-teal flex-shrink-0" />
-            <span className="text-xs font-medium text-foreground/75">{t("hero.badge")}</span>
-          </div>
-
           {/* Main heading - Larger for minimalist impact */}
           <h1
             className="text-4xl sm:text-6xl lg:text-7xl font-serif font-semibold leading-tight tracking-tight text-foreground animate-fade-in-up mb-4 sm:mb-6"
@@ -63,7 +54,6 @@ export function Hero() {
               className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium text-foreground rounded-md hover:bg-secondary/60 transition-colors duration-300 border border-border/50 active:scale-95"
             >
               {t("hero.seeWork")}
-              <Sparkles className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </Link>
           </div>
 
