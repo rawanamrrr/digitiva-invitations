@@ -47,16 +47,17 @@ import { templates } from "@/lib/templates"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { SITE_LOCALES, type SiteLocale } from "@/lib/site-locales"
+import { PRICING_MAP, type PriceRates } from "@/lib/pricing"
 
 type PackageId = "standard" | "premium" | "custom"
 
-const EXTRA_DEFS = [
-  { id: "custom_music", price: 100, icon: Music },
-  { id: "custom_wax_seal", price: 100, icon: PenTool, popular: true as const },
-  { id: "custom_illustration", price: 100, icon: Heart, popular: true as const },
-  { id: "animated_video", price: 100, icon: Video, popular: true as const },
-  { id: "custom_domain", price: 600, icon: Globe },
-  { id: "express_delivery", price: 100, icon: Zap },
+const EXTRA_DEFS_BASE = [
+  { id: "custom_music", priceKey: "extraSection", icon: Music },
+  { id: "custom_wax_seal", priceKey: "extraSection", icon: PenTool, popular: true as const },
+  { id: "custom_illustration", priceKey: "extraSection", icon: Heart, popular: true as const },
+  { id: "animated_video", priceKey: "extraSection", icon: Video, popular: true as const },
+  { id: "custom_domain", priceKey: "customDomain", icon: Globe },
+  { id: "express_delivery", priceKey: "extraSection", icon: Zap },
 ] as const
 
 const PACKAGE_LIMITS = {
@@ -64,10 +65,6 @@ const PACKAGE_LIMITS = {
   premium: 7,
   custom: 0,
 }
-
-const SECTION_PRICE = 50
-
-const LANGUAGE_PRICE = 50
 
 const INCLUDED_LANGUAGES: Record<PackageId, number> = {
   standard: 1,
@@ -88,27 +85,18 @@ const SECTION_IDS = [
   "song",
 ] as const
 
-const PACKAGE_CORE: Record<PackageId, { price: number; sections: string[] }> = {
-  standard: {
-    price: 500,
-    sections: ["countdown", "venueMap", "messages"],
-  },
-  premium: {
-    price: 600,
-    sections: [
-      "countdown",
-      "venueMap",
-      "messages",
-      "ourStory",
-      "timeline",
-      "guestNotes",
-      "dressCode",
-    ],
-  },
-  custom: {
-    price: 900,
-    sections: [],
-  },
+const PACKAGE_CORE_SECTIONS: Record<PackageId, string[]> = {
+  standard: ["countdown", "venueMap", "messages"],
+  premium: [
+    "countdown",
+    "venueMap",
+    "messages",
+    "ourStory",
+    "timeline",
+    "guestNotes",
+    "dressCode",
+  ],
+  custom: [],
 }
 
 function CreateInvitationContent() {
@@ -116,6 +104,8 @@ function CreateInvitationContent() {
   const { currencyShort, currency } = useSiteCurrency()
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const pricingRates = PRICING_MAP[currency] || PRICING_MAP.egp
 
   const allSections = useMemo(
     () =>
@@ -128,12 +118,13 @@ function CreateInvitationContent() {
 
   const extras = useMemo(
     () =>
-      EXTRA_DEFS.map((e) => ({
+      EXTRA_DEFS_BASE.map((e) => ({
         ...e,
+        price: pricingRates[e.priceKey as keyof PriceRates],
         label: t(`create.extra.${e.id}`),
         description: t(`create.extra.${e.id}.desc`),
       })),
-    [t],
+    [t, pricingRates],
   )
 
   const packageSections = useMemo(
@@ -143,24 +134,24 @@ function CreateInvitationContent() {
     > => ({
       standard: {
         label: t("pkg.std.name"),
-        price: PACKAGE_CORE.standard.price,
+        price: pricingRates.standard,
         description: t("create.pkg.standard.desc"),
-        sections: PACKAGE_CORE.standard.sections,
+        sections: PACKAGE_CORE_SECTIONS.standard,
       },
       premium: {
         label: t("pkg.prem.name"),
-        price: PACKAGE_CORE.premium.price,
+        price: pricingRates.premium,
         description: t("create.pkg.premium.desc"),
-        sections: PACKAGE_CORE.premium.sections,
+        sections: PACKAGE_CORE_SECTIONS.premium,
       },
       custom: {
         label: t("pkg.cust.name"),
-        price: PACKAGE_CORE.custom.price,
+        price: pricingRates.custom_package,
         description: t("create.pkg.custom.desc"),
-        sections: PACKAGE_CORE.custom.sections,
+        sections: PACKAGE_CORE_SECTIONS.custom,
       },
     }),
-    [t],
+    [t, pricingRates],
   )
 
   const [step, setStep] = useState(1)
@@ -348,9 +339,27 @@ function CreateInvitationContent() {
   const totalLanguagesCount = selectedLanguages.length + customLanguages.length
   
   // Calculate extra sections cost
-  const totalSelectedSections = selectedSections.length
-  const extraSectionsCount = selectedPackage === "custom" ? 0 : Math.max(0, totalSelectedSections - limit)
-  const sectionsExtraPrice = extraSectionsCount * SECTION_PRICE
+  let sectionsExtraPrice = 0
+  if (selectedPackage !== "custom") {
+    const standardCount = selectedSections.filter(id => !id.startsWith("custom_")).length;
+    const customCount = selectedSections.filter(id => id.startsWith("custom_")).length;
+    let extraStandard = 0;
+    let paidCustom = 0;
+    let remainingLimit = limit;
+    
+    if (standardCount > remainingLimit) {
+      extraStandard = standardCount - remainingLimit;
+      remainingLimit = 0;
+    } else {
+      remainingLimit -= standardCount;
+    }
+
+    if (customCount > remainingLimit) {
+      paidCustom = customCount - remainingLimit;
+    }
+
+    sectionsExtraPrice = (extraStandard * pricingRates.extraSection) + (paidCustom * pricingRates.customSection);
+  }
 
   const extrasPrice = selectedExtras.reduce((sum, id) => {
     const extra = extras.find((e) => e.id === id)
@@ -358,7 +367,7 @@ function CreateInvitationContent() {
   }, 0)
 
   const extraLanguagesCount = selectedPackage === "custom" ? 0 : Math.max(0, totalLanguagesCount - includedLanguages)
-  const languagesExtraPrice = extraLanguagesCount * LANGUAGE_PRICE
+  const languagesExtraPrice = extraLanguagesCount * pricingRates.language
   
   const totalPrice = basePrice + sectionsExtraPrice + extrasPrice + languagesExtraPrice
 
@@ -580,7 +589,7 @@ function CreateInvitationContent() {
                     <div className="text-sm font-medium text-foreground">{t("create.sections.title")}</div>
                     <div className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full uppercase tracking-tight">
                       {t("create.sections.extraEach")
-                        .replace("{price}", String(SECTION_PRICE))
+                        .replace("{price}", String(pricingRates.extraSection))
                         .replace("{currency}", currencyShort)}
                     </div>
                   </div>
@@ -700,7 +709,7 @@ function CreateInvitationContent() {
                     {selectedPackage === "standard" ? t("create.lang.sub1") : t("create.lang.sub2")}
                   </div>
                   <div className="text-[11px] text-muted-foreground mt-2">
-                    +{LANGUAGE_PRICE} EGP {" "}
+                    +{pricingRates.language} {currencyShort} {" "}
                     {selectedPackage === "standard"
                       ? `(${Math.max(0, totalLanguagesCount - 1)} extra)`
                       : `(${Math.max(0, totalLanguagesCount - 2)} extra)`}

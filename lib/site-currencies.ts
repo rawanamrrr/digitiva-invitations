@@ -3,9 +3,8 @@ export const SITE_CURRENCIES = [
   { code: "usd", emoji: "🇺🇸", short: "USD" },
   { code: "eur", emoji: "🇪🇺", short: "EUR" },
   { code: "aed", emoji: "🇦🇪", short: "AED" },
-  { code: "iqd", emoji: "🇮🇶", short: "IQD" },
+  { code: "kwd", emoji: "🇰🇼", short: "KWD" },
   { code: "sar", emoji: "🇸🇦", short: "SAR" },
-  { code: "lbp", emoji: "🇱🇧", short: "LBP" },
 ] as const
 
 export type SiteCurrencyCode = (typeof SITE_CURRENCIES)[number]["code"]

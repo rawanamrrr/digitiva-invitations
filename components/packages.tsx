@@ -5,11 +5,12 @@ import Link from "next/link"
 import { useState } from "react"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
+import { getPricingRates } from "@/lib/pricing"
 
-const packageDefs = [
+const PACKAGE_BASE_DEFS = [
   {
     id: "std",
-    price: "500",
+    priceKey: "standard",
     icon: Star,
     popular: false,
     featureKeys: [
@@ -25,7 +26,7 @@ const packageDefs = [
   },
   {
     id: "prem",
-    price: "600",
+    priceKey: "premium",
     icon: Crown,
     popular: true,
     featureKeys: [
@@ -42,7 +43,7 @@ const packageDefs = [
   },
   {
     id: "cust",
-    price: "900",
+    priceKey: "custom_package",
     icon: Sparkles,
     popular: false,
     featureKeys: ["pkg.cust.f0", "pkg.cust.f1", "pkg.cust.f2", "pkg.cust.f3"] as const,
@@ -52,7 +53,13 @@ const packageDefs = [
 export function Packages() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const { t, isRTL } = useSiteLanguage()
-  const { currencyShort } = useSiteCurrency()
+  const { currencyShort, currency } = useSiteCurrency()
+  const pricingRates = getPricingRates(currency)
+
+  const packageDefs = PACKAGE_BASE_DEFS.map(pkg => ({
+    ...pkg,
+    price: pricingRates[pkg.priceKey as keyof typeof pricingRates]
+  }))
 
   return (
     <section id="packages" className="py-16 sm:py-32 lg:py-40 relative overflow-hidden px-4 sm:px-6 lg:px-8 bg-background">
