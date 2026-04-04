@@ -101,7 +101,7 @@ export const RU_FULL: Record<string, string> = {
   "pkg.prem.f4": "Расширенный RSVP",
   "pkg.prem.f5": "Уникальный дизайн",
   "pkg.prem.f6": "Фоновая музыка",
-  "pkg.prem.f7": "2 языка (AR/EN)",
+  "pkg.prem.f7": "2 языка",
   "pkg.prem.f8": "5 правок",
   "pkg.cust.name": "Индивидуальный пакет",
   "pkg.cust.sub": "Под вас",

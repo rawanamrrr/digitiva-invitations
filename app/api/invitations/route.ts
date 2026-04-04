@@ -36,6 +36,7 @@ const createSchema = z.object({
   orderCurrency: z
     .string()
     .refine((v) => isSiteCurrency(v), { message: "Invalid order currency" }),
+  orderTotal: z.number().finite().nonnegative().optional(),
 });
 
 async function getOrCreateGuestUserId(supabase: ReturnType<typeof createAdminClient>) {
@@ -145,6 +146,7 @@ export async function POST(req: Request) {
         payment_method: d.paymentMethod || null,
         payment_screenshot: d.paymentScreenshot || null,
         order_currency: d.orderCurrency,
+        order_total: d.orderTotal ?? null,
         slug,
         payment_status: "pending",
         is_published: false,

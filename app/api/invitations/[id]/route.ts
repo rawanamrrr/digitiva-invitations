@@ -24,6 +24,7 @@ const updateSchema = z.object({
   subdomain: z.string().optional().nullable(),
   isPublished: z.boolean().optional(),
   paymentStatus: z.enum(["pending", "paid"]).optional(),
+  isFinished: z.boolean().optional(),
 })
 
 export async function GET(
@@ -116,6 +117,7 @@ export async function PATCH(
     if (parsed.data.subdomain != null) update.subdomain = parsed.data.subdomain
     if (parsed.data.isPublished != null) update.is_published = parsed.data.isPublished
     if (parsed.data.paymentStatus != null) update.payment_status = parsed.data.paymentStatus
+    if (parsed.data.isFinished != null) update.is_finished = parsed.data.isFinished
 
     const { data, error } = await supabase
       .from("invitations")

@@ -101,7 +101,7 @@ export const ZH_FULL: Record<string, string> = {
   "pkg.prem.f4": "进阶回执",
   "pkg.prem.f5": "独特设计",
   "pkg.prem.f6": "背景音乐",
-  "pkg.prem.f7": "2 种语言 (AR/EN)",
+  "pkg.prem.f7": "2 种语言",
   "pkg.prem.f8": "5 次修改",
   "pkg.cust.name": "定制套餐",
   "pkg.cust.sub": "量身打造",

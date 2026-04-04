@@ -101,7 +101,7 @@ export const HI_FULL: Record<string, string> = {
   "pkg.prem.f4": "उन्नत RSVP",
   "pkg.prem.f5": "अनोखा डिज़ाइन",
   "pkg.prem.f6": "पृष्ठभूमि संगीत",
-  "pkg.prem.f7": "2 भाषाएँ (AR/EN)",
+  "pkg.prem.f7": "2 भाषाएँ",
   "pkg.prem.f8": "5 संशोधन",
   "pkg.cust.name": "कस्टम पैकेज",
   "pkg.cust.sub": "आपके अनुरूप",

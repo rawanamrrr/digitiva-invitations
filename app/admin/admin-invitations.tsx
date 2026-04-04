@@ -30,6 +30,7 @@ export type Invitation = {
   groom_name: string
   slug: string
   is_published: boolean
+  is_finished?: boolean
   payment_status: string
   view_count?: number
   event_date?: string
@@ -49,6 +50,7 @@ export type Invitation = {
   payment_method?: string
   payment_screenshot?: string
   order_currency?: string | null
+  order_total?: number | string | null
   created_at?: string
 }
 
@@ -67,10 +69,7 @@ const SECTION_ADMIN_KEYS: Record<string, string> = {
 }
 
 const EXTRA_CREATE_KEYS: Record<string, string> = {
-  custom_music: "create.extra.custom_music",
-  custom_wax_seal: "create.extra.custom_wax_seal",
-  custom_illustration: "create.extra.custom_illustration",
-  animated_video: "create.extra.animated_video",
+  extra_month: "create.extra.extra_month",
   custom_domain: "create.extra.custom_domain",
   express_delivery: "create.extra.express_delivery",
 }
@@ -84,6 +83,13 @@ function OrderDetailsModal({
 }) {
   const { t } = useSiteLanguage()
   const template = templates.find((tmpl) => tmpl.id === invitation.template_id)
+
+  const orderTotalDisplay =
+    invitation.order_total == null
+      ? null
+      : typeof invitation.order_total === "number"
+        ? invitation.order_total
+        : Number(invitation.order_total)
 
   const sectionLabel = (section: string) => {
     const key = SECTION_ADMIN_KEYS[section]
@@ -160,6 +166,20 @@ function OrderDetailsModal({
             >
               <CreditCard className="w-3.5 h-3.5" />
               {t("admin.table.payment")}: {payStatusLabel}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                invitation.is_finished
+                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                  : "bg-gray-500/10 text-gray-600 border border-gray-500/20"
+              }`}
+            >
+              {invitation.is_finished ? (
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              ) : (
+                <AlertCircle className="w-3.5 h-3.5" />
+              )}
+              {invitation.is_finished ? t("admin.inv.finished") : t("admin.inv.notFinished")}
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 border border-blue-500/20">
               <Eye className="w-3.5 h-3.5" />
@@ -344,6 +364,17 @@ function OrderDetailsModal({
               {t("admin.inv.paymentDetails")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              {orderTotalDisplay != null &&
+                Number.isFinite(orderTotalDisplay) &&
+                invitation.order_currency &&
+                isSiteCurrency(invitation.order_currency) && (
+                <div>
+                  <span className="text-muted-foreground">{t("admin.inv.orderTotal")}</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    {orderTotalDisplay} {getCurrencyMeta(invitation.order_currency).short}
+                  </span>
+                </div>
+              )}
               {invitation.order_currency &&
                 isSiteCurrency(invitation.order_currency) && (
                   <div>
@@ -438,20 +469,22 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
   const paymentLabel = (status: string) =>
     status === "paid" ? t("admin.inv.paid") : t("admin.inv.unpaid")
 
-  const togglePublish = async (id: string, current: boolean) => {
+  const toggleFinished = async (id: string, current: boolean) => {
     const res = await fetch(`/api/invitations/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        isPublished: !current,
-        paymentStatus: !current ? "paid" : "pending",
+        isFinished: !current,
       }),
     })
     if (res.ok) {
       setList((p) =>
         p.map((i) =>
-          i.id === id ? { ...i, is_published: !current } : i
+          i.id === id ? { ...i, is_finished: !current } : i
         )
+      )
+      setSelectedInvitation((prev) =>
+        prev && prev.id === id ? { ...prev, is_finished: !current } : prev
       )
     }
   }
@@ -481,7 +514,15 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
             {list.map((inv) => (
               <tr key={inv.id} className="border-t">
                 <td className="p-3">
-                  <div className="font-medium">{inv.bride_name} & {inv.groom_name}</div>
+                  <div className="font-medium flex items-center gap-2">
+                    <span>{inv.bride_name} & {inv.groom_name}</span>
+                    {inv.is_finished && (
+                      <CheckCircle2
+                        className="w-10 h-10 text-emerald-600"
+                        aria-label={t("admin.inv.finished")}
+                      />
+                    )}
+                  </div>
                   <div className="text-xs text-muted-foreground font-mono">{inv.slug}</div>
                 </td>
                 <td className="p-3">
@@ -535,9 +576,11 @@ export function AdminInvitations({ invitations }: { invitations: Invitation[] })
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => togglePublish(inv.id, inv.is_published)}
+                      onClick={() => toggleFinished(inv.id, Boolean(inv.is_finished))}
                     >
-                      {inv.is_published ? t("admin.table.deactivate") : t("admin.table.activate")}
+                      {inv.is_finished
+                        ? t("admin.table.markNotFinished")
+                        : t("admin.table.markFinished")}
                     </Button>
                     <Button
                       variant="destructive"

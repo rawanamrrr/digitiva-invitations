@@ -101,7 +101,7 @@ export const ES_FULL: Record<string, string> = {
   "pkg.prem.f4": "RSVP avanzado",
   "pkg.prem.f5": "Diseño único",
   "pkg.prem.f6": "Música de fondo",
-  "pkg.prem.f7": "2 idiomas (AR/EN)",
+  "pkg.prem.f7": "2 idiomas",
   "pkg.prem.f8": "5 revisiones",
   "pkg.cust.name": "Paquete Personalizado",
   "pkg.cust.sub": "A tu medida",
@@ -378,7 +378,7 @@ export const ES_FULL: Record<string, string> = {
   "create.extra.animated_video": "Vídeo animado",
   "create.extra.animated_video.desc": "Animación única para tu invitación",
   "create.extra.custom_domain": "Dominio propio",
-  "create.extra.custom_domain.desc": "Tu dirección web (ej. paula-y-marcos.com)",
+  "create.extra.custom_domain.desc": "Tu dirección web (ej. Zeyad-y-Rawan.com)",
   "create.extra.express_delivery": "Entrega exprés",
   "create.extra.express_delivery.desc": "72h a 120h",
 

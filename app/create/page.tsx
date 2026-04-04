@@ -52,10 +52,7 @@ import { PRICING_MAP, type PriceRates } from "@/lib/pricing"
 type PackageId = "standard" | "premium" | "custom"
 
 const EXTRA_DEFS_BASE = [
-  { id: "custom_music", priceKey: "extraSection", icon: Music },
-  { id: "custom_wax_seal", priceKey: "extraSection", icon: PenTool, popular: true as const },
-  { id: "custom_illustration", priceKey: "extraSection", icon: Heart, popular: true as const },
-  { id: "animated_video", priceKey: "extraSection", icon: Video, popular: true as const },
+  { id: "extra_month", priceKey: "extraMonth", icon: Clock },
   { id: "custom_domain", priceKey: "customDomain", icon: Globe },
   { id: "express_delivery", priceKey: "extraSection", icon: Zap },
 ] as const
@@ -193,17 +190,23 @@ function CreateInvitationContent() {
     const newErrors: { email?: string; whatsapp?: string } = {}
     
     // Email validation
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       newErrors.email = t("create.err.email")
     }
 
-    if (form.whatsapp && form.whatsapp.length < 6) {
+    if (!form.whatsapp || form.whatsapp.length < 6) {
       newErrors.whatsapp = t("create.err.whatsapp")
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
+
+  const isStep2Valid =
+    Boolean(form.email) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) &&
+    Boolean(form.whatsapp) &&
+    form.whatsapp.length >= 6
 
   const update = (k: keyof typeof form, v: string) => {
     setForm((p) => ({ ...p, [k]: v }))
@@ -317,6 +320,7 @@ function CreateInvitationContent() {
           paymentMethod,
           paymentScreenshot: screenshotUrl,
           orderCurrency: currency,
+          orderTotal: totalPrice,
         }),
       })
       const data = await res.json()
@@ -373,6 +377,14 @@ function CreateInvitationContent() {
 
   const canProceedToStep2 = Boolean(form.templateId) && selectedSections.length > 0
 
+  const canProceedToPayment =
+    Boolean(form.brideName.trim()) &&
+    Boolean(form.groomName.trim()) &&
+    Boolean(form.eventDate) &&
+    Boolean(form.eventTime.trim()) &&
+    Boolean(form.venue.trim()) &&
+    isStep2Valid
+
   useEffect(() => {
     if ((step === 2 || step === 3) && selectedPackage === "custom") {
       setStep(1)
@@ -380,8 +392,12 @@ function CreateInvitationContent() {
     }
     if ((step === 2 || step === 3) && !canProceedToStep2) {
       setStep(1)
+      return
     }
-  }, [step, canProceedToStep2, selectedPackage])
+    if (step === 3 && !canProceedToPayment) {
+      setStep(2)
+    }
+  }, [step, canProceedToStep2, canProceedToPayment, selectedPackage])
 
   const sectionIcon = (id: string) => {
     switch (id) {
@@ -631,10 +647,9 @@ function CreateInvitationContent() {
                       >
                         {isExtra && (
                           <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            {t("create.section.badgeExtra").replace(
-                              "{currency}",
-                              currencyShort,
-                            )}
+                            {t("create.section.badgeExtra")
+                              .replace("{price}", String(pricingRates.extraSection))
+                              .replace("{currency}", currencyShort)}
                           </div>
                         )}
                         <Icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
@@ -663,10 +678,9 @@ function CreateInvitationContent() {
                       >
                         {isExtra && (
                           <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            {t("create.section.badgeExtra").replace(
-                              "{currency}",
-                              currencyShort,
-                            )}
+                            {t("create.section.badgeExtra")
+                              .replace("{price}", String(pricingRates.customSection))
+                              .replace("{currency}", currencyShort)}
                           </div>
                         )}
                         <Heart className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
@@ -854,13 +868,8 @@ function CreateInvitationContent() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-foreground">{extra.label}</span>
-                            {"popular" in extra && extra.popular && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 uppercase tracking-tight">
-                                {t("create.extras.popular")}
-                              </span>
-                            )}
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1">{extra.description}</p>
+                          <p className="text-xs text-muted-foreground sm:line-clamp-1">{extra.description}</p>
                         </div>
                         <div className="text-sm font-bold text-foreground shrink-0">
                           +{extra.price} {currencyShort}
@@ -1026,6 +1035,7 @@ function CreateInvitationContent() {
 
             <Button 
               className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all" 
+              disabled={!canProceedToPayment}
               onClick={() => {
                 if (validateStep2()) {
                   setStep(3)
