@@ -42,6 +42,8 @@ import {
   Instagram,
   Mail,
   MessageCircle,
+  Bus,
+  Gift,
 } from "lucide-react"
 import { templates } from "@/lib/templates"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
@@ -80,6 +82,8 @@ const SECTION_IDS = [
   "rsvp",
   "photoUpload",
   "song",
+  "transport",
+  "giftList",
 ] as const
 
 const PACKAGE_CORE_SECTIONS: Record<PackageId, string[]> = {
@@ -163,7 +167,7 @@ function CreateInvitationContent() {
   const [customLanguages, setCustomLanguages] = useState<string[]>([])
   const [paymentMethod, setPaymentMethod] = useState<
     "bank" | "instapay" | "vodafone_cash"
-  >("bank")
+  >("instapay")
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null)
 
   const whatsappNumbers = useMemo(() => ["201024285771", "201014924924", "201028807788"], [])
@@ -187,6 +191,11 @@ function CreateInvitationContent() {
   })
 
   const [errors, setErrors] = useState<{ email?: string; whatsapp?: string }>({})
+
+  const todayStr = useMemo(() => {
+    const d = new Date()
+    return d.toISOString().split("T")[0]
+  }, [])
 
   const validateStep2 = () => {
     const newErrors: { email?: string; whatsapp?: string } = {}
@@ -430,6 +439,10 @@ function CreateInvitationContent() {
         return ImageIcon
       case "song":
         return Music
+      case "transport":
+        return Bus
+      case "giftList":
+        return Gift
       default:
         return HelpCircle
     }
@@ -966,6 +979,7 @@ function CreateInvitationContent() {
                 <Input
                   className="rounded-xl h-11"
                   type="date"
+                  min={todayStr}
                   value={form.eventDate}
                   onChange={(e) => update("eventDate", e.target.value)}
                 />
@@ -1083,18 +1097,6 @@ function CreateInvitationContent() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod("bank")}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
-                    paymentMethod === "bank"
-                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
-                      : "border-border hover:border-primary/30"
-                  }`}
-                >
-                  <Landmark className="w-8 h-8 mb-2 text-primary" />
-                  <span className="font-semibold">{t("create.payment.bank")}</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => setPaymentMethod("instapay")}
                   className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
                     paymentMethod === "instapay"
@@ -1104,6 +1106,18 @@ function CreateInvitationContent() {
                 >
                   <Smartphone className="w-8 h-8 mb-2 text-primary" />
                   <span className="font-semibold">{t("create.payment.instapay")}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("bank")}
+                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
+                    paymentMethod === "bank"
+                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                      : "border-border hover:border-primary/30"
+                  }`}
+                >
+                  <Landmark className="w-8 h-8 mb-2 text-primary" />
+                  <span className="font-semibold">{t("create.payment.bank")}</span>
                 </button>
                 <button
                   type="button"
@@ -1243,13 +1257,52 @@ function CreateInvitationContent() {
               </div>
             </div>
 
-            <Button
-              className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all"
-              disabled={!paymentScreenshot || loading}
-              onClick={handlePublish}
-            >
-              {loading ? t("create.payment.processing") : t("create.payment.submit")}
-            </Button>
+            <div className="space-y-6 pt-4 border-t border-border/50">
+              <div className="space-y-2 text-center">
+                <p className="text-sm font-medium text-primary flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {t("create.payment.reassurance")}
+                </p>
+                <div className="pt-2">
+                  <p className="text-xs text-muted-foreground mb-3">{t("create.payment.question")}</p>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <a
+                      href={`https://wa.me/${randomWhatsapp}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-green-600 transition-colors"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      WhatsApp
+                    </a>
+                    <a
+                      href="https://www.instagram.com/digitiva.co"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-pink-600 transition-colors"
+                    >
+                      <Instagram className="w-3.5 h-3.5" />
+                      Instagram
+                    </a>
+                    <a
+                      href="mailto:digitivaa@gmail.com"
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-blue-600 transition-colors"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      Email
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all"
+                disabled={!paymentScreenshot || loading}
+                onClick={handlePublish}
+              >
+                {loading ? t("create.payment.processing") : t("create.payment.submit")}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}

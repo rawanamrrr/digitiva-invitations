@@ -349,6 +349,8 @@ export const ZH_FULL: Record<string, string> = {
   "create.payment.uploadCTA": "点击上传",
   "create.payment.uploadTypes": "PNG、JPG，最大 10 MB",
   "create.payment.submit": "提交付款",
+  "create.payment.reassurance": "付款后，我们的团队成员将与您联系以完成您的邀请函。",
+  "create.payment.question": "付款前有疑问？请联系我们：",
   "create.payment.processing": "处理中...",
   "create.success.title": "已收到付款！",
   "create.success.body":
@@ -369,6 +371,8 @@ export const ZH_FULL: Record<string, string> = {
   "create.sec.rsvp": "回执",
   "create.sec.photoUpload": "相册",
   "create.sec.song": "背景音乐",
+  "create.sec.transport": "交通安排",
+  "create.sec.giftList": "礼品清单",
   "create.extra.custom_music": "定制音乐",
   "create.extra.custom_music.desc": "打开邀请函时播放你的歌",
   "create.extra.custom_wax_seal": "火漆印",

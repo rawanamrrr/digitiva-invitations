@@ -30,7 +30,7 @@ export const templates: Template[] = [
     description: "Bold colors and playful elements for a celebration that's full of life.",
     demoUrl: "https://omar-sarah.digitivaa.com",
     image: "/evergreen-promise.mp4",
-    category: "Birthdays",
+    category: "Weddings",
   },
   {
     id: "minimalist-chic",
@@ -38,7 +38,7 @@ export const templates: Template[] = [
     description: "Understated luxury for those who appreciate the beauty of simplicity.",
     demoUrl: "https://zeyad-rawan.digitivaa.com/",
     image: "/soft-petal-elegance.mp4",
-    category: "Corporate",
+    category: "Weddings",
   },
   {
     id: "pastel-dreams",
@@ -46,7 +46,7 @@ export const templates: Template[] = [
     description: "Soft hues and whimsical illustrations for a magical celebration.",
     demoUrl: "https://mahmoud-gehad.digitivaa.com/",
     image: "/the-grand-entrance.mp4",
-    category: "Celebrations",
+    category: "Weddings",
   },
   {
     id: "golden-gala",
@@ -54,7 +54,7 @@ export const templates: Template[] = [
     description: "Opulent gold accents and dark themes for a truly prestigious event.",
     demoUrl: "https://mahmoud-rahma.digitivaa.com/",
     image: "/warm-embrace.mp4",
-    category: "Celebrations",
+    category: "Weddings",
   },
   {
     id: "sunset-love",
@@ -62,7 +62,7 @@ export const templates: Template[] = [
     description: "Bold colors and playful elements for a celebration that's full of life.",
     demoUrl: "https://mohameed-nermeen.digitivaa.com",
     image: "/sunset-love.mp4",
-    category: "Celebrations",
+    category: "Weddings",
   },
   {
     id: "green-essence",
@@ -70,7 +70,7 @@ export const templates: Template[] = [
     description: "Bold colors and playful elements for a celebration that's full of life.",
     demoUrl: "https://muhammad-aya.digitivaa.com/",
     image: "/green-essence.mp4",
-    category: "Celebrations",
+    category: "Weddings",
   },
   {
     id: "ivory-romance",
@@ -78,6 +78,6 @@ export const templates: Template[] = [
     description: "Bold colors and playful elements for a celebration that's full of life.",
     demoUrl: "https://mahmoud-farah.digitivaa.com/",
     image: "/ivory-romance.mp4",
-    category: "Celebrations",
+    category: "Weddings",
   },
 ]

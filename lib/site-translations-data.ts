@@ -412,6 +412,8 @@ export const EN: Record<string, string> = {
   "create.payment.uploadCTA": "Click to upload screenshot",
   "create.payment.uploadTypes": "PNG, JPG up to 10MB",
   "create.payment.submit": "Submit Payment",
+  "create.payment.reassurance": "One of our team will contact you after payment to finalize your invitation.",
+  "create.payment.question": "Have a question before payment? Contact us at:",
   "create.payment.processing": "Processing...",
   "create.success.title": "Payment Received!",
   "create.success.body":
@@ -434,6 +436,8 @@ export const EN: Record<string, string> = {
   "create.sec.rsvp": "RSVP",
   "create.sec.photoUpload": "Gallery",
   "create.sec.song": "Background music",
+  "create.sec.transport": "Transport",
+  "create.sec.giftList": "Gift List",
 
   "create.extra.custom_music": "Custom music",
   "create.extra.custom_music.desc": "Your song playing when opening the invitation",
@@ -766,6 +770,8 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
     "admin.sec.timeline": "الجدول الزمني",
     "admin.sec.guestNotes": "ملاحظات الضيوف",
     "admin.sec.dressCode": "قواعد اللباس",
+    "admin.sec.transport": "المواصلات",
+    "admin.sec.giftList": "قائمة الهدايا",
 
     "create.step.style": "الأسلوب",
     "create.step.details": "التفاصيل",
@@ -855,9 +861,11 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
     "create.payment.goToInstapay": "الذهاب إلى InstaPay",
     "create.payment.goToVodafoneCash": "الذهاب إلى فودافون كاش",
     "create.payment.uploadLabel": "ارفع صورة الدفع",
-    "create.payment.uploadCTA": "اضغط لرفع الصورة",
-    "create.payment.uploadTypes": "PNG, JPG حتى 10MB",
+    "create.payment.uploadCTA": "انقر لتحميل لقطة الشاشة",
+    "create.payment.uploadTypes": "PNG, JPG حتى 10 ميجابايت",
     "create.payment.submit": "إرسال الدفع",
+    "create.payment.reassurance": "سيتواصل معك أحد أعضاء فريقنا بعد الدفع لإنهاء دعوتك.",
+    "create.payment.question": "هل لديك سؤال قبل الدفع؟ تواصل معنا عبر:",
     "create.payment.processing": "جاري المعالجة...",
     "create.success.title": "تم استلام الدفع!",
     "create.success.body":
@@ -880,6 +888,8 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
     "create.sec.rsvp": "تأكيد الحضور",
     "create.sec.photoUpload": "معرض",
     "create.sec.song": "موسيقى خلفية",
+    "create.sec.transport": "المواصلات",
+    "create.sec.giftList": "قائمة الهدايا",
 
     "create.extra.custom_music": "موسيقى مخصصة",
     "create.extra.custom_music.desc": "أغنيتك عند فتح الدعوة",

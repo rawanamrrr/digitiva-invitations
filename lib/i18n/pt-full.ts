@@ -349,6 +349,8 @@ export const PT_FULL: Record<string, string> = {
   "create.payment.uploadCTA": "Clique para carregar",
   "create.payment.uploadTypes": "PNG, JPG até 10 MB",
   "create.payment.submit": "Enviar pagamento",
+  "create.payment.reassurance": "Um membro da nossa equipa entrará em contacto consigo após o pagamento para finalizar o seu convite.",
+  "create.payment.question": "Tem alguma dúvida antes do pagamento? Contacte-nos em:",
   "create.payment.processing": "A processar...",
   "create.success.title": "Pagamento recebido!",
   "create.success.body":
@@ -369,6 +371,8 @@ export const PT_FULL: Record<string, string> = {
   "create.sec.rsvp": "RSVP",
   "create.sec.photoUpload": "Galeria",
   "create.sec.song": "Música de fundo",
+  "create.sec.transport": "Transporte",
+  "create.sec.giftList": "Lista de presentes",
   "create.extra.custom_music": "Música personalizada",
   "create.extra.custom_music.desc": "A sua música ao abrir o convite",
   "create.extra.custom_wax_seal": "Selo de cera",
