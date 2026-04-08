@@ -1,0 +1,110 @@
+/* =========================================================================
+   LazyVideo Component Styles
+   ========================================================================= */
+
+/* Wrapper ---------------------------------------------------------------- */
+.lazy-video {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #0a0a0f;
+  width: 100%;
+}
+
+/* Video element ---------------------------------------------------------- */
+.lazy-video__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* Poster image (background) ---------------------------------------------- */
+.lazy-video__poster {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 2;
+}
+
+/* Play-button overlay ---------------------------------------------------- */
+.lazy-video__play-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.25s ease;
+}
+
+.lazy-video__play-overlay:hover .lazy-video__play-icon {
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.35));
+}
+
+.lazy-video__play-icon {
+  width: 72px;
+  height: 72px;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* Skeleton / spinner ----------------------------------------------------- */
+.lazy-video__skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    #13131a 0%,
+    #1c1c28 50%,
+    #13131a 100%
+  );
+  background-size: 200% 200%;
+  animation: lazy-video-shimmer 1.8s ease-in-out infinite;
+}
+
+.lazy-video__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: lazy-video-spin 0.75s linear infinite;
+}
+
+/* Keyframes -------------------------------------------------------------- */
+@keyframes lazy-video-shimmer {
+  0% {
+    background-position: 200% 0%;
+  }
+  100% {
+    background-position: -200% 0%;
+  }
+}
+
+@keyframes lazy-video-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive play button ------------------------------------------------- */
+@media (max-width: 640px) {
+  .lazy-video__play-icon {
+    width: 56px;
+    height: 56px;
+  }
+}

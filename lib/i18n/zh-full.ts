@@ -134,25 +134,25 @@ export const ZH_FULL: Record<string, string> = {
   "faq.badge": "有疑问？",
   "faq.title1": "常见",
   "faq.title2": "问题",
-  "faq.sub": "关于 Digitiva 邀请函",
+  "faq.sub": "关于使用 Digitiva 制作精美邀请函，你需要了解的一切。",
   "faq.q0": "制作邀请函要多久？",
   "faq.a0":
-    "确认设计后通常 5–7 个工作日；加急可 2–3 天（加收费用）。",
+    "大多数邀请函在设计确认后 5–7 个工作日即可完成。加急订单可在 2–3 天内完成（需额外费用）。",
   "faq.q1": "完成后还能改吗？",
   "faq.a1":
-    "设计阶段可无限次修改，上线后可做小调整。",
+    "设计阶段提供无限次修改，上线后也可进行小幅更新。",
   "faq.q2": "宾客如何确认出席？",
   "faq.a2":
-    "点击邀请函中的按钮；也可填写饮食、歌曲等信息。",
+    "宾客只需输入姓名并点击 RSVP 即可确认出席。你会立即收到一封邮件通知，包含他们的确认信息以及他们填写的任何额外细节。",
   "faq.q3": "手机上看效果好吗？",
   "faq.a3":
-    "好！全自适应，手机、平板、电脑都美观。",
+    "当然！我们的所有邀请函都完全自适应，在任何设备上都很美观——手机与平板。",
   "faq.q4": "付款前能预览吗？",
   "faq.a4":
-    "我们提供免费咨询与作品集示例，再决定是否下单。",
+    "我们提供免费咨询：与您沟通想法，并展示作品集中相关示例。",
   "faq.q5": "价格包含什么？",
   "faq.a5":
-    "设计、开发、1 年托管、回执、宾客无限访问与支持。无隐藏费用。",
+    "我们的套餐包含定制设计、开发、2 个月托管、邮件 RSVP 管理、宾客无限访问以及持续支持。无隐藏费用！",
   "cta.badge": "准备好惊艳全场？",
   "cta.title1": "创建你的",
   "cta.title2": "完美邀请函",
@@ -353,12 +353,12 @@ export const ZH_FULL: Record<string, string> = {
   "create.success.title": "已收到付款！",
   "create.success.body":
     "感谢选择 Digitiva，我们正在准备你的邀请函。",
-  "create.success.note1": "72 小时内通过邮件或 WhatsApp 交付。",
-  "create.success.note2": "24 小时内与你联系。",
+  "create.success.note1": "24 小时内与你联系。",
+  "create.success.note2": "7 天内通过邮件或 WhatsApp 交付。",
   "create.success.home": "返回首页",
   "create.publish.error.upload": "上传失败",
   "create.publish.error.create": "创建失败",
-  "create.publish.error.generic": "出错了",
+  "create.publish.error.generic": "出现错误",
   "create.sec.countdown": "倒计时",
   "create.sec.venueMap": "场地地图",
   "create.sec.messages": "留言",

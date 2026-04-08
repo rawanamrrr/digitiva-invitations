@@ -13,6 +13,7 @@ interface PortfolioCardProps {
 
 export function PortfolioCard({ item, index, onClick }: PortfolioCardProps) {
   const displayIndex = (index + 1).toString().padStart(2, "0")
+  const isVideo = item.image?.toLowerCase().endsWith(".mp4")
 
   return (
     <article
@@ -23,12 +24,23 @@ export function PortfolioCard({ item, index, onClick }: PortfolioCardProps) {
         className="relative w-full aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-white shadow-sm transition-all duration-700 group-hover:shadow-2xl group-hover:shadow-primary/10 cursor-pointer"
         onClick={onClick}
       >
-        <Image
-          src={item.image || "/placeholder.svg"}
-          alt={item.name}
-          fill
-          className="object-cover transition-transform duration-1000 group-hover:scale-105"
-        />
+        {isVideo ? (
+          <video
+            src={item.image}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
+          />
+        ) : (
+          <Image
+            src={item.image || "/placeholder.svg"}
+            alt={item.name}
+            fill
+            className="object-cover transition-transform duration-1000 group-hover:scale-105"
+          />
+        )}
 
         {/* Subtle Overlay */}
         <div className="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-colors duration-500" />

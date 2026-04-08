@@ -78,18 +78,6 @@ export function Hero() {
                 <p className="text-sm text-muted-foreground">{t("hero.eventsSub")}</p>
               </div>
             </div>
-            <div className="w-px h-12 bg-border/30 hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="w-5 h-5 text-teal fill-teal" />
-                ))}
-              </div>
-              <div>
-                <p className="font-medium text-foreground">{t("hero.rating")}</p>
-                <p className="text-sm text-muted-foreground">{t("hero.ratingSub")}</p>
-              </div>
-            </div>
           </div>
         </div>
 

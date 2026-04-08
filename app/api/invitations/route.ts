@@ -31,7 +31,7 @@ const createSchema = z.object({
   customThemeColor: z.string().optional().nullable(),
   email: z.string().email().optional().or(z.literal("")).nullable(),
   whatsapp: z.string().optional().nullable(),
-  paymentMethod: z.enum(["instapay", "bank"]).optional().nullable(),
+  paymentMethod: z.enum(["instapay", "bank", "vodafone_cash"]).optional().nullable(),
   paymentScreenshot: z.string().optional().nullable(),
   orderCurrency: z
     .string()

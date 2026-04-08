@@ -161,7 +161,9 @@ function CreateInvitationContent() {
   const [selectedLanguages, setSelectedLanguages] = useState<SiteLocale[]>(["en"])
   const [requestedLanguage, setRequestedLanguage] = useState("")
   const [customLanguages, setCustomLanguages] = useState<string[]>([])
-  const [paymentMethod, setPaymentMethod] = useState<"instapay" | "bank">("instapay")
+  const [paymentMethod, setPaymentMethod] = useState<
+    "bank" | "instapay" | "vodafone_cash"
+  >("bank")
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null)
 
   const whatsappNumbers = useMemo(() => ["201024285771", "201014924924", "201028807788"], [])
@@ -278,12 +280,19 @@ function CreateInvitationContent() {
       const selectedLanguageLabels = selectedLanguages
         .map((code) => SITE_LOCALES.find((l) => l.code === code)?.label)
         .filter(Boolean)
-        .map((label) => `Language: ${label}`)
+        .map((label) => `${t("create.lang.labelPrefix")}: ${label}`)
 
-      const customLanguageLabels = customLanguages.map((l) => `Custom language: ${l}`)
+      const customLanguageLabels = customLanguages.map(
+        (l) => `${t("create.lang.customLabelPrefix")}: ${l}`,
+      )
 
       const extraLabelsWithLanguageRequest = requestedLanguage.trim()
-        ? [...extraLabels, ...selectedLanguageLabels, ...customLanguageLabels, `Requested language: ${requestedLanguage.trim()}`]
+        ? [
+            ...extraLabels,
+            ...selectedLanguageLabels,
+            ...customLanguageLabels,
+            `${t("create.lang.requestedLabelPrefix")}: ${requestedLanguage.trim()}`,
+          ]
         : [...extraLabels, ...selectedLanguageLabels, ...customLanguageLabels]
 
       console.log("Publishing with payload:", {
@@ -785,14 +794,14 @@ function CreateInvitationContent() {
 
                     <div className="pt-2">
                       <div className="text-[11px] text-muted-foreground mb-2">
-                        Can’t find your language? Write it here.
+                        {t("create.lang.cantFind")}
                       </div>
                       <div className="flex gap-3">
                         <Input
                           className="rounded-xl h-11"
                           value={requestedLanguage}
                           onChange={(e) => setRequestedLanguage(e.target.value)}
-                          placeholder="Type your language..."
+                          placeholder={t("create.lang.typePlaceholder")}
                         />
                         <Button
                           type="button"
@@ -1071,7 +1080,19 @@ function CreateInvitationContent() {
 
             <div className="space-y-4">
               <Label className="text-lg font-medium">{t("create.payment.method")}</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("bank")}
+                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
+                    paymentMethod === "bank"
+                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                      : "border-border hover:border-primary/30"
+                  }`}
+                >
+                  <Landmark className="w-8 h-8 mb-2 text-primary" />
+                  <span className="font-semibold">{t("create.payment.bank")}</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("instapay")}
@@ -1086,42 +1107,117 @@ function CreateInvitationContent() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod("bank")}
+                  onClick={() => setPaymentMethod("vodafone_cash")}
                   className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
-                    paymentMethod === "bank"
+                    paymentMethod === "vodafone_cash"
                       ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
                       : "border-border hover:border-primary/30"
                   }`}
                 >
-                  <Landmark className="w-8 h-8 mb-2 text-primary" />
-                  <span className="font-semibold">{t("create.payment.bank")}</span>
+                  <Smartphone className="w-8 h-8 mb-2 text-primary" />
+                  <span className="font-semibold">{t("create.payment.vodafoneCash")}</span>
                 </button>
               </div>
             </div>
 
             <div className="p-6 rounded-2xl bg-muted/50 border border-border space-y-3">
               <p className="font-semibold text-foreground">{t("create.payment.detailsHeading")}</p>
-              {paymentMethod === "instapay" ? (
+              {paymentMethod === "bank" && (
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">
-                    {t("create.payment.addrLabel")} <span className="text-foreground font-mono">user@instapay</span>
+                    {t("create.payment.beneficiaryLabel")}{" "}
+                    <span className="text-foreground">Zeyad Mohamed Abo Eleneen Khaled</span>
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t("create.payment.payeeLabel")} <span className="text-foreground">Digitiva Invitations</span>
+                    {t("create.payment.accountNumberLabel")}{" "}
+                    <span className="text-foreground font-mono">1020656463735</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.ibanLabel")}{" "}
+                    <span className="text-foreground font-mono">
+                      EG78 0037 0027 0818 1020 6564 6373 5
+                    </span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.swiftLabel")}{" "}
+                    <span className="text-foreground font-mono">QNBAEGCXXXX</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.accountCurrencyLabel")}{" "}
+                    <span className="text-foreground font-mono">EGP</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.bankNameLabel")}{" "}
+                    <span className="text-foreground">
+                      Qatar National Bank (QNB Alahli)
+                    </span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.bankAddressLabel")}{" "}
+                    <span className="text-foreground">
+                      213 El Gomhoria Street In front of Dar El Thaqafa Mansoura,
+                      Dakahlia
+                    </span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.bankCountryLabel")} <span className="text-foreground">Egypt</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("create.payment.addrLabel")}{" "}
+                    <span className="text-foreground">
+                      Talkha Salah Salem street
+                    </span>
                   </p>
                 </div>
-              ) : (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">
-                    {t("create.payment.bankLabel")} <span className="text-foreground font-mono">CIB Bank</span>
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("create.payment.accountLabel")}{" "}
-                    <span className="text-foreground font-mono">1234 5678 9012 3456</span>
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("create.payment.payeeLabel")} <span className="text-foreground">Digitiva Co.</span>
-                  </p>
+              )}
+
+              {paymentMethod === "instapay" && (
+                <div className="space-y-2">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      {t("create.payment.addrLabel")}{" "}
+                      <span className="text-foreground font-mono">rawanamr2002@instapay</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("create.payment.phoneLabel")}{" "}
+                      <span className="text-foreground font-mono">01024285771</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("create.payment.payeeLabel")}{" "}
+                      <span className="text-foreground">Rawan Amr</span>
+                    </p>
+                  </div>
+                  <a
+                    href="https://ipn.eg/S/rawanamr2002/instapay/6ucjU6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    {t("create.payment.goToInstapay")}
+                  </a>
+                </div>
+              )}
+
+              {paymentMethod === "vodafone_cash" && (
+                <div className="space-y-2">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      {t("create.payment.phoneLabel")}{" "}
+                      <span className="text-foreground font-mono">01024285771</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("create.payment.payeeLabel")}{" "}
+                      <span className="text-foreground">Rawan Amr</span>
+                    </p>
+                  </div>
+                  <a
+                    href="http://vf.eg/vfcash?id=mt&qrId=we6XaS"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    {t("create.payment.goToVodafoneCash")}
+                  </a>
                 </div>
               )}
             </div>

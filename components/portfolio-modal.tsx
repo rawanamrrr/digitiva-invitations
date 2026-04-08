@@ -19,6 +19,8 @@ export function PortfolioModal({ template, onClose }: PortfolioModalProps) {
     }
   }, [])
 
+  const isVideo = template.image?.toLowerCase().endsWith(".mp4")
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-foreground/60 backdrop-blur-sm" onClick={onClose} />
@@ -32,7 +34,23 @@ export function PortfolioModal({ template, onClose }: PortfolioModalProps) {
         </button>
 
         <div className="relative aspect-video">
-          <Image src={template.image || "/placeholder.svg"} alt={template.name} fill className="object-cover rounded-t-2xl" />
+          {isVideo ? (
+            <video
+              src={template.image}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover rounded-t-2xl"
+            />
+          ) : (
+            <Image
+              src={template.image || "/placeholder.svg"}
+              alt={template.name}
+              fill
+              className="object-cover rounded-t-2xl"
+            />
+          )}
         </div>
 
         <div className="p-6 lg:p-10">

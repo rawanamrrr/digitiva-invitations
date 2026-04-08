@@ -18,7 +18,7 @@ export function DeviceMockup({ type }: DeviceMockupProps) {
           {/* Screen */}
           <div className="relative w-full h-full bg-black rounded-[2.5rem] overflow-hidden">
             <video
-              src="/Ahmed-sameha.mp4"
+              src="/rose-ivory.mp4"
               className="w-full h-full object-cover"
               autoPlay
               loop
