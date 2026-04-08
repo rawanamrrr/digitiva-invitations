@@ -48,6 +48,7 @@ import {
 import { templates } from "@/lib/templates"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
+import { createClient } from "@/lib/supabase/client"
 import { SITE_LOCALES, type SiteLocale } from "@/lib/site-locales"
 import { PRICING_MAP, type PriceRates } from "@/lib/pricing"
 
@@ -261,15 +262,29 @@ function CreateInvitationContent() {
   const handlePublish = async () => {
     setLoading(true)
     try {
-      // 1. Upload payment screenshot
+      // 1. Upload payment screenshot via signed URL
       let screenshotUrl = ""
       if (paymentScreenshot) {
-        const fd = new FormData()
-        fd.append("file", paymentScreenshot)
-        const uploadRes = await fetch("/api/upload", { method: "POST", body: fd })
-        const uploadData = await uploadRes.json()
-        if (!uploadRes.ok) throw new Error(uploadData.error || t("create.publish.error.upload"))
-        screenshotUrl = uploadData.url
+        // Step 1: Get signed URL
+        const uploadPrepRes = await fetch("/api/upload", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            filename: paymentScreenshot.name, 
+            contentType: paymentScreenshot.type 
+          }) 
+        })
+        const uploadPrepData = await uploadPrepRes.json()
+        if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
+
+        // Step 2: Upload directly to Supabase
+        const supabase = createClient()
+        const { error: uploadError } = await supabase.storage
+          .from("uploads")
+          .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, paymentScreenshot)
+
+        if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
+        screenshotUrl = uploadPrepData.url
       }
 
       // 2. Create the invitation via API

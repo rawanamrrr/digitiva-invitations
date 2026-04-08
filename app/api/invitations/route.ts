@@ -50,7 +50,9 @@ async function getOrCreateGuestUserId(supabase: ReturnType<typeof createAdminCli
 
   if (existing?.id) return existing.id as string
 
-  const password_hash = await bcrypt.hash(Math.random().toString(36).slice(2), 12)
+  // Use a lower number of rounds for guest user creation to speed up the process
+  // or just use a simpler hash for this specific case as it's just a dummy user
+  const password_hash = await bcrypt.hash(Math.random().toString(36).slice(2), 8)
 
   const { data: created, error } = await supabase
     .from("users")
@@ -156,9 +158,47 @@ export async function POST(req: Request) {
 
     if (error) {
       if (error.code === "23505") {
-        return POST(req)
+        // Retry with a new slug manually instead of recursive call
+        const retrySlug = generateSlug()
+        const { data: retryData, error: retryError } = await supabase
+          .from("invitations")
+          .insert({
+            user_id: userId,
+            bride_name: d.brideName,
+            groom_name: d.groomName,
+            event_date: d.eventDate,
+            event_time: d.eventTime,
+            venue: d.venue,
+            venue_address: d.venueAddress || null,
+            venue_map_url: venueMapUrl || null,
+            venue_map_image: d.venueMapImage || null,
+            template_id: d.templateId,
+            couple_image: d.coupleImage || null,
+            song_url: songUrl,
+            package_name: d.packageName,
+            sections: d.sections?.length ? d.sections : null,
+            extras: d.extras?.length ? d.extras : null,
+            custom_theme_color: d.customThemeColor || null,
+            email: d.email || null,
+            whatsapp: d.whatsapp || null,
+            payment_method: d.paymentMethod || null,
+            payment_screenshot: d.paymentScreenshot || null,
+            order_currency: d.orderCurrency,
+            order_total: d.orderTotal ?? null,
+            slug: retrySlug,
+            payment_status: "pending",
+            is_published: false,
+          })
+          .select()
+          .single()
+
+        if (retryError) {
+          console.error("Retry insert error:", retryError)
+          return NextResponse.json({ error: "Failed to create after retry" }, { status: 500 })
+        }
+        return NextResponse.json(retryData)
       }
-      console.error(error)
+      console.error("Insert error:", error)
       return NextResponse.json({ error: "Failed to create" }, { status: 500 })
     }
 
