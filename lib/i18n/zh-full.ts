@@ -3,6 +3,7 @@ export const ZH_FULL: Record<string, string> = {
   "nav.birthdays": "生日",
   "nav.packages": "套餐",
   "nav.faqs": "常见问题",
+  "nav.howItWorks": "如何运作",
   "nav.getStarted": "开始",
   "nav.createInvitation": "创建邀请函",
   "nav.adminDashboard": "管理后台",

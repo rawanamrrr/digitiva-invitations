@@ -3,6 +3,7 @@ export const HI_FULL: Record<string, string> = {
   "nav.birthdays": "जन्मदिन",
   "nav.packages": "पैकेज",
   "nav.faqs": "प्रश्न",
+  "nav.howItWorks": "यह कैसे काम करता है",
   "nav.getStarted": "शुरू करें",
   "nav.createInvitation": "निमंत्रण बनाएँ",
   "nav.adminDashboard": "प्रशासन",

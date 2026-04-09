@@ -41,7 +41,7 @@ export function Footer() {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://www.facebook.com/digitiva.co"
+                href="https://www.facebook.com/share/1DtZmvmT5F/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-all hover:scale-110"
@@ -89,16 +89,22 @@ export function Footer() {
             <h3 className="font-semibold mb-4 text-base">{t("foot.events")}</h3>
             <nav className="space-y-3 text-sm">
               <Link href="#weddings" className="block opacity-70 hover:opacity-100 transition-opacity">
-                {t("foot.weddings")}
+                {t("cat.wedding.title")}
+              </Link>
+              <Link href="#weddings" className="block opacity-70 hover:opacity-100 transition-opacity">
+                {t("cat.engagement.title")}
+              </Link>
+              <Link href="#weddings" className="block opacity-70 hover:opacity-100 transition-opacity">
+                {t("cat.katb.title")}
               </Link>
               <Link href="#birthdays" className="block opacity-70 hover:opacity-100 transition-opacity">
-                {t("foot.birthdays")}
+                {t("cat.birthday.title")}
               </Link>
-              <Link href="#" className="block opacity-70 hover:opacity-100 transition-opacity">
-                {t("foot.corporate")}
+              <Link href="#weddings" className="block opacity-70 hover:opacity-100 transition-opacity">
+                {t("cat.baby.title")}
               </Link>
-              <Link href="#" className="block opacity-70 hover:opacity-100 transition-opacity">
-                {t("foot.baby")}
+              <Link href="#weddings" className="block opacity-70 hover:opacity-100 transition-opacity">
+                {t("cat.bachelorette.title")}
               </Link>
             </nav>
           </div>

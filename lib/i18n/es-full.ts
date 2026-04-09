@@ -3,6 +3,7 @@ export const ES_FULL: Record<string, string> = {
   "nav.birthdays": "Cumpleaños",
   "nav.packages": "Paquetes",
   "nav.faqs": "Preguntas",
+  "nav.howItWorks": "Cómo funciona",
   "nav.getStarted": "Empezar",
   "nav.createInvitation": "Crear invitación",
   "nav.adminDashboard": "Panel admin",

@@ -187,24 +187,39 @@ export function Header() {
           >
             <div className="p-2">
               <nav className="flex flex-col gap-1">
-                {[
-                  { labelKey: "nav.weddings", href: "#weddings" },
-                  { labelKey: "nav.birthdays", href: "#birthdays" },
-                  { labelKey: "nav.packages", href: "#packages" },
-                  { labelKey: "nav.faqs", href: "#faqs" },
-                ].map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="text-foreground/80 hover:text-foreground transition-all duration-300 font-medium py-3 px-4 rounded-xl hover:bg-foreground/5 hover:translate-x-1 active:scale-[0.98]"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {t(item.labelKey)}
-                  </Link>
-                ))}
+                {/* Main Navigation */}
+                <Link
+                  href="#templates"
+                  className="text-foreground/80 hover:text-foreground transition-all duration-300 font-medium py-3 px-4 rounded-xl hover:bg-foreground/5 hover:translate-x-1 active:scale-[0.98]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {t("foot.portfolio")}
+                </Link>
+                <Link
+                  href="#packages"
+                  className="text-foreground/80 hover:text-foreground transition-all duration-300 font-medium py-3 px-4 rounded-xl hover:bg-foreground/5 hover:translate-x-1 active:scale-[0.98]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {t("foot.packages")}
+                </Link>
+                <Link
+                  href="#process"
+                  className="text-foreground/80 hover:text-foreground transition-all duration-300 font-medium py-3 px-4 rounded-xl hover:bg-foreground/5 hover:translate-x-1 active:scale-[0.98]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {t("nav.howItWorks")}
+                </Link>
+                <Link
+                  href="#faqs"
+                  className="text-foreground/80 hover:text-foreground transition-all duration-300 font-medium py-3 px-4 rounded-xl hover:bg-foreground/5 hover:translate-x-1 active:scale-[0.98]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {t("foot.faqs")}
+                </Link>
 
                 <div className="h-px bg-border/40 my-2 mx-2" />
 
+                {/* CTA Button */}
                 {status !== "loading" && (
                   <div className="flex flex-col gap-1 mt-1">
                     {session ? (

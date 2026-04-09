@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Smartphone, Palette, Zap, Heart, Share2, BarChart3 } from "lucide-react"
+import { Smartphone, Palette, Zap, Heart, Share2 } from "lucide-react"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 const features = [
@@ -10,7 +10,6 @@ const features = [
   { icon: Zap, titleKey: "feat.share.title", descKey: "feat.share.desc", color: "bg-emerald/8 text-emerald" },
   { icon: Heart, titleKey: "feat.anim.title", descKey: "feat.anim.desc", color: "bg-rose/8 text-rose" },
   { icon: Share2, titleKey: "feat.rsvp.title", descKey: "feat.rsvp.desc", color: "bg-sky/8 text-sky" },
-  { icon: BarChart3, titleKey: "feat.analytics.title", descKey: "feat.analytics.desc", color: "bg-orange/8 text-orange" },
 ] as const
 
 function useInView(threshold = 0.1) {
