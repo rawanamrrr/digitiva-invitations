@@ -40,7 +40,7 @@ export function FixedCTAButton() {
       }`}
     >
       <Link
-        href="/create"
+        href="/create?package=standard"
         className="flex flex-col items-center justify-center w-full sm:w-auto px-6 py-4 bg-primary text-primary-foreground rounded-full shadow-2xl hover:shadow-primary/30 hover:scale-105 transition-all duration-300"
       >
         <span className="text-sm sm:text-base font-semibold whitespace-nowrap">{t("fixedCta.createInvitation")}</span>

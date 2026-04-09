@@ -4,7 +4,8 @@ import { createAdminClient } from "@/lib/supabase/server"
 import { generateSlug } from "@/utils/generateSlug"
 import { z } from "zod"
 import { isSiteCurrency } from "@/lib/site-currencies"
-import bcrypt from "bcryptjs"
+import { sendOrderNotification } from "@/lib/email"
+
 
 function buildGoogleMapsSearchUrl(venue: string, venueAddress?: string) {
   const query = [venue, venueAddress].filter(Boolean).join(" ").trim()
@@ -41,6 +42,10 @@ const createSchema = z.object({
   discountPercentage: z.number().optional().nullable(),
 });
 
+// Pre-computed bcrypt hash for guest user — avoids expensive bcrypt.hash() on every request
+// This is safe because the guest user is an internal dummy account, never used for login.
+const GUEST_PASSWORD_HASH = "$2a$04$N9qo8uLOickgx2ZMRZoMye.TS7ABjObkXBqWKyLAIuML07Gc6Oi.W"
+
 async function getOrCreateGuestUserId(supabase: ReturnType<typeof createAdminClient>) {
   const email = "guest@digitiva.local"
 
@@ -52,18 +57,15 @@ async function getOrCreateGuestUserId(supabase: ReturnType<typeof createAdminCli
 
   if (existing?.id) return existing.id as string
 
-  // Use a lower number of rounds for guest user creation to speed up the process
-  // or just use a simpler hash for this specific case as it's just a dummy user
-  const password_hash = await bcrypt.hash(Math.random().toString(36).slice(2), 8)
-
   const { data: created, error } = await supabase
     .from("users")
-    .insert({ name: "Guest", email, password_hash, role: "user" })
+    .insert({ name: "Guest", email, password_hash: GUEST_PASSWORD_HASH, role: "user" })
     .select("id")
     .single()
 
   if (!error && created?.id) return created.id as string
 
+  // Race condition: another request may have created it in parallel
   const { data: existingAfter } = await supabase
     .from("users")
     .select("id")
@@ -217,6 +219,25 @@ export async function POST(req: Request) {
         }
       });
     }
+
+    // Send admin notification email (fire-and-forget, don't block response)
+    sendOrderNotification({
+      brideName: d.brideName,
+      groomName: d.groomName,
+      eventDate: d.eventDate,
+      eventTime: d.eventTime,
+      venue: d.venue,
+      packageName: d.packageName,
+      sections: d.sections,
+      extras: d.extras,
+      email: d.email,
+      whatsapp: d.whatsapp,
+      paymentMethod: d.paymentMethod,
+      orderCurrency: d.orderCurrency,
+      orderTotal: d.orderTotal,
+      discountCode: d.discountCode,
+      discountPercentage: d.discountPercentage,
+    })
 
     return NextResponse.json(data)
   } catch (e) {

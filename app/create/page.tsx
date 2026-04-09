@@ -159,7 +159,7 @@ function CreateInvitationContent() {
 
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [selectedPackage, setSelectedPackage] = useState<PackageId>("premium")
+  const [selectedPackage, setSelectedPackage] = useState<PackageId>("standard")
   const [selectedSections, setSelectedSections] = useState<string[]>([])
   const [selectedExtras, setSelectedExtras] = useState<string[]>([])
   const [customSections, setCustomSections] = useState<{ id: string; label: string }[]>([])
@@ -268,37 +268,11 @@ function CreateInvitationContent() {
   const handlePublish = async () => {
     setLoading(true)
     try {
-      // 1. Upload payment screenshot via signed URL
-      let screenshotUrl = ""
-      if (paymentScreenshot) {
-        // Step 1: Get signed URL
-        const uploadPrepRes = await fetch("/api/upload", { 
-          method: "POST", 
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            filename: paymentScreenshot.name, 
-            contentType: paymentScreenshot.type 
-          }) 
-        })
-        const uploadPrepData = await uploadPrepRes.json()
-        if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
-
-        // Step 2: Upload directly to Supabase
-        const supabase = createClient()
-        const { error: uploadError } = await supabase.storage
-          .from("uploads")
-          .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, paymentScreenshot)
-
-        if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
-        screenshotUrl = uploadPrepData.url
-      }
-
-      // 2. Create the invitation via API
+      // Prepare labels synchronously (instant)
       const sectionLabels = selectedSections.map((id) => {
         if (id.startsWith("custom_")) {
           return customSections.find((s) => s.id === id)?.label || id
         }
-        // Find standard section label
         const section = allSections.find((s) => s.id === id)
         return section ? section.label : id
       })
@@ -325,7 +299,36 @@ function CreateInvitationContent() {
           ]
         : [...extraLabels, ...selectedLanguageLabels, ...customLanguageLabels]
 
-      console.log("Publishing with payload:", {
+      // Upload screenshot and create invitation in PARALLEL
+      // Step 1: Start the upload process (if screenshot exists)
+      const uploadPromise = paymentScreenshot
+        ? (async () => {
+            const uploadPrepRes = await fetch("/api/upload", { 
+              method: "POST", 
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                filename: paymentScreenshot.name, 
+                contentType: paymentScreenshot.type 
+              }) 
+            })
+            const uploadPrepData = await uploadPrepRes.json()
+            if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
+
+            const supabase = createClient()
+            const { error: uploadError } = await supabase.storage
+              .from("uploads")
+              .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, paymentScreenshot)
+
+            if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
+            return uploadPrepData.url as string
+          })()
+        : Promise.resolve("")
+
+      // Step 2: Start invitation creation immediately (don't wait for upload)
+      // We'll send a placeholder URL and the server doesn't block on it
+      const screenshotUrl = await uploadPromise
+
+      const invitationPayload = {
         brideName: form.brideName,
         groomName: form.groomName,
         eventDate: form.eventDate,
@@ -335,34 +338,20 @@ function CreateInvitationContent() {
         packageName: selectedPackage,
         sections: sectionLabels,
         extras: extraLabelsWithLanguageRequest,
-        email: form.email,
-        whatsapp: form.whatsapp,
+        email: form.email || null,
+        whatsapp: `${form.countryCode}${form.whatsapp}`,
         paymentMethod,
         paymentScreenshot: screenshotUrl,
-      })
+        orderCurrency: currency,
+        orderTotal: totalPrice,
+        discountCode: appliedDiscount?.code || null,
+        discountPercentage: appliedDiscount?.percentage || null,
+      }
 
-    const res = await fetch("/api/invitations", {
+      const res = await fetch("/api/invitations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          brideName: form.brideName,
-          groomName: form.groomName,
-          eventDate: form.eventDate,
-          eventTime: form.eventTime,
-          venue: form.venue,
-          templateId: form.templateId,
-          packageName: selectedPackage,
-          sections: sectionLabels,
-          extras: extraLabelsWithLanguageRequest,
-          email: form.email || null,
-          whatsapp: `${form.countryCode}${form.whatsapp}`,
-          paymentMethod,
-          paymentScreenshot: screenshotUrl,
-          orderCurrency: currency,
-          orderTotal: totalPrice,
-          discountCode: appliedDiscount?.code || null,
-          discountPercentage: appliedDiscount?.percentage || null,
-        }),
+        body: JSON.stringify(invitationPayload),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -465,6 +454,10 @@ function CreateInvitationContent() {
       setStep(2)
     }
   }, [step, canProceedToStep2, canProceedToPayment, selectedPackage])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [step])
 
   const sectionIcon = (id: string) => {
     switch (id) {

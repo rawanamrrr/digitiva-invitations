@@ -6,6 +6,7 @@ import { SessionProvider } from "@/components/providers/session-provider"
 import { SiteCurrencyProvider } from "@/contexts/SiteCurrencyContext"
 import { SiteLanguageProvider } from "@/contexts/SiteLanguageContext"
 import "./globals.css"
+import "@/styles/lazy-video.css"
 
 const _inter = Inter({ subsets: ["latin"] })
 const _cormorant = Cormorant_Garamond({

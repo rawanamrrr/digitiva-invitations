@@ -23,7 +23,7 @@ export function CTABanner() {
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <Link
-            href="/create"
+            href="/create?package=standard"
             className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-medium bg-primary hover:bg-navy-deep text-primary-foreground rounded-md transition-all duration-300 active:scale-95"
           >
             {t("cta.primary")}

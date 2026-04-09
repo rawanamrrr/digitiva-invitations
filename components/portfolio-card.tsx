@@ -4,6 +4,7 @@ import Image from "next/image"
 import { ArrowUpRight, Plus, ExternalLink, Crown } from "lucide-react"
 import { Template } from "@/lib/templates"
 import Link from "next/link"
+import { LazyVideo } from "./lazy-video"
 
 interface PortfolioCardProps {
   item: Template
@@ -26,12 +27,14 @@ export function PortfolioCard({ item, index, onClick }: PortfolioCardProps) {
         onClick={onClick}
       >
         {isVideo ? (
-          <video
+          <LazyVideo
             src={item.image}
-            autoPlay
-            loop
-            muted
-            playsInline
+            autoPlay={true}
+            loop={true}
+            muted={true}
+            controls={false}
+            showPlayButton={false}
+            aspectRatio="2/3"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />
         ) : (

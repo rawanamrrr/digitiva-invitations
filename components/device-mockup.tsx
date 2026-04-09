@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import { LazyVideo } from "./lazy-video"
 
 interface DeviceMockupProps {
   type: "phone" | "laptop"
@@ -17,13 +18,15 @@ export function DeviceMockup({ type }: DeviceMockupProps) {
 
           {/* Screen */}
           <div className="relative w-full h-full bg-black rounded-[2.5rem] overflow-hidden">
-            <video
+            <LazyVideo
               src="/rose-ivory.mp4"
+              autoPlay={true}
+              loop={true}
+              muted={true}
+              controls={false}
+              showPlayButton={false}
+              aspectRatio="9/19"
               className="w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
             />
           </div>
         </div>
