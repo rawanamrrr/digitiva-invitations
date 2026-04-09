@@ -159,6 +159,8 @@ export const HI_FULL: Record<string, string> = {
   "cta.sub": "उन लोगों से जुड़ें जो मेहमानों को पहले ही चौंका चुके हैं।",
   "cta.primary": "अभी बनाएँ",
   "cta.secondary": "उदाहरण देखें",
+  "fixedCta.createInvitation": "अपना निमंत्रण अभी बनाएं",
+  "fixedCta.subtext": "{price}{currency} से शुरू · फॉर्म भरें",
   "cta.note1": "मुफ़्त परामर्श शामिल",
   "cta.note2": "कार्ड की ज़रूरत नहीं",
   "foot.tagline":
@@ -316,6 +318,7 @@ export const HI_FULL: Record<string, string> = {
   "create.bottom.needTemplate": "कृपया टेम्पलेट चुनें",
   "create.bottom.needSection": "कम से कम 1 सेक्शन चुनें",
   "create.bottom.pay": "भुगतान {price} {currency}",
+  "create.bottom.discount_notice": "कोई भी डिस्काउंट कोड भुगतान पेज पर लागू होगा",
   "create.details.title": "निमंत्रण विवरण",
   "create.label.bride": "दुल्हन का नाम",
   "create.label.groom": "दूल्हे का नाम",

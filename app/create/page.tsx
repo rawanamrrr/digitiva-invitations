@@ -988,6 +988,11 @@ function CreateInvitationContent() {
               </span>
               <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </Button>
+            <div className="mt-2 text-center">
+              <p className="text-[10px] text-muted-foreground opacity-80">
+                {t("create.bottom.discount_notice")}
+              </p>
+            </div>
           </div>
         </div>
       )}

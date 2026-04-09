@@ -9,6 +9,7 @@ import { Testimonials } from "@/components/testimonials"
 import { FAQ } from "@/components/faq"
 import { CTABanner } from "@/components/cta-banner"
 import { Footer } from "@/components/footer"
+import { FixedCTAButton } from "@/components/fixed-cta-button"
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
       <FAQ />
       <CTABanner />
       <Footer />
+      <FixedCTAButton />
     </main>
   )
 }

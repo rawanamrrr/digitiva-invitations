@@ -2,7 +2,7 @@
 
 import { Check, Star, Crown, Sparkles, ArrowRight } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { getPricingRates } from "@/lib/pricing"
@@ -50,11 +50,32 @@ const PACKAGE_BASE_DEFS = [
   },
 ] as const
 
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+        }
+      },
+      { threshold }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isInView }
+}
+
 export function Packages() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const { t, isRTL } = useSiteLanguage()
   const { currencyShort, currency } = useSiteCurrency()
   const pricingRates = getPricingRates(currency)
+  const { ref: sectionRef, isInView } = useInView(0.1)
 
   const packageDefs = PACKAGE_BASE_DEFS.map(pkg => ({
     ...pkg,
@@ -62,9 +83,9 @@ export function Packages() {
   }))
 
   return (
-    <section id="packages" className="py-16 sm:py-32 lg:py-40 relative overflow-hidden px-4 sm:px-6 lg:px-8 bg-background">
+    <section id="packages" ref={sectionRef} className="py-16 sm:py-32 lg:py-40 relative overflow-hidden px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto relative">
-        <div className="text-center mb-16 sm:mb-28">
+        <div className={`text-center mb-16 sm:mb-28 transition-all duration-700 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
             {t("pkg.h2a")}
             <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">
@@ -86,9 +107,10 @@ export function Packages() {
             return (
               <div
                 key={pkg.id}
-                className={`relative group transition-all duration-300 ${
+                className={`relative group transition-all duration-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${
                   pkg.popular ? "md:scale-105 md:-my-4" : ""
                 }`}
+                style={{ transitionDelay: `${index * 150}ms` }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
@@ -102,7 +124,7 @@ export function Packages() {
                 )}
 
                 <div
-                  className={`relative h-full rounded-md overflow-hidden transition-all duration-300 ${
+                  className={`relative h-full rounded-md overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${
                     pkg.popular
                       ? "bg-gradient-to-br from-primary via-teal to-primary/80 text-primary-foreground shadow-lg border border-teal/30"
                       : "bg-card border border-border/70 hover:border-primary/40 shadow-md hover:shadow-lg"
@@ -206,7 +228,7 @@ export function Packages() {
           })}
         </div>
 
-        <div className="mt-20 sm:mt-24 text-center">
+        <div className={`mt-20 sm:mt-24 text-center transition-all duration-700 delay-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md glass border border-border/40">
             <p className="text-xs sm:text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{t("pkg.footer1")}</span>

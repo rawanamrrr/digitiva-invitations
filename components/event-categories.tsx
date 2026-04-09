@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ArrowRight, Heart, Gem, BookHeart, Cake, Baby, PartyPopper, Sparkles } from "lucide-react"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
@@ -56,14 +56,35 @@ const categories = [
   },
 ]
 
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+        }
+      },
+      { threshold }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isInView }
+}
+
 export function EventCategories() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const { t, isRTL } = useSiteLanguage()
+  const { ref: sectionRef, isInView } = useInView(0.1)
 
   return (
-    <section id="weddings" className="py-16 lg:py-24 px-6 lg:px-8 bg-card scroll-mt-24">
+    <section id="weddings" ref={sectionRef} className="py-16 lg:py-24 px-6 lg:px-8 bg-card scroll-mt-24">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <div className={`text-center mb-12 transition-all duration-700 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h2 className="font-serif text-3xl lg:text-5xl font-semibold text-card-foreground mb-4">
             {t("categories.title1")}{" "}
             <span className="font-script text-4xl lg:text-6xl text-primary font-normal">
@@ -74,23 +95,24 @@ export function EventCategories() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 categories-grid">
-          {categories.map((category) => {
+          {categories.map((category, index) => {
             const Icon = category.icon
             const anchorId = category.id === "birthday" ? "birthdays" : undefined
             return (
               <div
                 key={category.id}
                 id={anchorId}
-                className="group relative scroll-mt-24 h-full"
+                className={`group relative scroll-mt-24 h-full transition-all duration-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
                 onMouseEnter={() => setHoveredId(category.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
                 <Card
-                  className={`h-full min-w-0 overflow-hidden border-none shadow-none bg-transparent transition-all duration-500 hover:scale-[1.02]`}
+                  className={`h-full min-w-0 overflow-hidden border-none shadow-none bg-transparent transition-all duration-500 hover:scale-[1.08] hover:-translate-y-1`}
                 >
                   <CardContent className="p-0 flex flex-col items-center text-center">
-                    <div className={`mb-3 p-3 rounded-xl ${category.color} ${category.accentColor} transition-colors duration-300 group-hover:bg-primary/5 group-hover:text-primary relative`}>
-                      <Icon className="w-6 h-6 sm:w-8 h-8" />
+                    <div className={`mb-3 p-3 rounded-xl ${category.color} ${category.accentColor} transition-all duration-300 group-hover:bg-primary/10 group-hover:text-primary group-hover:scale-110 group-hover:shadow-lg relative`}>
+                      <Icon className="w-6 h-6 sm:w-8 h-8 transition-transform duration-300 group-hover:scale-110" />
                     </div>
                     <CardTitle className="text-xs sm:text-sm font-medium mb-1 text-foreground/80 group-hover:text-primary transition-colors">
                       {t(`cat.${category.id === "katb-ketab" ? "katb" : category.id === "baby-shower" ? "baby" : category.id}.title`)}

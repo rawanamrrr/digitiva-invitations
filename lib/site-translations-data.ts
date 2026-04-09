@@ -188,6 +188,8 @@ export const EN: Record<string, string> = {
     "Join hundreds of happy couples and event organizers who have wowed their guests with stunning Digitiva invitations.",
   "cta.primary": "Start Creating Now",
   "cta.secondary": "View Examples",
+  "fixedCta.createInvitation": "Create your invitation now",
+  "fixedCta.subtext": "Start here from {price}{currency} · Fill in the form to continue",
 
   "foot.tagline":
     "Creating stunning, custom event invitation websites that capture the essence of your celebration. Every design tells a unique story.",
@@ -367,6 +369,7 @@ export const EN: Record<string, string> = {
   "create.bottom.needTemplate": "Select a template",
   "create.bottom.needSection": "Select at least 1 section",
   "create.bottom.pay": "PAY {price} {currency}",
+  "create.bottom.discount_notice": "Any discount code will be applied at payment page",
   "create.details.title": "Invitation Details",
   "create.label.bride": "Bride's Name",
   "create.label.groom": "Groom's Name",
@@ -640,6 +643,8 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
       "انضم لمئات الأزواج والمنظمين الذين أبهروا ضيوفهم بدعوات Digitiva.",
     "cta.primary": "ابدأ الإنشاء الآن",
     "cta.secondary": "شاهد الأمثلة",
+    "fixedCta.createInvitation": "اصنع دعوتك الآن",
+    "fixedCta.subtext": "ابدأ من {price}{currency} · املأ النموذج للمتابعة",
     "foot.tagline":
       "نصمم مواقع دعوة فعاليات مذهلة تعكس روح احتفالك. كل تصميم يروي قصة فريدة.",
     "foot.quick": "روابط سريعة",
@@ -819,6 +824,7 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
     "create.bottom.needTemplate": "اختر قالباً",
     "create.bottom.needSection": "اختر قسماً واحداً على الأقل",
     "create.bottom.pay": "ادفع {price} {currency}",
+    "create.bottom.discount_notice": "سيتم تطبيق أي كود خصم في صفحة الدفع",
     "create.details.title": "تفاصيل الدعوة",
     "create.label.bride": "اسم العروس",
     "create.label.groom": "اسم العريس",

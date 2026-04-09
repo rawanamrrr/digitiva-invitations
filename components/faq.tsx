@@ -1,19 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ChevronDown } from "lucide-react"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 const FAQ_COUNT = 6
 
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+        }
+      },
+      { threshold }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isInView }
+}
+
 export function FAQ() {
   const { t } = useSiteLanguage()
   const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const { ref: sectionRef, isInView } = useInView(0.1)
 
   return (
-    <section id="faqs" className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 bg-background">
+    <section id="faqs" ref={sectionRef} className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16 sm:mb-28">
+        <div className={`text-center mb-16 sm:mb-28 transition-all duration-700 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
             {t("faq.title1")}
             <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">
@@ -29,7 +50,8 @@ export function FAQ() {
           {Array.from({ length: FAQ_COUNT }, (_, index) => (
             <div
               key={index}
-              className="bg-card rounded-md border border-border/60 overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-md"
+              className={`bg-card rounded-md border border-border/60 overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-md ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              style={{ transitionDelay: `${index * 75}ms` }}
             >
               <button
                 type="button"

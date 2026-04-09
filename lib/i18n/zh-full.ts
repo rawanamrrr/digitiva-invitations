@@ -159,6 +159,8 @@ export const ZH_FULL: Record<string, string> = {
   "cta.sub": "加入已经让宾客惊喜的用户。",
   "cta.primary": "立即创建",
   "cta.secondary": "查看示例",
+  "fixedCta.createInvitation": "立即创建您的邀请函",
+  "fixedCta.subtext": "起价{price}{currency} · 填写表格继续",
   "cta.note1": "含免费咨询",
   "cta.note2": "无需信用卡",
   "foot.tagline":
@@ -316,6 +318,7 @@ export const ZH_FULL: Record<string, string> = {
   "create.bottom.needTemplate": "请选择模板",
   "create.bottom.needSection": "至少选择 1 个板块",
   "create.bottom.pay": "支付 {price} {currency}",
+  "create.bottom.discount_notice": "任何折扣码将在支付页面应用",
   "create.details.title": "邀请函信息",
   "create.label.bride": "新娘姓名",
   "create.label.groom": "新郎姓名",

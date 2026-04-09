@@ -159,6 +159,8 @@ export const RU_FULL: Record<string, string> = {
   "cta.sub": "Присоединяйтесь к тем, кто уже порадовал гостей.",
   "cta.primary": "Создать сейчас",
   "cta.secondary": "Смотреть примеры",
+  "fixedCta.createInvitation": "Создайте приглашение сейчас",
+  "fixedCta.subtext": "От {price}{currency} · Заполните форму",
   "cta.note1": "Бесплатная консультация включена",
   "cta.note2": "Без банковской карты",
   "foot.tagline":
@@ -316,6 +318,7 @@ export const RU_FULL: Record<string, string> = {
   "create.bottom.needTemplate": "Выберите шаблон",
   "create.bottom.needSection": "Выберите хотя бы 1 блок",
   "create.bottom.pay": "ОПЛАТИТЬ {price} {currency}",
+  "create.bottom.discount_notice": "Любой промокод будет применен на странице оплаты",
   "create.details.title": "Данные приглашения",
   "create.label.bride": "Имя невесты",
   "create.label.groom": "Имя жениха",

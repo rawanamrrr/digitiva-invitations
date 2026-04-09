@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { templates, Template } from "@/lib/templates"
 import { PortfolioCard } from "./portfolio-card"
 import { PortfolioModal } from "./portfolio-modal"
@@ -8,10 +8,31 @@ import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "./ui/button"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+        }
+      },
+      { threshold }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isInView }
+}
+
 export function PortfolioGrid() {
   const { t } = useSiteLanguage()
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { ref: sectionRef, isInView } = useInView(0.1)
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -22,9 +43,9 @@ export function PortfolioGrid() {
   }
 
   return (
-    <section id="templates" className="py-24 lg:py-32 bg-[#FAFAFA] overflow-hidden">
+    <section id="templates" ref={sectionRef} className="py-24 lg:py-32 bg-[#FAFAFA] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="text-center mb-16 lg:mb-24">
+        <div className={`text-center mb-16 lg:mb-24 transition-all duration-700 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h2 className="font-serif text-4xl lg:text-7xl font-medium text-foreground mb-6">
             {t("portfolio.title1")} <span className="italic font-light">{t("portfolio.title2")}</span>
           </h2>
@@ -63,7 +84,11 @@ export function PortfolioGrid() {
           className="flex overflow-x-auto pb-12 px-6 lg:px-[calc((100vw-80rem)/2+2rem)] snap-x snap-mandatory no-scrollbar gap-6 lg:gap-8"
         >
           {templates.map((item, index) => (
-            <div key={item.id} className="flex-none w-[75vw] sm:w-[350px] snap-center">
+            <div 
+              key={item.id} 
+              className={`flex-none w-[75vw] sm:w-[350px] snap-center transition-all duration-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              style={{ transitionDelay: `${index * 100}ms` }}
+            >
               <PortfolioCard 
                 item={item} 
                 index={index} 

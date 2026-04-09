@@ -20,8 +20,9 @@ export function PortfolioCard({ item, index, onClick }: PortfolioCardProps) {
       className="group flex flex-col animate-slide-up w-full"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      <div 
-        className="relative w-full aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-white shadow-sm transition-all duration-700 group-hover:shadow-2xl group-hover:shadow-primary/10 cursor-pointer"
+      <div
+        className="relative w-full overflow-hidden rounded-[2.5rem] bg-white shadow-sm transition-all duration-700 group-hover:shadow-2xl group-hover:shadow-primary/10 cursor-pointer"
+        style={{ aspectRatio: '2/3' }}
         onClick={onClick}
       >
         {isVideo ? (

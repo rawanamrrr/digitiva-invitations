@@ -159,6 +159,8 @@ export const PT_FULL: Record<string, string> = {
   "cta.sub": "Junte-se a quem já surpreendeu os convidados.",
   "cta.primary": "Criar agora",
   "cta.secondary": "Ver exemplos",
+  "fixedCta.createInvitation": "Crie seu convite agora",
+  "fixedCta.subtext": "A partir de {price}{currency} · Preencha o formulário",
   "cta.note1": "Consulta gratuita incluída",
   "cta.note2": "Sem cartão de crédito",
   "foot.tagline":
@@ -316,6 +318,7 @@ export const PT_FULL: Record<string, string> = {
   "create.bottom.needTemplate": "Selecione um modelo",
   "create.bottom.needSection": "Selecione pelo menos 1 secção",
   "create.bottom.pay": "PAGAR {price} {currency}",
+  "create.bottom.discount_notice": "Qualquer código de desconto será aplicado na página de pagamento",
   "create.details.title": "Dados do convite",
   "create.label.bride": "Nome da noiva",
   "create.label.groom": "Nome do noivo",

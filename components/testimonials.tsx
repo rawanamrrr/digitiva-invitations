@@ -1,15 +1,36 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
 const COUNT = 3
 
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+        }
+      },
+      { threshold }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isInView }
+}
+
 export function Testimonials() {
   const { t } = useSiteLanguage()
   const [current, setCurrent] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const { ref: sectionRef, isInView } = useInView(0.1)
 
   const next = () => {
     if (!isAnimating) {
@@ -41,9 +62,9 @@ export function Testimonials() {
   const i = current
 
   return (
-    <section className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 bg-background">
+    <section ref={sectionRef} className="py-16 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="text-center mb-16 sm:mb-28">
+        <div className={`text-center mb-16 sm:mb-28 transition-all duration-700 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
             {t("test.title1")}
             <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">
@@ -55,7 +76,7 @@ export function Testimonials() {
           </p>
         </div>
 
-        <div className="relative bg-card border border-border/60 rounded-md p-6 sm:p-10 lg:p-12 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+        <div className={`relative bg-card border border-border/60 rounded-md p-6 sm:p-10 lg:p-12 shadow-md hover:shadow-lg transition-all duration-500 overflow-hidden ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
           <div className="absolute top-6 right-6 opacity-8">
             <Quote className="w-16 h-16 sm:w-20 sm:h-20 text-primary" />
           </div>

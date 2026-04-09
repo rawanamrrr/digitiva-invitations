@@ -33,7 +33,7 @@ export function PortfolioModal({ template, onClose }: PortfolioModalProps) {
           <X className="w-5 h-5" />
         </button>
 
-        <div className="relative aspect-video">
+        <div className="relative" style={{ aspectRatio: '2/3' }}>
           {isVideo ? (
             <video
               src={template.image}

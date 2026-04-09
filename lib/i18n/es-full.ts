@@ -159,6 +159,8 @@ export const ES_FULL: Record<string, string> = {
   "cta.sub": "Únete a quienes ya sorprendieron a sus invitados.",
   "cta.primary": "Crear ahora",
   "cta.secondary": "Ver ejemplos",
+  "fixedCta.createInvitation": "Crea tu invitación ahora",
+  "fixedCta.subtext": "Desde {price}{currency} · Rellena el formulario",
   "cta.note1": "Consulta gratuita incluida",
   "cta.note2": "Sin tarjeta de crédito",
   "foot.tagline":
@@ -316,6 +318,7 @@ export const ES_FULL: Record<string, string> = {
   "create.bottom.needTemplate": "Selecciona una plantilla",
   "create.bottom.needSection": "Selecciona al menos 1 sección",
   "create.bottom.pay": "PAGAR {price} {currency}",
+  "create.bottom.discount_notice": "Cualquier código de descuento se aplicará en la página de pago",
   "create.details.title": "Datos de la invitación",
   "create.label.bride": "Nombre de la novia",
   "create.label.groom": "Nombre del novio",
