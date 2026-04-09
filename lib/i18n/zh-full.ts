@@ -285,8 +285,11 @@ export const ZH_FULL: Record<string, string> = {
   "create.chooseStyle.title": "选择你的风格",
   "create.chooseStyle.sub":
     "模板只是起点，之后我们会与你一起个性化",
-  "create.previewDemo": "演示预览",
-  "create.selectPackage": "套餐与板块",
+  "create.previewDemo": "预览演示",
+  "create.premiumBadge": "高级",
+  "create.upgradeToPremium": "需要高级套餐",
+  "create.premiumRequired": "此高级模板需要高级套餐。请升级以选择它。",
+  "create.selectPackage": "选择套餐和版块",
   "create.pkg.standard.desc": "模板 + 含 3 个板块",
   "create.pkg.premium.desc": "模板 + 含 7 个板块",
   "create.pkg.custom.desc": "完全掌控你的邀请函",

@@ -286,7 +286,10 @@ export const HI_FULL: Record<string, string> = {
   "create.chooseStyle.sub":
     "टेम्पलेट सिर्फ शुरुआत है — फिर हम आपके साथ कस्टमाइज़ करते हैं",
   "create.previewDemo": "डेमो पूर्वावलोकन",
-  "create.selectPackage": "पैकेज और सेक्शन",
+  "create.premiumBadge": "प्रीमियम",
+  "create.upgradeToPremium": "प्रीमियम पैकेज आवश्यक",
+  "create.premiumRequired": "इस प्रीमियम टेम्पलेट को प्रीमियम पैकेज की आवश्यकता है। चयन के लिए कृपया अपग्रेड करें।",
+  "create.selectPackage": "पैकेज और अनुभाग चुनें",
   "create.pkg.standard.desc": "टेम्पलेट + 3 सेक्शन शामिल",
   "create.pkg.premium.desc": "टेम्पलेट + 7 सेक्शन शामिल",
   "create.pkg.custom.desc": "निमंत्रण पर पूर्ण नियंत्रण",

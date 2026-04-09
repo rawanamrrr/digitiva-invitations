@@ -286,6 +286,9 @@ export const DE_FULL: Record<string, string> = {
   "create.chooseStyle.sub":
     "Die Vorlage ist nur der Startpunkt – anschließend personalisieren wir mit Ihnen",
   "create.previewDemo": "Demo-Vorschau",
+  "create.premiumBadge": "Premium",
+  "create.upgradeToPremium": "Premium-Paket erforderlich",
+  "create.premiumRequired": "Diese Premium-Vorlage erfordert das Premium-Paket. Bitte upgraden Sie zur Auswahl.",
   "create.selectPackage": "Paket & Abschnitte",
   "create.pkg.standard.desc": "Vorlage + 3 Abschnitte inklusive",
   "create.pkg.premium.desc": "Vorlage + 7 Abschnitte inklusive",

@@ -292,8 +292,11 @@ export const FR_FULL: Record<string, string> = {
     "create.chooseStyle.title": "Choisissez votre style",
     "create.chooseStyle.sub":
       "Le thème est le point de départ, personnalisé avec vos infos",
-    "create.previewDemo": "Démo",
-    "create.selectPackage": "Forfait & sections",
+    "create.previewDemo": "Aperçu",
+    "create.premiumBadge": "Premium",
+    "create.upgradeToPremium": "Forfait Premium requis",
+    "create.premiumRequired": "Ce modèle premium nécessite le forfait Premium. Veuillez mettre à niveau pour le sélectionner.",
+    "create.selectPackage": "Sélectionner le forfait et sections",
     "create.pkg.standard.desc": "Modèle + 3 sections incluses",
     "create.pkg.premium.desc": "Modèle + 7 sections incluses",
     "create.pkg.custom.desc": "Contrôle total",

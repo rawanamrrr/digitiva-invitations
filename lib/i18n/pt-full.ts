@@ -286,7 +286,10 @@ export const PT_FULL: Record<string, string> = {
   "create.chooseStyle.sub":
     "O modelo é só o ponto de partida — depois personalizamos consigo",
   "create.previewDemo": "Pré-visualização demo",
-  "create.selectPackage": "Pacote e secções",
+  "create.premiumBadge": "Premium",
+  "create.upgradeToPremium": "Pacote Premium necessário",
+  "create.premiumRequired": "Este modelo premium requer o pacote Premium. Por favor, atualize para selecioná-lo.",
+  "create.selectPackage": "Selecionar pacote e seções",
   "create.pkg.standard.desc": "Modelo + 3 secções incluídas",
   "create.pkg.premium.desc": "Modelo + 7 secções incluídas",
   "create.pkg.custom.desc": "Controlo total do seu convite",

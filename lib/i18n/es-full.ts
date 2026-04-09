@@ -285,8 +285,11 @@ export const ES_FULL: Record<string, string> = {
   "create.chooseStyle.title": "Elige tu estilo",
   "create.chooseStyle.sub":
     "La plantilla es solo el punto de partida, luego la personalizamos contigo",
-  "create.previewDemo": "Vista previa demo",
-  "create.selectPackage": "Paquete y secciones",
+  "create.previewDemo": "Vista previa",
+  "create.premiumBadge": "Premium",
+  "create.upgradeToPremium": "Paquete Premium requerido",
+  "create.premiumRequired": "Esta plantilla premium requiere el paquete Premium. Por favor actualice para seleccionarla.",
+  "create.selectPackage": "Seleccionar paquete y secciones",
   "create.pkg.standard.desc": "Plantilla + 3 secciones incluidas",
   "create.pkg.premium.desc": "Plantilla + 7 secciones incluidas",
   "create.pkg.custom.desc": "Control total de tu invitación",

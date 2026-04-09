@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { ArrowUpRight, Plus, ExternalLink } from "lucide-react"
+import { ArrowUpRight, Plus, ExternalLink, Crown } from "lucide-react"
 import { Template } from "@/lib/templates"
 import Link from "next/link"
 
@@ -50,6 +50,16 @@ export function PortfolioCard({ item, index, onClick }: PortfolioCardProps) {
         <div className="absolute top-6 left-6 font-serif text-3xl font-light text-white/40 select-none">
           {displayIndex}
         </div>
+
+        {/* Premium Badge */}
+        {item.isPremium && (
+          <div className="absolute top-6 right-6 z-10">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
+              <Crown className="w-3.5 h-3.5" />
+              Premium
+            </div>
+          </div>
+        )}
 
         {/* View Demo Button on Card - Bottom Left */}
         <div className="absolute bottom-6 left-6 z-20">

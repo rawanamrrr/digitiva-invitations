@@ -5,9 +5,19 @@ export interface Template {
   demoUrl: string
   image: string
   category: string
+  isPremium?: boolean
 }
 
 export const templates: Template[] = [
+  {
+    id: "royal-entrance",
+    name: "A Royal Entrance",
+    description: "Majestic and elegant design for a truly grand and unforgettable celebration.",
+    demoUrl: "https://ali-mayada.digitivaa.com/",
+    image: "/a-royal-entrance.mp4",
+    category: "Weddings",
+    isPremium: true,
+  },
   {
     id: "lamis",
     name: "Petals & Promises",

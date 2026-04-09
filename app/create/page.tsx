@@ -44,6 +44,7 @@ import {
   MessageCircle,
   Bus,
   Gift,
+  Crown,
 } from "lucide-react"
 import { templates } from "@/lib/templates"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
@@ -509,11 +510,11 @@ function CreateInvitationContent() {
     <div className="max-w-3xl mx-auto py-8 px-4">
       {step < 4 && (
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4">
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors mx-auto ${
                   step >= s ? "bg-primary border-primary text-white" : "border-border text-muted-foreground"
                 }`}
               >
@@ -521,7 +522,7 @@ function CreateInvitationContent() {
               </div>
             ))}
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground px-1">
+          <div className="grid grid-cols-3 gap-4 text-xs text-muted-foreground text-center">
             <span>{t("create.step.style")}</span>
             <span>{t("create.step.details")}</span>
             <span>{t("create.step.payment")}</span>
@@ -541,13 +542,21 @@ function CreateInvitationContent() {
                 {templates.map((template) => {
                   const isVideo = template.image.endsWith('.mp4')
                   const isSelected = form.templateId === template.id
+                  const isPremium = template.isPremium
+                  const isPremiumLocked = isPremium && selectedPackage === "standard"
                   return (
                     <button
                       key={template.id}
+                      disabled={isPremiumLocked}
                       className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all text-left ${
                         isSelected ? "border-primary ring-2 ring-primary ring-offset-2 scale-[1.02]" : "border-transparent hover:border-primary/50"
-                      }`}
+                      } ${isPremiumLocked ? "opacity-75 cursor-not-allowed" : ""}`}
                       onClick={() => {
+                        if (isPremiumLocked) {
+                          // Show alert or toast that premium template requires premium package
+                          alert(t("create.premiumRequired"))
+                          return
+                        }
                         update("templateId", template.id)
                       }}
                     >
@@ -566,6 +575,22 @@ function CreateInvitationContent() {
                           alt={template.name}
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
+                      )}
+                      {/* Premium Badge */}
+                      {isPremium && (
+                        <div className="absolute top-3 right-3 z-10">
+                          <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
+                            <Crown className="w-3 h-3" />
+                            {t("create.premiumBadge")}
+                          </div>
+                        </div>
+                      )}
+                      {/* Premium Lock Overlay */}
+                      {isPremiumLocked && (
+                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-20">
+                          <Crown className="w-8 h-8 text-amber-400 mb-2" />
+                          <span className="text-white text-xs font-medium text-center px-2">{t("create.upgradeToPremium")}</span>
+                        </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-between">
                         <div className="flex justify-between">

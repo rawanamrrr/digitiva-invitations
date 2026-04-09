@@ -285,8 +285,11 @@ export const RU_FULL: Record<string, string> = {
   "create.chooseStyle.title": "Выберите стиль",
   "create.chooseStyle.sub":
     "Шаблон — только старт, затем мы персонализируем вместе с вами",
-  "create.previewDemo": "Демо-превью",
-  "create.selectPackage": "Пакет и блоки",
+  "create.previewDemo": "Предпросмотр",
+  "create.premiumBadge": "Премиум",
+  "create.upgradeToPremium": "Требуется Премиум пакет",
+  "create.premiumRequired": "Этот премиум шаблон требует Премиум пакета. Пожалуйста, обновите для выбора.",
+  "create.selectPackage": "Выбрать пакет и разделы",
   "create.pkg.standard.desc": "Шаблон + 3 блока включены",
   "create.pkg.premium.desc": "Шаблон + 7 блоков включены",
   "create.pkg.custom.desc": "Полный контроль над приглашением",
