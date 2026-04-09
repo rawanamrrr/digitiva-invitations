@@ -37,6 +37,8 @@ const createSchema = z.object({
     .string()
     .refine((v) => isSiteCurrency(v), { message: "Invalid order currency" }),
   orderTotal: z.number().finite().nonnegative().optional(),
+  discountCode: z.string().optional().nullable(),
+  discountPercentage: z.number().optional().nullable(),
 });
 
 async function getOrCreateGuestUserId(supabase: ReturnType<typeof createAdminClient>) {
@@ -149,6 +151,8 @@ export async function POST(req: Request) {
         payment_screenshot: d.paymentScreenshot || null,
         order_currency: d.orderCurrency,
         order_total: d.orderTotal ?? null,
+        discount_code: d.discountCode || null,
+        discount_percentage: d.discountPercentage || null,
         slug,
         payment_status: "pending",
         is_published: false,
@@ -185,6 +189,8 @@ export async function POST(req: Request) {
             payment_screenshot: d.paymentScreenshot || null,
             order_currency: d.orderCurrency,
             order_total: d.orderTotal ?? null,
+            discount_code: d.discountCode || null,
+            discount_percentage: d.discountPercentage || null,
             slug: retrySlug,
             payment_status: "pending",
             is_published: false,
@@ -200,6 +206,16 @@ export async function POST(req: Request) {
       }
       console.error("Insert error:", error)
       return NextResponse.json({ error: "Failed to create" }, { status: 500 })
+    }
+
+    if (d.discountCode) {
+      // Increment usages asynchronously
+      const dCode = d.discountCode as string;
+      supabase.from("discount_codes").select("current_uses").ilike("code", dCode).single().then(({ data: dc }) => {
+        if (dc) {
+          supabase.from("discount_codes").update({ current_uses: dc.current_uses + 1 }).ilike("code", dCode).then();
+        }
+      });
     }
 
     return NextResponse.json(data)

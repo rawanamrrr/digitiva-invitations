@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { getCurrencyMeta, isSiteCurrency } from "@/lib/site-currencies"
 import { AdminInvitations, type Invitation } from "./admin-invitations"
+import { AdminDiscounts, type DiscountCode } from "./admin-discounts"
 
 type UserRow = {
   id: string
@@ -33,9 +34,11 @@ function AdminOrderBanner() {
 export function AdminDashboard({
   users,
   invitations,
+  discountCodes,
 }: {
   users: UserRow[]
   invitations: Invitation[]
+  discountCodes: DiscountCode[]
 }) {
   const { t } = useSiteLanguage()
 
@@ -50,6 +53,11 @@ export function AdminDashboard({
           {t("admin.back")}
         </Link>
       </div>
+
+      <section>
+        <h2 className="text-lg font-semibold mb-4">Discount Codes</h2>
+        <AdminDiscounts initialCodes={discountCodes} />
+      </section>
 
       <section>
         <h2 className="text-lg font-semibold mb-4">{t("admin.users")}</h2>

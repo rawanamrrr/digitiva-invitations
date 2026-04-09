@@ -170,6 +170,11 @@ function CreateInvitationContent() {
     "bank" | "instapay" | "vodafone_cash"
   >("instapay")
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null)
+  
+  const [discountCodeInput, setDiscountCodeInput] = useState("")
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; percentage: number } | null>(null)
+  const [discountError, setDiscountError] = useState("")
+  const [applyingDiscount, setApplyingDiscount] = useState(false)
 
   const whatsappNumbers = useMemo(() => ["201024285771", "201014924924", "201028807788"], [])
   const [randomWhatsapp, setRandomWhatsapp] = useState("")
@@ -354,6 +359,8 @@ function CreateInvitationContent() {
           paymentScreenshot: screenshotUrl,
           orderCurrency: currency,
           orderTotal: totalPrice,
+          discountCode: appliedDiscount?.code || null,
+          discountPercentage: appliedDiscount?.percentage || null,
         }),
       })
       const data = await res.json()
@@ -406,7 +413,33 @@ function CreateInvitationContent() {
   const extraLanguagesCount = selectedPackage === "custom" ? 0 : Math.max(0, totalLanguagesCount - includedLanguages)
   const languagesExtraPrice = extraLanguagesCount * pricingRates.language
   
-  const totalPrice = basePrice + sectionsExtraPrice + extrasPrice + languagesExtraPrice
+  const rawTotalPrice = basePrice + sectionsExtraPrice + extrasPrice + languagesExtraPrice
+  const totalPrice = appliedDiscount 
+    ? Math.max(0, rawTotalPrice - (rawTotalPrice * (appliedDiscount.percentage / 100))) 
+    : rawTotalPrice
+
+  const handleApplyDiscount = async () => {
+    if (!discountCodeInput.trim()) return
+    setApplyingDiscount(true)
+    setDiscountError("")
+    try {
+      const res = await fetch(`/api/discount-codes/validate?code=${encodeURIComponent(discountCodeInput.trim())}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Invalid code")
+      setAppliedDiscount({ code: data.code, percentage: data.percentage })
+      setDiscountCodeInput("")
+    } catch (e: any) {
+      setDiscountError(e.message)
+      setAppliedDiscount(null)
+    } finally {
+      setApplyingDiscount(false)
+    }
+  }
+
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(null)
+    setDiscountError("")
+  }
 
   const canProceedToStep2 = Boolean(form.templateId) && selectedSections.length > 0
 
@@ -1097,14 +1130,61 @@ function CreateInvitationContent() {
             <CardTitle className="text-2xl font-serif">{t("create.payment.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-8">
-            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex justify-between items-center">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium uppercase">{t("create.payment.totalLabel")}</p>
-                <p className="text-3xl font-bold text-primary">
-                  {totalPrice} {currencyShort}
-                </p>
+            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex flex-col gap-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium uppercase">{t("create.payment.totalLabel")}</p>
+                  <div className="flex items-end gap-3 tracking-tight">
+                    {appliedDiscount ? (
+                      <>
+                        <p className="text-3xl font-bold text-primary">{totalPrice} {currencyShort}</p>
+                        <p className="text-lg font-semibold text-muted-foreground line-through mb-1">
+                          {rawTotalPrice} {currencyShort}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-3xl font-bold text-primary">{totalPrice} {currencyShort}</p>
+                    )}
+                  </div>
+                </div>
+                <CreditCard className="w-10 h-10 text-primary opacity-20" />
               </div>
-              <CreditCard className="w-10 h-10 text-primary opacity-20" />
+
+              {/* Discount Section */}
+              <div className="pt-4 border-t border-primary/10">
+                {appliedDiscount ? (
+                  <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded">
+                        {appliedDiscount.code}
+                      </div>
+                      <span className="text-sm font-medium text-emerald-700">-{appliedDiscount.percentage}% applied</span>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={handleRemoveDiscount} className="text-muted-foreground hover:text-destructive h-8 px-2">
+                      Remove
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1 space-y-1">
+                      <Input
+                        placeholder="Discount code"
+                        value={discountCodeInput}
+                        onChange={(e) => setDiscountCodeInput(e.target.value.toUpperCase())}
+                        className="bg-background h-10"
+                      />
+                      {discountError && <p className="text-xs text-destructive pl-1">{discountError}</p>}
+                    </div>
+                    <Button 
+                      onClick={handleApplyDiscount} 
+                      disabled={!discountCodeInput.trim() || applyingDiscount}
+                      className="h-10"
+                    >
+                      {applyingDiscount ? "..." : "Apply"}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-4">

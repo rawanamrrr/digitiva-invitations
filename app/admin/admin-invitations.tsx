@@ -51,6 +51,8 @@ export type Invitation = {
   payment_screenshot?: string
   order_currency?: string | null
   order_total?: number | string | null
+  discount_code?: string | null
+  discount_percentage?: number | null
   created_at?: string
 }
 
@@ -386,6 +388,18 @@ function OrderDetailsModal({
                     </span>
                   </div>
                 )}
+              {invitation.discount_code && (
+                <div className="col-span-1 sm:col-span-2 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg flex justify-between items-center mt-1">
+                  <div>
+                    <span className="text-muted-foreground text-xs block mb-0.5">Discount Code</span>
+                    <span className="font-mono font-bold text-emerald-700">{invitation.discount_code}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-muted-foreground text-xs block mb-0.5">Amount</span>
+                    <span className="font-bold text-emerald-700">-{invitation.discount_percentage}%</span>
+                  </div>
+                </div>
+              )}
               <div>
                 <span className="text-muted-foreground">{t("admin.inv.method")}</span>{" "}
                 <span className="font-medium text-foreground capitalize">

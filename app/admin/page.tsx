@@ -19,8 +19,16 @@ export default async function AdminPage() {
     .from("users")
     .select("id, name, email, role, created_at")
     .order("created_at", { ascending: false })
+  const { data: discountCodes } = await supabase
+    .from("discount_codes")
+    .select("*")
+    .order("created_at", { ascending: false })
 
   return (
-    <AdminDashboard users={users || []} invitations={invitations || []} />
+    <AdminDashboard 
+      users={users || []} 
+      invitations={invitations || []} 
+      discountCodes={discountCodes || []} 
+    />
   )
 }
