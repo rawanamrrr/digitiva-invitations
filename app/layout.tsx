@@ -28,7 +28,7 @@ const _notoNaskh = Noto_Naskh_Arabic({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digitivaa.com"),
+  metadataBase: new URL("https://invitations.digitivaa.com"),
   title: "Digitiva | Beautiful Digital Invitations",
   description:
     "Customizable e-invitations for your special occasions. Stunning wedding, birthday, and event invitation websites that wow your guests.",
