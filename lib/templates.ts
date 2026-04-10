@@ -51,14 +51,6 @@ export const templates: Template[] = [
     category: "Weddings",
   },
   {
-    id: "pastel-dreams",
-    name: "The Grand Entrance",
-    description: "Soft hues and whimsical illustrations for a magical celebration.",
-    demoUrl: "https://mahmoud-gehad.digitivaa.com/",
-    image: "/the-grand-entrance.mp4",
-    category: "Weddings",
-  },
-  {
     id: "golden-gala",
     name: "Warm Embrace",
     description: "Opulent gold accents and dark themes for a truly prestigious event.",

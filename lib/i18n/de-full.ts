@@ -333,6 +333,8 @@ export const DE_FULL: Record<string, string> = {
   "create.ph.eventTime": "18:00",
   "create.label.venue": "Ort",
   "create.ph.venue": "Großer Saal",
+  "create.label.eventType": "Veranstaltungstyp",
+  "create.ph.eventType": "Hochzeit, Geburtstag, etc.",
   "create.contactInfo": "Kontaktdaten",
   "create.label.emailAddr": "E-Mail-Adresse",
   "create.ph.email": "ihre@email.com",

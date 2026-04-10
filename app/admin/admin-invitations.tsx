@@ -28,6 +28,7 @@ export type Invitation = {
   id: string
   bride_name: string
   groom_name: string
+  event_type?: string | null
   slug: string
   is_published: boolean
   is_finished?: boolean
@@ -228,6 +229,12 @@ function OrderDetailsModal({
                 <span className="text-muted-foreground">{t("admin.inv.groom")}</span>{" "}
                 <span className="font-medium text-foreground">{invitation.groom_name}</span>
               </div>
+              {invitation.event_type && (
+                <div className="sm:col-span-2">
+                  <span className="text-muted-foreground">{t("create.label.eventType")}:</span>{" "}
+                  <span className="font-medium text-foreground">{invitation.event_type}</span>
+                </div>
+              )}
               {invitation.event_date && (
                 <div>
                   <span className="text-muted-foreground">{t("admin.inv.date")}</span>{" "}

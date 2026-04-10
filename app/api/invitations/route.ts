@@ -15,6 +15,7 @@ function buildGoogleMapsSearchUrl(venue: string, venueAddress?: string) {
 const createSchema = z.object({
   brideName: z.string().min(1).max(100),
   groomName: z.string().min(1).max(100),
+  eventType: z.string().optional().nullable(),
   eventDate: z.string().min(1),
   eventTime: z.string().min(1).max(50),
   venue: z.string().min(1).max(200),
@@ -134,6 +135,7 @@ export async function POST(req: Request) {
         user_id: userId,
         bride_name: d.brideName,
         groom_name: d.groomName,
+        event_type: d.eventType || null,
         event_date: d.eventDate,
         event_time: d.eventTime,
         venue: d.venue,
@@ -172,6 +174,7 @@ export async function POST(req: Request) {
             user_id: userId,
             bride_name: d.brideName,
             groom_name: d.groomName,
+            event_type: d.eventType || null,
             event_date: d.eventDate,
             event_time: d.eventTime,
             venue: d.venue,
@@ -224,6 +227,7 @@ export async function POST(req: Request) {
     sendOrderNotification({
       brideName: d.brideName,
       groomName: d.groomName,
+      eventType: d.eventType,
       eventDate: d.eventDate,
       eventTime: d.eventTime,
       venue: d.venue,

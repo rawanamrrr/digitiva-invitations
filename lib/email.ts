@@ -13,6 +13,7 @@ const ADMIN_EMAIL = "digitivaa@gmail.com"
 interface OrderDetails {
   brideName: string
   groomName: string
+  eventType?: string | null
   eventDate: string
   eventTime: string
   venue: string
@@ -50,6 +51,10 @@ export async function sendOrderNotification(order: OrderDetails) {
           <tr>
             <td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #888; font-size: 13px; width: 140px;">Couple</td>
             <td style="padding: 10px 12px; border-bottom: 1px solid #eee; font-weight: 600;">${order.brideName} & ${order.groomName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #888; font-size: 13px;">Event Type</td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid #eee;">${order.eventType || "N/A"}</td>
           </tr>
           <tr>
             <td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #888; font-size: 13px;">Event Date</td>

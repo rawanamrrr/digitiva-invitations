@@ -188,6 +188,7 @@ function CreateInvitationContent() {
   const [form, setForm] = useState({
     brideName: "",
     groomName: "",
+    eventType: "",
     eventDate: "",
     eventTime: "",
     venue: "",
@@ -331,6 +332,7 @@ function CreateInvitationContent() {
       const invitationPayload = {
         brideName: form.brideName,
         groomName: form.groomName,
+        eventType: form.eventType,
         eventDate: form.eventDate,
         eventTime: form.eventTime,
         venue: form.venue,
@@ -1041,6 +1043,15 @@ function CreateInvitationContent() {
                   value={form.groomName}
                   onChange={(e) => update("groomName", e.target.value)}
                   placeholder={t("create.ph.groom")}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>{t("create.label.eventType")}</Label>
+                <Input
+                  className="rounded-xl h-11"
+                  value={form.eventType}
+                  onChange={(e) => update("eventType", e.target.value)}
+                  placeholder={t("create.ph.eventType")}
                 />
               </div>
             </div>

@@ -333,6 +333,8 @@ export const ZH_FULL: Record<string, string> = {
   "create.ph.eventTime": "18:00",
   "create.label.venue": "地点",
   "create.ph.venue": "宴会厅",
+  "create.label.eventType": "活动类型",
+  "create.ph.eventType": "婚礼、生日等",
   "create.contactInfo": "联系方式",
   "create.label.emailAddr": "电子邮箱",
   "create.ph.email": "you@email.com",

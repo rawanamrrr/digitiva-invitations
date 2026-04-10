@@ -333,6 +333,8 @@ export const HI_FULL: Record<string, string> = {
   "create.ph.eventTime": "18:00",
   "create.label.venue": "स्थान",
   "create.ph.venue": "महल सभागार",
+  "create.label.eventType": "कार्यक्रम का प्रकार",
+  "create.ph.eventType": "शादी, जन्मदिन, आदि",
   "create.contactInfo": "संपर्क जानकारी",
   "create.label.emailAddr": "ईमेल पता",
   "create.ph.email": "aap@email.com",
