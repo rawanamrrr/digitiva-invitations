@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react"
-import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 
-const COUNT = 3
+const COUNT = 4
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -26,8 +25,30 @@ function useInView(threshold = 0.1) {
   return { ref, isInView }
 }
 
+const testimonials = [
+  {
+    quote: "Your work is literally wow. Everyone from my friends & connections were gave a positive feedback cause its their first time seeing this new concept. Personally we loved it very much & dealing with professionals like you guys is what makes it worth it. The price is very reasonable for the memory we're creating, thank you! ❤️",
+    author: "Abdalla & Leanne",
+    relationship: "",
+  },
+  {
+    quote: "I Can't even explain how happy I am The invitation is sooo beautiful, such a sweet new idea . Everyone is obsessed with it bgad , Thank you so much for all your effort and care 🩶♥️",
+    author: "Ali & Mayada",
+    relationship: "",
+  },
+  {
+    quote: "صراحة جدا حبيت التعامل معكم كنتو متقبلين لاي تعديلات وافكار جديدة و كل حد بعتناله الدعوة سالني كيف سويتيها فعلا معاملة كتير حلوة وبنصح الكل يعمل عندكم!💕",
+    author: "Mohamad & Mira",
+    relationship: "",
+  },
+  {
+    quote: "من احلى الحاجات اللى عملتها للخطوبه هى الانڤتيشن معاكو و الناس كلها كانت منبهره انبهار مش عادى و متحمسين للخطوبه من قبلها بسببها اصلاً فشكراً اوى اوى سبتولى ذكرى حلوه اوى و عملتولى كل اللى طلبته و احسن و فى وقت قليل اوى و ان شاء الله نكون مع بعض فى الفرح و نعمل حاجه مختلفه اكتر ♥️♥️♥️🥰",
+    author: "Momen & Nada",
+    relationship: "",
+  },
+]
+
 export function Testimonials() {
-  const { t } = useSiteLanguage()
   const [current, setCurrent] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const { ref: sectionRef, isInView } = useInView(0.1)
@@ -66,13 +87,13 @@ export function Testimonials() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className={`text-center mb-16 sm:mb-28 transition-all duration-700 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
-            {t("test.title1")}
+            What Our
             <span className="block font-script text-3xl sm:text-5xl lg:text-6xl text-teal font-normal mt-2 sm:mt-3">
-              {t("test.title2")}
+              Couples Say
             </span>
           </h2>
           <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            {t("test.sub")}
+            Real stories from real celebrations
           </p>
         </div>
 
@@ -88,16 +109,13 @@ export function Testimonials() {
               ))}
             </div>
 
-            <blockquote className="font-serif text-lg sm:text-xl lg:text-2xl text-center text-foreground leading-relaxed mb-10 min-h-24 flex items-center justify-center">
-              &ldquo;{t(`test.q${i}`)}&rdquo;
+            <blockquote className="font-serif text-lg sm:text-xl lg:text-2xl text-center text-foreground leading-relaxed mb-10 min-h-24 flex items-center justify-center px-4">
+              &ldquo;{testimonials[i].quote}&rdquo;
             </blockquote>
 
             <div className="flex flex-col items-center gap-4">
               <div className="text-center">
-                <p className="font-semibold text-foreground text-base sm:text-lg">{t(`test.a${i}`)}</p>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  {t(`test.r${i}`)} • {t(`test.e${i}`)}
-                </p>
+                <p className="font-semibold text-foreground text-base sm:text-lg">{testimonials[i].author}</p>
               </div>
             </div>
           </div>
@@ -107,7 +125,7 @@ export function Testimonials() {
               type="button"
               onClick={prev}
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border border-border bg-secondary/50 hover:bg-secondary hover:border-primary/30 flex items-center justify-center transition-all duration-200 active:scale-95"
-              aria-label={t("test.prev")}
+              aria-label="Previous testimonial"
             >
               <ChevronLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
             </button>
@@ -126,7 +144,7 @@ export function Testimonials() {
                   className={`transition-all duration-300 rounded-full ${
                     current === index ? "bg-teal w-8 h-2.5" : "bg-border h-2 w-2 hover:bg-primary/50"
                   }`}
-                  aria-label={`${t("test.goTo")} ${index + 1}`}
+                  aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}
             </div>
@@ -135,7 +153,7 @@ export function Testimonials() {
               type="button"
               onClick={next}
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border border-border bg-secondary/50 hover:bg-secondary hover:border-primary/30 flex items-center justify-center transition-all duration-200 active:scale-95"
-              aria-label={t("test.next")}
+              aria-label="Next testimonial"
             >
               <ChevronRight className="w-5 h-5 text-foreground rtl:rotate-180" />
             </button>
