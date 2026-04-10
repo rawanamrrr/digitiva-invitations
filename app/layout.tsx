@@ -32,6 +32,24 @@ export const metadata: Metadata = {
   description:
     "Customizable e-invitations for your special occasions. Stunning wedding, birthday, and event invitation websites that wow your guests.",
   generator: "v0.app",
+  openGraph: {
+    title: "Digitiva | Beautiful Digital Invitations",
+    description: "Customizable e-invitations for your special occasions. Stunning wedding, birthday, and event invitation websites that wow your guests.",
+    images: [
+      {
+        url: "/preview.png",
+        width: 1200,
+        height: 630,
+        alt: "Digitiva Preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Digitiva | Beautiful Digital Invitations",
+    description: "Customizable e-invitations for your special occasions. Stunning wedding, birthday, and event invitation websites that wow your guests.",
+    images: ["/preview.png"],
+  },
 }
 
 export const viewport: Viewport = {
