@@ -2,7 +2,9 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Cormorant_Garamond, Great_Vibes, Cinzel, Noto_Naskh_Arabic } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import Script from "next/script"
 import { SessionProvider } from "@/components/providers/session-provider"
+import { GoogleAnalyticsPageView } from "@/components/google-analytics"
 import { SiteCurrencyProvider } from "@/contexts/SiteCurrencyContext"
 import { SiteLanguageProvider } from "@/contexts/SiteLanguageContext"
 import "./globals.css"
@@ -66,6 +68,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-PTNP9CHEHT"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-PTNP9CHEHT');
+          `}
+        </Script>
+      </head>
       <body className={`${_notoNaskh.variable} font-sans antialiased`}>
         <SessionProvider>
           <SiteLanguageProvider>
@@ -73,6 +90,7 @@ export default function RootLayout({
           </SiteLanguageProvider>
         </SessionProvider>
         <Analytics />
+        <GoogleAnalyticsPageView gaId="G-PTNP9CHEHT" />
       </body>
     </html>
   )

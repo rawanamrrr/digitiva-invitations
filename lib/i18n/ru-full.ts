@@ -393,7 +393,7 @@ export const RU_FULL: Record<string, string> = {
   "create.extra.custom_domain": "Свой домен",
   "create.extra.custom_domain.desc": "Ваш адрес (напр. paula-i-ivan.ru)",
   "create.extra.express_delivery": "Срочная доставка",
-  "create.extra.express_delivery.desc": "72–120 часов",
+  "create.extra.express_delivery.desc": "48–72 часов",
 
   "invite.share": "Поделиться",
   "invite.whatsappText":

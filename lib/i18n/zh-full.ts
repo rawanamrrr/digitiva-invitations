@@ -393,7 +393,7 @@ export const ZH_FULL: Record<string, string> = {
   "create.extra.custom_domain": "独立域名",
   "create.extra.custom_domain.desc": "你的网址（如 zhang-li.com）",
   "create.extra.express_delivery": "加急交付",
-  "create.extra.express_delivery.desc": "72–120 小时",
+  "create.extra.express_delivery.desc": "48–72 小时",
 
   "invite.share": "分享",
   "invite.whatsappText": "诚邀您参加{bride}与{groom}的婚礼！{url}",

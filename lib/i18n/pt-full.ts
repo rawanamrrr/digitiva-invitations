@@ -393,7 +393,7 @@ export const PT_FULL: Record<string, string> = {
   "create.extra.custom_domain": "Domínio próprio",
   "create.extra.custom_domain.desc": "O seu endereço (ex.: Zeyad-e-Rawan.com)",
   "create.extra.express_delivery": "Entrega expressa",
-  "create.extra.express_delivery.desc": "72h a 120h",
+  "create.extra.express_delivery.desc": "48h a 72h",
 
   "invite.share": "Partilhar",
   "invite.whatsappText":

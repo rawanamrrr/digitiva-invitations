@@ -389,7 +389,7 @@ export const HI_FULL: Record<string, string> = {
   "create.extra.custom_domain": "अपना डोमेन",
   "create.extra.custom_domain.desc": "आपका वेब पता (जैसे raj-aur-priya.com)",
   "create.extra.express_delivery": "एक्सप्रेस डिलीवरी",
-  "create.extra.express_delivery.desc": "72–120 घंटे",
+  "create.extra.express_delivery.desc": "48–72 घंटे",
 
   "invite.share": "साझा करें",
   "invite.whatsappText":

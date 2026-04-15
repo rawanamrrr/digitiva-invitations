@@ -238,7 +238,7 @@ function OrderDetailsModal({
               {invitation.event_date && (
                 <div>
                   <span className="text-muted-foreground">{t("admin.inv.date")}</span>{" "}
-                  <span className="font-medium text-foreground">
+                  <span className="font-medium text-foreground" suppressHydrationWarning>
                     {new Date(invitation.event_date).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
@@ -449,9 +449,13 @@ function OrderDetailsModal({
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" />
                 {t("admin.inv.created")}{" "}
-                {invitation.created_at
-                  ? new Date(invitation.created_at).toLocaleDateString()
-                  : t("admin.inv.na")}
+                {invitation.created_at ? (
+                  <span suppressHydrationWarning>
+                    {new Date(invitation.created_at).toLocaleDateString()}
+                  </span>
+                ) : (
+                  t("admin.inv.na")
+                )}
               </div>
               <div className="font-mono">
                 {t("admin.inv.slug")} {invitation.slug}

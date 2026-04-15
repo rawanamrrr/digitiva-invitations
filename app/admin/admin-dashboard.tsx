@@ -7,6 +7,7 @@ import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { getCurrencyMeta, isSiteCurrency } from "@/lib/site-currencies"
 import { AdminInvitations, type Invitation } from "./admin-invitations"
 import { AdminDiscounts, type DiscountCode } from "./admin-discounts"
+import { AnalyticsButton } from "@/components/analytics-button"
 
 type UserRow = {
   id: string
@@ -49,9 +50,12 @@ export function AdminDashboard({
       </Suspense>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-serif font-bold">{t("admin.title")}</h1>
-        <Link href="/" className="text-sm text-primary hover:underline">
-          {t("admin.back")}
-        </Link>
+        <div className="flex items-center gap-4">
+          <AnalyticsButton propertyId="531410319" />
+          <Link href="/" className="text-sm text-primary hover:underline">
+            {t("admin.back")}
+          </Link>
+        </div>
       </div>
 
       <section>
@@ -78,7 +82,9 @@ export function AdminDashboard({
                   <td className="p-3">{u.email}</td>
                   <td className="p-3">{u.role}</td>
                   <td className="p-3 text-muted-foreground">
-                    {new Date(u.created_at).toLocaleDateString()}
+                    <span suppressHydrationWarning>
+                      {new Date(u.created_at).toLocaleDateString()}
+                    </span>
                   </td>
                 </tr>
               ))}

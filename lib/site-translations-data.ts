@@ -461,7 +461,7 @@ export const EN: Record<string, string> = {
   "create.extra.custom_domain.desc":
     "Your own web address (e.g. Zeyad-and-Rawan.com)",
   "create.extra.express_delivery": "Express delivery",
-  "create.extra.express_delivery.desc": "72h to 120h",
+  "create.extra.express_delivery.desc": "48 to 72h",
 
   "invite.share": "Share",
   "invite.whatsappText":
@@ -916,7 +916,7 @@ export const LOCALES: Record<SiteLocale, Record<string, string>> = {
     "create.extra.custom_domain": "نطاق خاص",
     "create.extra.custom_domain.desc": "عنوانك الخاص (مثال: Zeyad-and-Rawan.com)",
     "create.extra.express_delivery": "توصيل سريع",
-    "create.extra.express_delivery.desc": "من 72 إلى 120 ساعة",
+    "create.extra.express_delivery.desc": "من 48 إلى 72 ساعة",
 
     "invite.share": "مشاركة",
     "invite.whatsappText":

@@ -393,7 +393,7 @@ export const ES_FULL: Record<string, string> = {
   "create.extra.custom_domain": "Dominio propio",
   "create.extra.custom_domain.desc": "Tu dirección web (ej. Zeyad-y-Rawan.com)",
   "create.extra.express_delivery": "Entrega exprés",
-  "create.extra.express_delivery.desc": "72h a 120h",
+  "create.extra.express_delivery.desc": "48h a 72h",
 
   "invite.share": "Compartir",
   "invite.whatsappText":
