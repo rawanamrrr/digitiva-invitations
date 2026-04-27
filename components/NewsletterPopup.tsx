@@ -197,6 +197,7 @@ export function NewsletterPopup({
 }: NewsletterPopupProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [hasScrolled, setHasScrolled] = useState(false)
+  const [delayReached, setDelayReached] = useState(false)
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [countryCode, setCountryCode] = useState(
@@ -217,6 +218,9 @@ export function NewsletterPopup({
     const hasSubscribed = localStorage.getItem("newsletter_subscribed")
     if (hasSubscribed) return
 
+    const wasDismissed = sessionStorage.getItem("newsletter_dismissed")
+    if (wasDismissed) return
+
     const handleScroll = () => {
       if (window.scrollY > scrollThreshold) {
         setHasScrolled(true)
@@ -224,18 +228,31 @@ export function NewsletterPopup({
     }
 
     window.addEventListener("scroll", handleScroll)
+    handleScroll()
 
     const timer = setTimeout(() => {
-      if (hasScrolled) {
-        setIsOpen(true)
-      }
+      setDelayReached(true)
     }, delaySeconds * 1000)
 
     return () => {
       window.removeEventListener("scroll", handleScroll)
       clearTimeout(timer)
     }
-  }, [hasScrolled, delaySeconds, scrollThreshold])
+  }, [delaySeconds, scrollThreshold])
+
+  useEffect(() => {
+    if (isOpen) return
+    if (!hasScrolled) return
+    if (!delayReached) return
+
+    const hasSubscribed = localStorage.getItem("newsletter_subscribed")
+    if (hasSubscribed) return
+
+    const wasDismissed = sessionStorage.getItem("newsletter_dismissed")
+    if (wasDismissed) return
+
+    setIsOpen(true)
+  }, [delayReached, hasScrolled, isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -275,7 +292,8 @@ export function NewsletterPopup({
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent 
-          className="sm:max-w-[420px] p-0 gap-0 border-0 shadow-2xl rounded-[28px] overflow-hidden"
+          showCloseButton={false}
+          className="max-w-[360px] sm:max-w-[420px] p-0 gap-0 border-0 shadow-2xl rounded-[28px] overflow-hidden"
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
@@ -322,7 +340,8 @@ export function NewsletterPopup({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent 
-        className="sm:max-w-[440px] p-0 gap-0 border-0 shadow-2xl rounded-[28px] overflow-hidden"
+        showCloseButton={false}
+        className="max-w-[360px] sm:max-w-[440px] p-0 gap-0 border-0 shadow-2xl rounded-[28px] overflow-hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -339,13 +358,13 @@ export function NewsletterPopup({
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="absolute right-5 top-5 z-10 text-amber-200/60 hover:text-amber-100 transition-all duration-300 hover:rotate-90"
+              className="absolute right-4 top-4 sm:right-5 sm:top-5 z-10 text-amber-200/60 hover:text-amber-100 transition-all duration-300 hover:rotate-90"
               aria-label="Close"
             >
               <X className="h-4 w-4" strokeWidth={2} />
             </button>
 
-            <div className="px-8 pt-8 pb-8">
+            <div className="px-6 pt-6 pb-6 sm:px-8 sm:pt-8 sm:pb-8">
               {/* Logo */}
               <div className="flex justify-center mb-6">
                 <Image
@@ -353,7 +372,7 @@ export function NewsletterPopup({
                   alt="Digitiva"
                   width={120}
                   height={34}
-                  className="h-auto w-[120px] opacity-95"
+                  className="h-auto w-[110px] sm:w-[120px] opacity-95 brightness-0 invert drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
                   priority
                 />
               </div>
@@ -361,7 +380,7 @@ export function NewsletterPopup({
               {/* Heading with elegant serif font */}
               <div className="text-center mb-7">
                 <h2 
-                  className="text-[28px] leading-[1.2] font-serif font-bold text-white mb-4 tracking-wide"
+                  className="text-[24px] sm:text-[28px] leading-[1.2] font-serif font-bold text-white mb-4 tracking-wide"
                   style={{ 
                     textShadow: '0 2px 20px rgba(255,255,255,0.15)',
                     fontFamily: 'Cormorant Garamond, serif'
@@ -371,7 +390,7 @@ export function NewsletterPopup({
                   <br />
                   INVITATION!
                 </h2>
-                <p className="text-gray-200/90 text-[14px] leading-relaxed font-light">
+                <p className="text-gray-200/90 text-[13px] sm:text-[14px] leading-relaxed font-light">
                   Share your details to start crafting.
                   <br />
                   Your special moment deserves to shine.
@@ -383,7 +402,7 @@ export function NewsletterPopup({
                 {/* Name Input with User Icon */}
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-emerald-200/70">
-                    <User className="h-[17px] w-[17px]" strokeWidth={2} />
+                    <User className="h-4 w-4 sm:h-[17px] sm:w-[17px]" strokeWidth={2} />
                   </div>
                   <input
                     type="text"
@@ -391,14 +410,14 @@ export function NewsletterPopup({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full h-[52px] pl-[48px] pr-4 bg-white/[0.12] backdrop-blur-md border border-white/25 rounded-[14px] text-white text-[14px] placeholder:text-gray-300/50 focus:outline-none focus:border-amber-300/60 focus:bg-white/[0.16] focus:shadow-[0_0_0_3px_rgba(251,191,36,0.1)] transition-all duration-300"
+                    className="w-full h-[48px] sm:h-[52px] pl-[48px] pr-4 bg-white/[0.12] backdrop-blur-md border border-white/25 rounded-[14px] text-white text-[13px] sm:text-[14px] placeholder:text-gray-300/50 focus:outline-none focus:border-amber-300/60 focus:bg-white/[0.16] focus:shadow-[0_0_0_3px_rgba(251,191,36,0.1)] transition-all duration-300"
                   />
                 </div>
 
                 {/* Phone Input with Phone Icon and Country Code Selector */}
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-emerald-200/70">
-                    <Phone className="h-[17px] w-[17px]" strokeWidth={2} />
+                    <Phone className="h-4 w-4 sm:h-[17px] sm:w-[17px]" strokeWidth={2} />
                   </div>
                   
                   {/* Country Code Selector */}
@@ -453,7 +472,7 @@ export function NewsletterPopup({
                                 <span className="text-white text-[13px] font-medium min-w-[45px]">
                                   {country.code}
                                 </span>
-                                <span className="text-gray-300 text-[12px] truncate">
+                                <span className="text-white/90 text-[12px] truncate">
                                   {country.country}
                                 </span>
                               </button>
@@ -471,7 +490,7 @@ export function NewsletterPopup({
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     pattern="[0-9]{10}"
-                    className="w-full h-[52px] pl-[130px] pr-4 bg-white/[0.12] backdrop-blur-md border border-white/25 rounded-[14px] text-white text-[14px] placeholder:text-gray-300/50 focus:outline-none focus:border-amber-300/60 focus:bg-white/[0.16] focus:shadow-[0_0_0_3px_rgba(251,191,36,0.1)] transition-all duration-300"
+                    className="w-full h-[48px] sm:h-[52px] pl-[130px] pr-4 bg-white/[0.12] backdrop-blur-md border border-white/25 rounded-[14px] text-white text-[13px] sm:text-[14px] placeholder:text-gray-300/50 focus:outline-none focus:border-amber-300/60 focus:bg-white/[0.16] focus:shadow-[0_0_0_3px_rgba(251,191,36,0.1)] transition-all duration-300"
                   />
                 </div>
 
@@ -479,7 +498,7 @@ export function NewsletterPopup({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-[52px] mt-5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-[14px] font-bold rounded-[14px] hover:from-teal-400 hover:to-emerald-400 focus:outline-none focus:ring-2 focus:ring-amber-300/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_32px_rgba(20,184,166,0.35)] hover:shadow-[0_8px_40px_rgba(20,184,166,0.5)] hover:scale-[1.01] active:scale-[0.99]"
+                  className="w-full h-[48px] sm:h-[52px] mt-5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-[13px] sm:text-[14px] font-bold rounded-[14px] hover:from-teal-400 hover:to-emerald-400 focus:outline-none focus:ring-2 focus:ring-amber-300/50 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_32px_rgba(20,184,166,0.35)] hover:shadow-[0_8px_40px_rgba(20,184,166,0.5)] hover:scale-[1.01] active:scale-[0.99]"
                   style={{ 
                     letterSpacing: '0.08em',
                     textShadow: '0 1px 2px rgba(0,0,0,0.2)'

@@ -50,7 +50,7 @@ export function Footer() {
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="https://www.tiktok.com/@digitiva.co"
+                href="https://www.tiktok.com/@digitivaco"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-all hover:scale-110"
