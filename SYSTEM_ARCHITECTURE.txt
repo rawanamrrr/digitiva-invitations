@@ -1,0 +1,392 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    DYNAMIC FORM SYSTEM ARCHITECTURE                          ║
+║                         Complete Visual Overview                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              USER INTERFACE                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                      Create Invitation Page                      │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ STEP 1: Select Template & Sections                         │ │
+    │  │                                                             │ │
+    │  │  [Template Grid]  [Template Grid]  [Template Grid]         │ │
+    │  │                                                             │ │
+    │  │  Section Selection:                                         │ │
+    │  │  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐  │ │
+    │  │  │ Map  │ │ RSVP │ │Story │ │Photos│ │Music │ │ More │  │ │
+    │  │  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘  │ │
+    │  │                                                             │ │
+    │  │  [Continue Button]                                          │ │
+    │  └─────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ STEP 2: Enter Details                                       │ │
+    │  │                                                             │ │
+    │  │  Basic Information:                                         │ │
+    │  │  ┌─────────────────────────────────────────────────────┐  │ │
+    │  │  │ Bride Name: [____________]  Groom Name: [__________]│  │ │
+    │  │  │ Event Date: [____________]  Event Time: [__________]│  │ │
+    │  │  │ Venue: [_________________________________________]  │  │ │
+    │  │  └─────────────────────────────────────────────────────┘  │ │
+    │  │                                                             │ │
+    │  │  ┌─────────────────────────────────────────────────────┐  │ │
+    │  │  │ 🗺️  Venue Map Details                               │  │ │
+    │  │  │ ┌─────────────────────────────────────────────────┐ │  │ │
+    │  │  │ │ Google Maps Link: [_________________________]   │ │  │ │
+    │  │  │ │ Venue Address: [____________________________]   │ │  │ │
+    │  │  │ │                [____________________________]   │ │  │ │
+    │  │  │ └─────────────────────────────────────────────────┘ │  │ │
+    │  │  └─────────────────────────────────────────────────────┘  │ │
+    │  │                                                             │ │
+    │  │  ┌─────────────────────────────────────────────────────┐  │ │
+    │  │  │ ✅ RSVP Settings                                     │  │ │
+    │  │  │ ┌─────────────────────────────────────────────────┐ │  │ │
+    │  │  │ │ ☑ Enable RSVP                                   │ │  │ │
+    │  │  │ │ Max Guests: [5]                                 │ │  │ │
+    │  │  │ │ RSVP Deadline: [2026-12-31]                     │ │  │ │
+    │  │  │ └─────────────────────────────────────────────────┘ │  │ │
+    │  │  └─────────────────────────────────────────────────────┘  │ │
+    │  │                                                             │ │
+    │  │  [Back]  [Continue to Payment]                              │ │
+    │  └─────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ STEP 3: Payment & Submit                                    │ │
+    │  │  [Payment Details]                                          │ │
+    │  │  [Create Invitation Button]                                 │ │
+    │  └─────────────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────────────┘
+
+                                    ↓ ↑
+                                    
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           REACT COMPONENTS                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                    DynamicFormContainer                          │
+    │  (components/dynamic-form/DynamicFormContainer.tsx)              │
+    │                                                                  │
+    │  Props:                                                          │
+    │  • selectedSections: string[]                                    │
+    │  • sectionsData: Record<string, Record<string, any>>             │
+    │  • onSectionDataChange: (id, data) => void                       │
+    │  • errors: Record<string, Record<string, string>>                │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │              DynamicSectionForm (Venue Map)                 │ │
+    │  │  (components/dynamic-form/DynamicSectionForm.tsx)           │ │
+    │  │                                                             │ │
+    │  │  ┌──────────────────────────────────────────────────────┐ │ │
+    │  │  │         DynamicField (map_url)                       │ │ │
+    │  │  │  (components/dynamic-form/DynamicField.tsx)          │ │ │
+    │  │  │                                                       │ │ │
+    │  │  │  Type: url                                           │ │ │
+    │  │  │  Validation: pattern                                 │ │ │
+    │  │  │  Renders: <Input type="url" />                       │ │ │
+    │  │  └──────────────────────────────────────────────────────┘ │ │
+    │  │                                                             │ │
+    │  │  ┌──────────────────────────────────────────────────────┐ │ │
+    │  │  │         DynamicField (venue_address)                 │ │ │
+    │  │  │                                                       │ │ │
+    │  │  │  Type: textarea                                      │ │ │
+    │  │  │  Renders: <Textarea />                               │ │ │
+    │  │  └──────────────────────────────────────────────────────┘ │ │
+    │  └─────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │              DynamicSectionForm (RSVP)                      │ │
+    │  │  [Similar structure with RSVP fields]                       │ │
+    │  └─────────────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────────────┘
+
+                                    ↓ ↑
+                                    
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          STATE MANAGEMENT                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                    useDynamicSections Hook                       │
+    │              (hooks/use-dynamic-sections.ts)                     │
+    │                                                                  │
+    │  State:                                                          │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ sectionsData: {                                            │ │
+    │  │   venueMap: {                                              │ │
+    │  │     map_url: "https://maps.google.com/...",                │ │
+    │  │     venue_address: "123 Main Street"                       │ │
+    │  │   },                                                       │ │
+    │  │   rsvp: {                                                  │ │
+    │  │     enable_rsvp: true,                                     │ │
+    │  │     max_guests: 5,                                         │ │
+    │  │     rsvp_deadline: "2026-12-31"                            │ │
+    │  │   }                                                        │ │
+    │  │ }                                                          │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ errors: {                                                  │ │
+    │  │   venueMap: {                                              │ │
+    │  │     map_url: "Invalid URL format"                          │ │
+    │  │   }                                                        │ │
+    │  │ }                                                          │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  Actions:                                                        │
+    │  • updateSectionData(sectionId, data)                            │
+    │  • validateSections(selectedSections)                            │
+    │  • clearSectionData(sectionId)                                   │
+    │  • resetAllSections()                                            │
+    └──────────────────────────────────────────────────────────────────┘
+
+                                    ↓ ↑
+                                    
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           CONFIGURATION                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                      SECTIONS_CONFIG                             │
+    │                (lib/sections-config.ts)                          │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ venueMap: {                                                │ │
+    │  │   id: "venueMap",                                          │ │
+    │  │   fields: [                                                │ │
+    │  │     {                                                      │ │
+    │  │       name: "map_url",                                     │ │
+    │  │       label: "Google Maps Link",                           │ │
+    │  │       type: "url",                                         │ │
+    │  │       required: true,                                      │ │
+    │  │       validation: {                                        │ │
+    │  │         pattern: /^https?:\/\/.+/,                         │ │
+    │  │         message: "Invalid URL"                             │ │
+    │  │       }                                                    │ │
+    │  │     },                                                     │ │
+    │  │     {                                                      │ │
+    │  │       name: "venue_address",                               │ │
+    │  │       label: "Venue Address",                              │ │
+    │  │       type: "textarea",                                    │ │
+    │  │       required: false                                      │ │
+    │  │     }                                                      │ │
+    │  │   ]                                                        │ │
+    │  │ }                                                          │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ rsvp: {                                                    │ │
+    │  │   id: "rsvp",                                              │ │
+    │  │   fields: [...]                                            │ │
+    │  │ }                                                          │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ... (10 more sections)                                          │
+    └──────────────────────────────────────────────────────────────────┘
+
+                                    ↓ ↑
+                                    
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              API LAYER                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │              /api/invitations/[id]/sections                      │
+    │        (app/api/invitations/[id]/sections/route.ts)              │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ GET /api/invitations/[id]/sections                         │ │
+    │  │ • Fetch all sections for invitation                        │ │
+    │  │ • Returns: { sections: [...] }                             │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ POST /api/invitations/[id]/sections                        │ │
+    │  │ • Save/update sections                                     │ │
+    │  │ • Body: { sectionsData: {...} }                            │ │
+    │  │ • Returns: { success: true }                               │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ PUT /api/invitations/[id]/sections                         │ │
+    │  │ • Update sections (alias for POST)                         │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────────────┘
+
+                                    ↓ ↑
+                                    
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          DATABASE HELPERS                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌──────────────────────────────┐  ┌──────────────────────────────┐
+    │   Client-Side Helpers        │  │   Server-Side Helpers        │
+    │ (lib/invitation-sections.ts) │  │ (lib/supabase/server-        │
+    │                              │  │  sections.ts)                │
+    │                              │  │                              │
+    │ • saveSectionData()          │  │ • saveSectionsDataServer()   │
+    │ • saveSectionsData()         │  │ • getInvitationSections      │
+    │ • getInvitationSections()    │  │   Server()                   │
+    │ • getInvitationSection()     │  │ • deleteInvitationSections   │
+    │ • deleteInvitationSection()  │  │   Server()                   │
+    │ • sectionsArrayToObject()    │  │                              │
+    └──────────────────────────────┘  └──────────────────────────────┘
+
+                                    ↓ ↑
+                                    
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              DATABASE                                         │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                        invitations                               │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ id (PK)              UUID                                  │ │
+    │  │ bride_name           TEXT                                  │ │
+    │  │ groom_name           TEXT                                  │ │
+    │  │ event_date           DATE                                  │ │
+    │  │ event_time           TEXT                                  │ │
+    │  │ venue                TEXT                                  │ │
+    │  │ email                TEXT                                  │ │
+    │  │ phone                TEXT                                  │ │
+    │  │ event_type           TEXT                                  │ │
+    │  │ ...                                                        │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────────────┘
+                                    │
+                                    │ 1:N
+                                    ↓
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                    invitation_sections                           │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ id (PK)              UUID                                  │ │
+    │  │ invitation_id (FK)   UUID → invitations.id                 │ │
+    │  │ section_key          TEXT                                  │ │
+    │  │ content              JSONB                                 │ │
+    │  │ created_at           TIMESTAMPTZ                           │ │
+    │  │ updated_at           TIMESTAMPTZ                           │ │
+    │  │                                                            │ │
+    │  │ UNIQUE(invitation_id, section_key)                         │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  Example Data:                                                   │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ invitation_id: "abc-123"                                   │ │
+    │  │ section_key: "venueMap"                                    │ │
+    │  │ content: {                                                 │ │
+    │  │   "map_url": "https://maps.google.com/...",                │ │
+    │  │   "venue_address": "123 Main Street"                       │ │
+    │  │ }                                                          │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │                                                                  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │ invitation_id: "abc-123"                                   │ │
+    │  │ section_key: "rsvp"                                        │ │
+    │  │ content: {                                                 │ │
+    │  │   "enable_rsvp": true,                                     │ │
+    │  │   "max_guests": 5,                                         │ │
+    │  │   "rsvp_deadline": "2026-12-31"                            │ │
+    │  │ }                                                          │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            DATA FLOW SUMMARY                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+SAVE FLOW:
+──────────
+User Input → Component State → Hook State → Validation → File Upload
+    → API Call → Database Helpers → Database → Success
+
+RETRIEVE FLOW:
+──────────────
+Database → Database Helpers → API Response → Hook State → Component State
+    → UI Render
+
+VALIDATION FLOW:
+────────────────
+User Input → Field Validation → Section Validation → Form Validation
+    → Error Display
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          FILE STRUCTURE                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+project/
+├── lib/
+│   ├── sections-config.ts              ← Configuration
+│   ├── invitation-sections.ts          ← Client DB helpers
+│   └── supabase/
+│       └── server-sections.ts          ← Server DB helpers
+│
+├── components/
+│   └── dynamic-form/
+│       ├── DynamicField.tsx            ← Field renderer
+│       ├── DynamicSectionForm.tsx      ← Section wrapper
+│       └── DynamicFormContainer.tsx    ← Main container
+│
+├── hooks/
+│   └── use-dynamic-sections.ts         ← State management
+│
+├── app/
+│   ├── create/
+│   │   └── page.tsx                    ← Integration point
+│   └── api/
+│       └── invitations/
+│           └── [id]/
+│               └── sections/
+│                   └── route.ts        ← API endpoints
+│
+├── supabase/
+│   └── migrations/
+│       └── 002_dynamic_sections.sql    ← Database schema
+│
+├── utils/
+│   └── test-sections.ts                ← Testing utilities
+│
+├── examples/
+│   └── create-page-integration.tsx     ← Working example
+│
+└── Documentation/
+    ├── README_DYNAMIC_FORMS.md         ← Start here
+    ├── INTEGRATION_GUIDE.md            ← How to integrate
+    ├── IMPLEMENTATION_CHECKLIST.md     ← Track progress
+    ├── QUICK_REFERENCE.md              ← Cheat sheet
+    ├── DYNAMIC_FORM_SYSTEM_README.md   ← Complete docs
+    ├── SYSTEM_FLOWCHART.md             ← Visual diagrams
+    ├── IMPLEMENTATION_SUMMARY.md       ← What was built
+    ├── DOCUMENTATION_INDEX.md          ← Doc navigation
+    ├── DELIVERY_SUMMARY.md             ← Delivery info
+    └── SYSTEM_ARCHITECTURE.txt         ← This file
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              KEY FEATURES                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ Config-Driven        Add sections by editing ONE file
+✅ Type-Safe            Full TypeScript support
+✅ Flexible Storage     JSONB handles any structure
+✅ Built-in Validation  Automatic field validation
+✅ File Upload Support  Single and multiple files
+✅ Production Ready     Error handling, loading states
+✅ Well Documented      8 documentation files
+✅ Tested               Testing utilities included
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           QUICK START                                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+1. Run Migration:     supabase migration up
+2. Test System:       runAllTests()
+3. Follow Guide:      INTEGRATION_GUIDE.md
+4. Integrate:         30 minutes
+5. Deploy:            Production ready!
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         END OF ARCHITECTURE                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
