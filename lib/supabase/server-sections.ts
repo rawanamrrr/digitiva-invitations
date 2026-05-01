@@ -30,6 +30,8 @@ export async function saveSectionsDataServer(
       content,
     }))
 
+    console.log(`Upserting ${records.length} section records for invitation ${invitationId}...`)
+
     const { error } = await supabase
       .from("invitation_sections")
       .upsert(records, {
@@ -37,7 +39,12 @@ export async function saveSectionsDataServer(
       })
 
     if (error) {
-      console.error("Error saving sections data:", error)
+      console.error("Error saving sections data - Full details:", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })
       return { success: false, error: error.message }
     }
 

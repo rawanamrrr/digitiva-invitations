@@ -259,12 +259,15 @@ export function NewsletterPopup({
     setIsSubmitting(true)
 
     try {
+      // Strip leading zero if present
+      const cleanPhone = phone.startsWith("0") ? phone.substring(1) : phone;
+      
       const response = await fetch("/api/newsletter/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name, 
-          phone: `${countryCode.code}${phone}` 
+          phone: `${countryCode.code}${cleanPhone}` 
         }),
       })
 
@@ -489,7 +492,6 @@ export function NewsletterPopup({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
-                    pattern="[0-9]{10}"
                     className="w-full h-[48px] sm:h-[52px] pl-[130px] pr-4 bg-white/[0.12] backdrop-blur-md border border-white/25 rounded-[14px] text-white text-[13px] sm:text-[14px] placeholder:text-gray-300/50 focus:outline-none focus:border-amber-300/60 focus:bg-white/[0.16] focus:shadow-[0_0_0_3px_rgba(251,191,36,0.1)] transition-all duration-300"
                   />
                 </div>

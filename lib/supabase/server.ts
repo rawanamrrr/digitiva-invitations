@@ -28,8 +28,14 @@ export async function createClient() {
 }
 
 export function createAdminClient() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!serviceKey) {
+    console.error("CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing from environment variables.")
+  }
+
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }

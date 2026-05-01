@@ -7,6 +7,7 @@ import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { getCurrencyMeta, isSiteCurrency } from "@/lib/site-currencies"
 import { AdminInvitations, type Invitation } from "./admin-invitations"
 import { AdminDiscounts, type DiscountCode } from "./admin-discounts"
+import { AdminNewsletter, type NewsletterSubscriber } from "./admin-newsletter"
 import { AnalyticsButton } from "@/components/analytics-button"
 
 type UserRow = {
@@ -36,10 +37,12 @@ export function AdminDashboard({
   users,
   invitations,
   discountCodes,
+  subscribers,
 }: {
   users: UserRow[]
   invitations: Invitation[]
   discountCodes: DiscountCode[]
+  subscribers: NewsletterSubscriber[]
 }) {
   const { t } = useSiteLanguage()
 
@@ -96,6 +99,11 @@ export function AdminDashboard({
       <section>
         <h2 className="text-lg font-semibold mb-4">{t("admin.invitations")}</h2>
         <AdminInvitations invitations={invitations} />
+      </section>
+
+      <section>
+        <h2 className="text-lg font-semibold mb-4">Newsletter Subscribers (Leads)</h2>
+        <AdminNewsletter subscribers={subscribers} />
       </section>
     </div>
   )

@@ -84,7 +84,7 @@ export function DynamicField({ field, value, onChange, error }: DynamicFieldProp
             type={field.type}
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
-            className={error ? "border-red-500" : ""}
+            className={`h-6 text-xs px-0 bg-white ${error ? "border-red-500" : "border-slate-200"}`}
           />
         )
 
@@ -170,7 +170,7 @@ export function DynamicField({ field, value, onChange, error }: DynamicFieldProp
                   {files.map((file: File, index: number) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 bg-muted rounded-md text-xs"
+                      className="flex items-center justify-between p-2 bg-slate-100 border border-slate-200 rounded-md text-xs dark:bg-slate-800 dark:border-slate-700"
                     >
                       <span className="truncate flex-1">{file.name}</span>
                       <Button
@@ -198,7 +198,7 @@ export function DynamicField({ field, value, onChange, error }: DynamicFieldProp
             {timelineEvents.map((event, index) => (
               <div
                 key={index}
-                className="p-4 border rounded-lg space-y-3 bg-card"
+                className="p-4 border-2 border-slate-200 rounded-xl space-y-3 bg-white shadow-sm dark:bg-slate-900 dark:border-slate-800"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{t("create.field.timeline.event")} {index + 1}</span>
@@ -213,21 +213,20 @@ export function DynamicField({ field, value, onChange, error }: DynamicFieldProp
                     </Button>
                   )}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr] gap-3">
                   <div className="min-w-0">
-                    <Label className="text-xs">{t("create.field.timeline.time")}</Label>
+                    <Label className="text-[10px] text-muted-foreground uppercase font-semibold">{t("create.field.timeline.time")}</Label>
                     <Input
                       type="time"
                       value={event.time}
                       onChange={(e) =>
                         handleTimelineChange(index, "time", e.target.value)
                       }
-                      placeholder={t("create.field.timeline.timePlaceholder")}
-                      className="w-full"
+                      className="w-full h-6 text-xs px-0 mt-1 appearance-none bg-white border-slate-200"
                     />
                   </div>
                   <div className="min-w-0">
-                    <Label className="text-xs">{t("create.field.timeline.eventTitle")}</Label>
+                    <Label className="text-[10px] text-muted-foreground uppercase font-semibold">{t("create.field.timeline.eventTitle")}</Label>
                     <Input
                       type="text"
                       value={event.title}
@@ -235,7 +234,7 @@ export function DynamicField({ field, value, onChange, error }: DynamicFieldProp
                         handleTimelineChange(index, "title", e.target.value)
                       }
                       placeholder={t("create.field.timeline.eventTitlePlaceholder")}
-                      className="w-full"
+                      className="w-full h-9 text-xs px-2 mt-1 bg-white border-slate-200"
                     />
                   </div>
                 </div>

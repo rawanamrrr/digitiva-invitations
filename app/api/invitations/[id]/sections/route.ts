@@ -11,10 +11,16 @@ export async function GET(
 ) {
   try {
     const { id: invitationId } = await params
-
+    console.log(`GET /api/invitations/${invitationId}/sections - Fetching...`)
     const result = await getInvitationSectionsServer(invitationId)
 
+    console.log(`GET /api/invitations/${invitationId}/sections - Result success:`, result.success)
+    if (result.success) {
+      console.log(`GET /api/invitations/${invitationId}/sections - Found ${result.data?.length || 0} sections`)
+    }
+
     if (!result.success) {
+      console.error(`GET /api/invitations/${invitationId}/sections - Error:`, result.error)
       return NextResponse.json(
         { error: result.error || "Failed to fetch sections" },
         { status: 500 }

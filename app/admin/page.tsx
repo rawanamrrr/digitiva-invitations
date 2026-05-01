@@ -23,12 +23,17 @@ export default async function AdminPage() {
     .from("discount_codes")
     .select("*")
     .order("created_at", { ascending: false })
+  const { data: subscribers } = await supabase
+    .from("newsletter_subscribers")
+    .select("*")
+    .order("created_at", { ascending: false })
 
   return (
     <AdminDashboard 
       users={users || []} 
       invitations={invitations || []} 
       discountCodes={discountCodes || []} 
+      subscribers={subscribers || []}
     />
   )
 }

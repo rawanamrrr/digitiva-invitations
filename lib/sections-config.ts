@@ -74,13 +74,7 @@ export const SECTIONS_CONFIG: Record<string, SectionConfig> = {
         label: "create.field.ourStory.story_text.label",
         type: "textarea",
         placeholder: "create.field.ourStory.story_text.placeholder",
-        required: true,
-        validation: {
-          min: 50,
-          max: 2000,
-          message: "Story should be between 50 and 2000 characters"
-        },
-        helpText: "create.field.ourStory.story_text.help"
+        required: true
       }
     ]
   },
@@ -93,13 +87,6 @@ export const SECTIONS_CONFIG: Record<string, SectionConfig> = {
   rsvp: {
     id: "rsvp",
     fields: [
-      {
-        name: "enable_rsvp",
-        label: "create.field.rsvp.enable_rsvp.label",
-        type: "boolean",
-        required: false,
-        helpText: "create.field.rsvp.enable_rsvp.help"
-      },
       {
         name: "max_guests",
         label: "create.field.rsvp.max_guests.label",
@@ -145,14 +132,7 @@ export const SECTIONS_CONFIG: Record<string, SectionConfig> = {
   song: {
     id: "song",
     fields: [
-      {
-        name: "music_type",
-        label: "create.field.song.music_type.label",
-        type: "text",
-        placeholder: "create.field.song.music_type.placeholder",
-        required: false,
-        helpText: "create.field.song.music_type.help"
-      },
+
       {
         name: "music_url",
         label: "create.field.song.music_url.label",

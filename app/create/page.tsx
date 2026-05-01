@@ -42,16 +42,24 @@ import {
   Instagram,
   Mail,
   MessageCircle,
+  Download,
+  Plus,
   Bus,
   Gift,
   Crown,
+  X,
+  Palette,
+  Trash2,
 } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { templates } from "@/lib/templates"
 import { useSiteCurrency } from "@/contexts/SiteCurrencyContext"
 import { useSiteLanguage } from "@/contexts/SiteLanguageContext"
 import { createClient } from "@/lib/supabase/client"
 import { SITE_LOCALES, type SiteLocale } from "@/lib/site-locales"
 import { PRICING_MAP, type PriceRates } from "@/lib/pricing"
+import { DynamicFormContainer } from "@/components/dynamic-form/DynamicFormContainer"
+import { useDynamicSections } from "@/hooks/use-dynamic-sections"
 
 type PackageId = "standard" | "premium" | "custom"
 
@@ -171,7 +179,13 @@ function CreateInvitationContent() {
     "bank" | "instapay" | "vodafone_cash"
   >("instapay")
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null)
-  
+  const [bgImage, setBgImage] = useState<File | null>(null)
+  const [smallImage, setSmallImage] = useState<File | null>(null)
+  const [personalImages, setPersonalImages] = useState<File[]>([])
+  const [colorPaletteImage, setColorPaletteImage] = useState<File | null>(null)
+  const [colorPaletteText, setColorPaletteText] = useState("")
+  const [tempColor, setTempColor] = useState("#000000")
+
   const [discountCodeInput, setDiscountCodeInput] = useState("")
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; percentage: number } | null>(null)
   const [discountError, setDiscountError] = useState("")
@@ -179,6 +193,15 @@ function CreateInvitationContent() {
 
   const whatsappNumbers = useMemo(() => ["201024285771", "201014924924", "201028807788"], [])
   const [randomWhatsapp, setRandomWhatsapp] = useState("")
+
+  const {
+    sectionsData,
+    errors: sectionErrors,
+    updateSectionData,
+    validateSections,
+    clearSectionData,
+    hasErrors: hasSectionErrors,
+  } = useDynamicSections()
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * whatsappNumbers.length)
@@ -207,7 +230,7 @@ function CreateInvitationContent() {
 
   const validateStep2 = () => {
     const newErrors: { email?: string; whatsapp?: string } = {}
-    
+
     // Email validation
     if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       newErrors.email = t("create.err.email")
@@ -261,22 +284,89 @@ function CreateInvitationContent() {
   }, [searchParams, selectedPackage])
 
   const toggleSection = (id: string) => {
-    setSelectedSections((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
-    )
+    setSelectedSections((prev) => {
+      const isRemoving = prev.includes(id)
+      if (isRemoving) {
+        clearSectionData(id)
+      }
+      return isRemoving ? prev.filter((s) => s !== id) : [...prev, id]
+    })
+  }
+
+  const uploadSectionFiles = async (
+    sectionsData: Record<string, Record<string, any>>
+  ): Promise<Record<string, Record<string, any>>> => {
+    const supabase = createClient()
+    const prepared: Record<string, Record<string, any>> = {}
+
+    for (const [sectionKey, content] of Object.entries(sectionsData)) {
+      const preparedContent: Record<string, any> = {}
+
+      for (const [key, value] of Object.entries(content)) {
+        // Handle single file
+        if (value instanceof File) {
+          const path = `sections/${sectionKey}/${Date.now()}_${value.name}`
+          const { data, error } = await supabase.storage
+            .from("uploads")
+            .upload(path, value)
+
+          if (!error && data) {
+            const { data: urlData } = supabase.storage
+              .from("uploads")
+              .getPublicUrl(path)
+            preparedContent[key] = urlData.publicUrl
+          } else {
+            console.error(`Failed to upload ${key}:`, error)
+            preparedContent[key] = null
+          }
+        }
+        // Handle file array
+        else if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
+          const urls = await Promise.all(
+            value.map(async (file: File, idx: number) => {
+              const path = `sections/${sectionKey}/${Date.now()}_${idx}_${file.name}`
+              const { data, error } = await supabase.storage
+                .from("uploads")
+                .upload(path, file)
+
+              if (!error && data) {
+                const { data: urlData } = supabase.storage
+                  .from("uploads")
+                  .getPublicUrl(path)
+                return urlData.publicUrl
+              }
+              return null
+            })
+          )
+          preparedContent[key] = urls.filter(Boolean)
+        }
+        // Regular values
+        else {
+          preparedContent[key] = value
+        }
+      }
+
+      prepared[sectionKey] = preparedContent
+    }
+
+    return prepared
   }
 
   const handlePublish = async () => {
     setLoading(true)
     try {
+      // Validate dynamic sections
+      if (!validateSections(selectedSections)) {
+        alert(t("create.err.sections"))
+        setLoading(false)
+        return
+      }
+
+      // Upload section files
+      const preparedSections = await uploadSectionFiles(sectionsData)
+
       // Prepare labels synchronously (instant)
-      const sectionLabels = selectedSections.map((id) => {
-        if (id.startsWith("custom_")) {
-          return customSections.find((s) => s.id === id)?.label || id
-        }
-        const section = allSections.find((s) => s.id === id)
-        return section ? section.label : id
-      })
+      const sectionLabels = [...selectedSections]
 
       const extraLabels = selectedExtras.map((id) => {
         return extras.find((e) => e.id === id)?.label || id
@@ -293,41 +383,136 @@ function CreateInvitationContent() {
 
       const extraLabelsWithLanguageRequest = requestedLanguage.trim()
         ? [
-            ...extraLabels,
-            ...selectedLanguageLabels,
-            ...customLanguageLabels,
-            `${t("create.lang.requestedLabelPrefix")}: ${requestedLanguage.trim()}`,
-          ]
+          ...extraLabels,
+          ...selectedLanguageLabels,
+          ...customLanguageLabels,
+          `${t("create.lang.requestedLabelPrefix")}: ${requestedLanguage.trim()}`,
+        ]
         : [...extraLabels, ...selectedLanguageLabels, ...customLanguageLabels]
 
-      // Upload screenshot and create invitation in PARALLEL
-      // Step 1: Start the upload process (if screenshot exists)
+      // Step 1: Start the upload process (if screenshot or bgImage exists)
       const uploadPromise = paymentScreenshot
         ? (async () => {
-            const uploadPrepRes = await fetch("/api/upload", { 
-              method: "POST", 
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ 
-                filename: paymentScreenshot.name, 
-                contentType: paymentScreenshot.type 
-              }) 
+          const uploadPrepRes = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: paymentScreenshot.name,
+              contentType: paymentScreenshot.type
             })
-            const uploadPrepData = await uploadPrepRes.json()
-            if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
+          })
+          const uploadPrepData = await uploadPrepRes.json()
+          if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
 
-            const supabase = createClient()
-            const { error: uploadError } = await supabase.storage
-              .from("uploads")
-              .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, paymentScreenshot)
+          const supabase = createClient()
+          const { error: uploadError } = await supabase.storage
+            .from("uploads")
+            .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, paymentScreenshot)
 
-            if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
-            return uploadPrepData.url as string
-          })()
+          if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
+          return uploadPrepData.url as string
+        })()
         : Promise.resolve("")
 
-      // Step 2: Start invitation creation immediately (don't wait for upload)
-      // We'll send a placeholder URL and the server doesn't block on it
-      const screenshotUrl = await uploadPromise
+      const bgUploadPromise = bgImage
+        ? (async () => {
+          const uploadPrepRes = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: bgImage.name,
+              contentType: bgImage.type
+            })
+          })
+          const uploadPrepData = await uploadPrepRes.json()
+          if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
+
+          const supabase = createClient()
+          const { error: uploadError } = await supabase.storage
+            .from("uploads")
+            .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, bgImage)
+
+          if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
+          return uploadPrepData.url as string
+        })()
+        : Promise.resolve("")
+
+      const smallImageUploadPromise = smallImage
+        ? (async () => {
+          const uploadPrepRes = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: smallImage.name,
+              contentType: smallImage.type
+            })
+          })
+          const uploadPrepData = await uploadPrepRes.json()
+          if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
+
+          const supabase = createClient()
+          const { error: uploadError } = await supabase.storage
+            .from("uploads")
+            .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, smallImage)
+
+          if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
+          return uploadPrepData.url as string
+        })()
+        : Promise.resolve("")
+
+      const personalImagesUploadPromise = personalImages.length > 0
+        ? Promise.all(personalImages.map(async (file) => {
+          const uploadPrepRes = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: file.name,
+              contentType: file.type
+            })
+          })
+          const uploadPrepData = await uploadPrepRes.json()
+          if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
+
+          const supabase = createClient()
+          const { error: uploadError } = await supabase.storage
+            .from("uploads")
+            .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, file)
+
+          if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
+          return uploadPrepData.url as string
+        }))
+        : Promise.resolve([])
+
+      const colorPaletteImageUploadPromise = colorPaletteImage
+        ? (async () => {
+          const uploadPrepRes = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: colorPaletteImage.name,
+              contentType: colorPaletteImage.type
+            })
+          })
+          const uploadPrepData = await uploadPrepRes.json()
+          if (!uploadPrepRes.ok) throw new Error(uploadPrepData.error || t("create.publish.error.upload"))
+
+          const supabase = createClient()
+          const { error: uploadError } = await supabase.storage
+            .from("uploads")
+            .uploadToSignedUrl(uploadPrepData.path, uploadPrepData.token, colorPaletteImage)
+
+          if (uploadError) throw new Error(uploadError.message || t("create.publish.error.upload"))
+          return uploadPrepData.url as string
+        })()
+        : Promise.resolve("")
+
+      const [screenshotUrl, bgImageUrl, smallImageUrl, personalImageUrls, colorPaletteImageUrl] = await Promise.all([
+        uploadPromise,
+        bgUploadPromise,
+        smallImageUploadPromise,
+        personalImagesUploadPromise,
+        colorPaletteImageUploadPromise
+      ])
 
       const invitationPayload = {
         brideName: form.brideName,
@@ -344,6 +529,11 @@ function CreateInvitationContent() {
         whatsapp: `${form.countryCode}${form.whatsapp}`,
         paymentMethod,
         paymentScreenshot: screenshotUrl,
+        backgroundImage: bgImageUrl,
+        smallInvitationImage: smallImageUrl,
+        personalImages: personalImageUrls,
+        colorPaletteText,
+        colorPaletteImage: colorPaletteImageUrl,
         orderCurrency: currency,
         orderTotal: totalPrice,
         discountCode: appliedDiscount?.code || null,
@@ -361,6 +551,29 @@ function CreateInvitationContent() {
         throw new Error(data.error || t("create.publish.error.create"))
       }
 
+      // Save sections data
+      const invitationId = data.id
+      const sectionsToSave = Object.keys(preparedSections).length
+      console.log(`Saving ${sectionsToSave} sections for invitation ${invitationId}...`)
+
+      if (sectionsToSave === 0) {
+        console.warn("No sections data found to save.")
+      }
+
+      console.log("Saving sections data...")
+      const sectionsRes = await fetch(`/api/invitations/${invitationId}/sections`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sectionsData: preparedSections }),
+      })
+
+      const saveResult = await sectionsRes.json()
+      console.log("Sections save response:", saveResult)
+
+      if (!sectionsRes.ok || !saveResult.success) {
+        throw new Error(saveResult.error || "Failed to save sections details")
+      }
+
       setStep(4)
     } catch (e) {
       alert(e instanceof Error ? e.message : t("create.publish.error.generic"))
@@ -373,7 +586,7 @@ function CreateInvitationContent() {
   const limit = PACKAGE_LIMITS[selectedPackage]
   const includedLanguages = INCLUDED_LANGUAGES[selectedPackage]
   const totalLanguagesCount = selectedLanguages.length + customLanguages.length
-  
+
   // Calculate extra sections cost
   let sectionsExtraPrice = 0
   if (selectedPackage !== "custom") {
@@ -382,7 +595,7 @@ function CreateInvitationContent() {
     let extraStandard = 0;
     let paidCustom = 0;
     let remainingLimit = limit;
-    
+
     if (standardCount > remainingLimit) {
       extraStandard = standardCount - remainingLimit;
       remainingLimit = 0;
@@ -404,10 +617,10 @@ function CreateInvitationContent() {
 
   const extraLanguagesCount = selectedPackage === "custom" ? 0 : Math.max(0, totalLanguagesCount - includedLanguages)
   const languagesExtraPrice = extraLanguagesCount * pricingRates.language
-  
+
   const rawTotalPrice = basePrice + sectionsExtraPrice + extrasPrice + languagesExtraPrice
-  const totalPrice = appliedDiscount 
-    ? Math.max(0, rawTotalPrice - (rawTotalPrice * (appliedDiscount.percentage / 100))) 
+  const totalPrice = appliedDiscount
+    ? Math.max(0, rawTotalPrice - (rawTotalPrice * (appliedDiscount.percentage / 100)))
     : rawTotalPrice
 
   const handleApplyDiscount = async () => {
@@ -417,7 +630,7 @@ function CreateInvitationContent() {
     try {
       const res = await fetch(`/api/discount-codes/validate?code=${encodeURIComponent(discountCodeInput.trim())}`)
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Invalid code")
+      if (!res.ok) throw new Error(data.error || "Invalid or expired discount code")
       setAppliedDiscount({ code: data.code, percentage: data.percentage })
       setDiscountCodeInput("")
     } catch (e: any) {
@@ -509,9 +722,8 @@ function CreateInvitationContent() {
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors mx-auto ${
-                  step >= s ? "bg-primary border-primary text-white" : "border-border text-muted-foreground"
-                }`}
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors mx-auto ${step >= s ? "bg-primary border-primary text-white" : "border-border text-muted-foreground"
+                  }`}
               >
                 {step > s ? <Check className="w-5 h-5" /> : s}
               </div>
@@ -543,9 +755,8 @@ function CreateInvitationContent() {
                     <button
                       key={template.id}
                       disabled={isPremiumLocked}
-                      className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all text-left ${
-                        isSelected ? "border-primary ring-2 ring-primary ring-offset-2 scale-[1.02]" : "border-transparent hover:border-primary/50"
-                      } ${isPremiumLocked ? "opacity-75 cursor-not-allowed" : ""}`}
+                      className={`group relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all text-left ${isSelected ? "border-primary ring-2 ring-primary ring-offset-2 scale-[1.02]" : "border-transparent hover:border-primary/50"
+                        } ${isPremiumLocked ? "opacity-75 cursor-not-allowed" : ""}`}
                       onClick={() => {
                         if (isPremiumLocked) {
                           // Show alert or toast that premium template requires premium package
@@ -597,7 +808,7 @@ function CreateInvitationContent() {
                         </div>
                         <div className="flex justify-between items-end w-full">
                           <div className="font-semibold text-white/90 text-lg leading-tight drop-shadow-md">
-                            {template.name}
+                            {t(`template.name.${template.id}`) !== `template.name.${template.id}` ? t(`template.name.${template.id}`) : template.name}
                           </div>
                           <a
                             href={template.demoUrl}
@@ -632,11 +843,10 @@ function CreateInvitationContent() {
                       key={id}
                       type="button"
                       onClick={() => handlePackageChange(id)}
-                      className={`rounded-xl border-2 p-4 text-left transition-all ${
-                        isActive
-                          ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
-                          : "border-border hover:border-primary/50"
-                      }`}
+                      className={`rounded-xl border-2 p-4 text-left transition-all ${isActive
+                        ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                        : "border-border hover:border-primary/50"
+                        }`}
                     >
                       <div className="font-semibold text-foreground">{pkg.label}</div>
                       <div className="text-xs text-muted-foreground mt-1">{pkg.description}</div>
@@ -690,294 +900,290 @@ function CreateInvitationContent() {
               ) : (
                 <>
                   <div className="space-y-4">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-foreground">{t("create.sections.title")}</div>
-                    <div className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full uppercase tracking-tight">
-                      {t("create.sections.extraEach")
-                        .replace("{price}", String(pricingRates.extraSection))
-                        .replace("{currency}", currencyShort)}
-                    </div>
-                  </div>
-                  <div className="text-[11px] text-primary font-medium">
-                    {selectedPackage === "standard"
-                      ? t("create.sections.pick3")
-                      : selectedPackage === "premium"
-                        ? t("create.sections.pick7")
-                        : t("create.sections.pickAny")}
-                  </div>
-                </div>
-                <div 
-                  className="grid gap-2 sm:gap-3 w-full" 
-                  style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-                    width: '100%'
-                  }}
-                >
-                  {allSections.map((section, index) => {
-                    const Icon = sectionIcon(section.id)
-                    const active = selectedSections.includes(section.id)
-                    
-                    // Logic: First 3 (Standard) or 7 (Premium) selected sections are free.
-                    // Others are +50.
-                    const selectedIndex = selectedSections.indexOf(section.id)
-                    const isExtra = active && selectedIndex >= limit
-
-                    return (
-                      <button
-                        key={section.id}
-                        type="button"
-                        onClick={() => toggleSection(section.id)}
-                        className={`rounded-2xl border px-1 py-4 text-center transition-all flex flex-col items-center justify-center min-h-[85px] sm:min-h-[110px] w-full relative group ${
-                          active
-                            ? "border-primary bg-primary/5 ring-1 ring-primary"
-                            : "border-border bg-card hover:border-primary/40"
-                        }`}
-                      >
-                        {isExtra && (
-                          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            {t("create.section.badgeExtra")
-                              .replace("{price}", String(pricingRates.extraSection))
-                              .replace("{currency}", currencyShort)}
-                          </div>
-                        )}
-                        <Icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
-                        <div className={`text-[9px] sm:text-xs leading-tight font-medium px-0.5 ${active ? "text-foreground" : "text-muted-foreground"}`}>
-                          {section.label}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium text-foreground">{t("create.sections.title")}</div>
+                        <div className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full uppercase tracking-tight">
+                          {t("create.sections.extraEach")
+                            .replace("{price}", String(pricingRates.extraSection))
+                            .replace("{currency}", currencyShort)}
                         </div>
-                      </button>
-                    )
-                  })}
-
-                  {customSections.map((section, index) => {
-                    const active = selectedSections.includes(section.id)
-                    const selectedIndex = selectedSections.indexOf(section.id)
-                    const isExtra = active && selectedIndex >= limit
-
-                    return (
-                      <button
-                        key={section.id}
-                        type="button"
-                        onClick={() => toggleSection(section.id)}
-                        className={`rounded-2xl border px-1 py-4 text-center transition-all flex flex-col items-center justify-center min-h-[85px] sm:min-h-[110px] w-full relative group ${
-                          active
-                            ? "border-primary bg-primary/5 ring-1 ring-primary"
-                            : "border-border bg-card hover:border-primary/40"
-                        }`}
-                      >
-                        {isExtra && (
-                          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
-                            {t("create.section.badgeExtra")
-                              .replace("{price}", String(pricingRates.customSection))
-                              .replace("{currency}", currencyShort)}
-                          </div>
-                        )}
-                        <Heart className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
-                        <div className={`text-[9px] sm:text-xs leading-tight font-medium px-0.5 ${active ? "text-foreground" : "text-muted-foreground"}`}>
-                          {section.label}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-
-                <div className="flex gap-3">
-                  <Input
-                    className="rounded-xl h-11"
-                    value={customBlockLabel}
-                    onChange={(e) => setCustomBlockLabel(e.target.value)}
-                    placeholder={t("create.customBlock.placeholder")}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault()
-                        addCustomSection()
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-xl h-11 px-4"
-                    onClick={addCustomSection}
-                  >
-                    +
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-4 pt-2">
-                <div className="text-center">
-                  <div className="font-serif text-2xl text-foreground">{t("create.lang.title")}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {selectedPackage === "standard" ? t("create.lang.sub1") : t("create.lang.sub2")}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground mt-2">
-                    +{pricingRates.language} {currencyShort} {" "}
-                    {selectedPackage === "standard"
-                      ? `(${Math.max(0, totalLanguagesCount - 1)} extra)`
-                      : `(${Math.max(0, totalLanguagesCount - 2)} extra)`}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    {selectedLanguages.map((code, idx) => (
-                      <div key={code} className="flex gap-3">
-                        <Select
-                          value={code}
-                          onValueChange={(v) => {
-                            const next = v as SiteLocale
-                            setSelectedLanguages((prev) => {
-                              if (prev.includes(next)) return prev
-                              const copy = [...prev]
-                              copy[idx] = next
-                              return copy
-                            })
-                          }}
-                        >
-                          <SelectTrigger className="w-full rounded-xl h-11">
-                            <SelectValue placeholder={idx === 0 ? t("create.lang.selectPrimary") : t("create.lang.selectSecondary")} />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[300px]">
-                            {SITE_LOCALES.filter((l) => !selectedLanguages.includes(l.code) || l.code === code).map((l) => (
-                              <SelectItem key={l.code} value={l.code}>
-                                {l.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {idx > 0 && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="rounded-xl h-11 px-4 shrink-0"
-                            onClick={() => setSelectedLanguages((prev) => prev.filter((_, i) => i !== idx))}
-                          >
-                            {t("create.lang.remove")}
-                          </Button>
-                        )}
                       </div>
-                    ))}
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="rounded-xl h-11 w-full"
-                      onClick={() => {
-                        const available = SITE_LOCALES.find((l) => !selectedLanguages.includes(l.code))
-                        if (!available) return
-                        setSelectedLanguages((prev) => [...prev, available.code])
+                      <div className="text-[11px] text-primary font-medium">
+                        {selectedPackage === "standard"
+                          ? t("create.sections.pick3")
+                          : selectedPackage === "premium"
+                            ? t("create.sections.pick7")
+                            : t("create.sections.pickAny")}
+                      </div>
+                    </div>
+                    <div
+                      className="grid gap-2 sm:gap-3 w-full"
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                        width: '100%'
                       }}
                     >
-                      {t("create.lang.add")}
-                    </Button>
+                      {allSections.map((section, index) => {
+                        const Icon = sectionIcon(section.id)
+                        const active = selectedSections.includes(section.id)
 
-                    <div className="pt-2">
-                      <div className="text-[11px] text-muted-foreground mb-2">
-                        {t("create.lang.cantFind")}
-                      </div>
-                      <div className="flex gap-3">
-                        <Input
-                          className="rounded-xl h-11"
-                          value={requestedLanguage}
-                          onChange={(e) => setRequestedLanguage(e.target.value)}
-                          placeholder={t("create.lang.typePlaceholder")}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="rounded-xl h-11 px-4 shrink-0"
-                          onClick={() => {
-                            const v = requestedLanguage.trim()
-                            if (!v) return
-                            setCustomLanguages((prev) => (prev.includes(v) ? prev : [...prev, v]))
-                            setRequestedLanguage("")
-                          }}
-                        >
-                          {t("create.lang.add")}
-                        </Button>
-                      </div>
+                        // Logic: First 3 (Standard) or 7 (Premium) selected sections are free.
+                        // Others are +50.
+                        const selectedIndex = selectedSections.indexOf(section.id)
+                        const isExtra = active && selectedIndex >= limit
 
-                      {customLanguages.length > 0 && (
-                        <div className="pt-2 space-y-2">
-                          {customLanguages.map((l) => (
-                            <div key={l} className="flex gap-3">
-                              <div className="flex-1 rounded-xl h-11 border border-border bg-muted/40 px-4 flex items-center text-sm text-foreground">
-                                {l}
+                        return (
+                          <button
+                            key={section.id}
+                            type="button"
+                            onClick={() => toggleSection(section.id)}
+                            className={`rounded-2xl border px-1 py-4 text-center transition-all flex flex-col items-center justify-center min-h-[85px] sm:min-h-[110px] w-full relative group ${active
+                              ? "border-primary bg-primary/5 ring-1 ring-primary"
+                              : "border-border bg-card hover:border-primary/40"
+                              }`}
+                          >
+                            {isExtra && (
+                              <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
+                                {t("create.section.badgeExtra")
+                                  .replace("{price}", String(pricingRates.extraSection))
+                                  .replace("{currency}", currencyShort)}
                               </div>
+                            )}
+                            <Icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                            <div className={`text-[9px] sm:text-xs leading-tight font-medium px-0.5 ${active ? "text-foreground" : "text-muted-foreground"}`}>
+                              {section.label}
+                            </div>
+                          </button>
+                        )
+                      })}
+
+                      {customSections.map((section, index) => {
+                        const active = selectedSections.includes(section.id)
+                        const selectedIndex = selectedSections.indexOf(section.id)
+                        const isExtra = active && selectedIndex >= limit
+
+                        return (
+                          <button
+                            key={section.id}
+                            type="button"
+                            onClick={() => toggleSection(section.id)}
+                            className={`rounded-2xl border px-1 py-4 text-center transition-all flex flex-col items-center justify-center min-h-[85px] sm:min-h-[110px] w-full relative group ${active
+                              ? "border-primary bg-primary/5 ring-1 ring-primary"
+                              : "border-border bg-card hover:border-primary/40"
+                              }`}
+                          >
+                            {isExtra && (
+                              <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 bg-primary text-primary-foreground text-[9px] font-medium px-2 py-0.5 rounded-full pointer-events-none whitespace-nowrap min-w-[45px]">
+                                {t("create.section.badgeExtra")
+                                  .replace("{price}", String(pricingRates.customSection))
+                                  .replace("{currency}", currencyShort)}
+                              </div>
+                            )}
+                            <Heart className={`h-5 w-5 sm:h-6 sm:w-6 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                            <div className={`text-[9px] sm:text-xs leading-tight font-medium px-0.5 ${active ? "text-foreground" : "text-muted-foreground"}`}>
+                              {section.label}
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Input
+                        className="rounded-xl h-11"
+                        value={customBlockLabel}
+                        onChange={(e) => setCustomBlockLabel(e.target.value)}
+                        placeholder={t("create.customBlock.placeholder")}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            addCustomSection()
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-xl h-11 px-4"
+                        onClick={addCustomSection}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 pt-2">
+                    <div className="text-center">
+                      <div className="font-serif text-2xl text-foreground">{t("create.lang.title")}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {selectedPackage === "standard" ? t("create.lang.sub1") : t("create.lang.sub2")}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground mt-2">
+                        +{pricingRates.language} {currencyShort} {" "}
+                        {selectedPackage === "standard"
+                          ? `(${t("create.label.extraCount").replace("{count}", String(Math.max(0, totalLanguagesCount - 1)))})`
+                          : `(${t("create.label.extraCount").replace("{count}", String(Math.max(0, totalLanguagesCount - 2)))})`}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        {selectedLanguages.map((code, idx) => (
+                          <div key={code} className="flex gap-3">
+                            <Select
+                              value={code}
+                              onValueChange={(v) => {
+                                const next = v as SiteLocale
+                                setSelectedLanguages((prev) => {
+                                  if (prev.includes(next)) return prev
+                                  const copy = [...prev]
+                                  copy[idx] = next
+                                  return copy
+                                })
+                              }}
+                            >
+                              <SelectTrigger className="w-full rounded-xl h-11">
+                                <SelectValue placeholder={idx === 0 ? t("create.lang.selectPrimary") : t("create.lang.selectSecondary")} />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-[300px]">
+                                {SITE_LOCALES.filter((l) => !selectedLanguages.includes(l.code) || l.code === code).map((l) => (
+                                  <SelectItem key={l.code} value={l.code}>
+                                    {l.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {idx > 0 && (
                               <Button
                                 type="button"
                                 variant="outline"
                                 className="rounded-xl h-11 px-4 shrink-0"
-                                onClick={() => setCustomLanguages((prev) => prev.filter((x) => x !== l))}
+                                onClick={() => setSelectedLanguages((prev) => prev.filter((_, i) => i !== idx))}
                               >
                                 {t("create.lang.remove")}
                               </Button>
+                            )}
+                          </div>
+                        ))}
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-xl h-11 w-full"
+                          onClick={() => {
+                            const available = SITE_LOCALES.find((l) => !selectedLanguages.includes(l.code))
+                            if (!available) return
+                            setSelectedLanguages((prev) => [...prev, available.code])
+                          }}
+                        >
+                          {t("create.lang.add")}
+                        </Button>
+
+                        <div className="pt-2">
+                          <div className="text-[11px] text-muted-foreground mb-2">
+                            {t("create.lang.cantFind")}
+                          </div>
+                          <div className="flex gap-3">
+                            <Input
+                              className="rounded-xl h-11"
+                              value={requestedLanguage}
+                              onChange={(e) => setRequestedLanguage(e.target.value)}
+                              placeholder={t("create.lang.typePlaceholder")}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="rounded-xl h-11 px-4 shrink-0"
+                              onClick={() => {
+                                const v = requestedLanguage.trim()
+                                if (!v) return
+                                setCustomLanguages((prev) => (prev.includes(v) ? prev : [...prev, v]))
+                                setRequestedLanguage("")
+                              }}
+                            >
+                              {t("create.lang.add")}
+                            </Button>
+                          </div>
+
+                          {customLanguages.length > 0 && (
+                            <div className="pt-2 space-y-2">
+                              {customLanguages.map((l) => (
+                                <div key={l} className="flex gap-3">
+                                  <div className="flex-1 rounded-xl h-11 border border-border bg-muted/40 px-4 flex items-center text-sm text-foreground">
+                                    {l}
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="rounded-xl h-11 px-4 shrink-0"
+                                    onClick={() => setCustomLanguages((prev) => prev.filter((x) => x !== l))}
+                                  >
+                                    {t("create.lang.remove")}
+                                  </Button>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="space-y-6 pt-4">
-                <div className="text-center space-y-1">
-                  <h3 className="font-serif text-3xl text-foreground">{t("create.extras.title")}</h3>
-                  <p className="text-sm text-muted-foreground">{t("create.extras.sub")}</p>
-                </div>
+                  <div className="space-y-6 pt-4">
+                    <div className="text-center space-y-1">
+                      <h3 className="font-serif text-3xl text-foreground">{t("create.extras.title")}</h3>
+                      <p className="text-sm text-muted-foreground">{t("create.extras.sub")}</p>
+                    </div>
 
-                <div className="space-y-3">
-                  {extras.map((extra) => {
-                    const active = selectedExtras.includes(extra.id)
-                    const Icon = extra.icon
-                    return (
-                      <button
-                        key={extra.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedExtras((prev) =>
-                            prev.includes(extra.id)
-                              ? prev.filter((id) => id !== extra.id)
-                              : [...prev, extra.id]
-                          )
-                        }}
-                        className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
-                          active
-                            ? "border-primary bg-primary/5 ring-1 ring-primary"
-                            : "border-border bg-card hover:border-primary/20"
-                        }`}
-                      >
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                          active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                        }`}>
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-foreground">{extra.label}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground sm:line-clamp-1">{extra.description}</p>
-                        </div>
-                        <div className="text-sm font-bold text-foreground shrink-0">
-                          +{extra.price} {currencyShort}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  )}
+                    <div className="space-y-3">
+                      {extras.map((extra) => {
+                        const active = selectedExtras.includes(extra.id)
+                        const Icon = extra.icon
+                        return (
+                          <button
+                            key={extra.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedExtras((prev) =>
+                                prev.includes(extra.id)
+                                  ? prev.filter((id) => id !== extra.id)
+                                  : [...prev, extra.id]
+                              )
+                            }}
+                            className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${active
+                              ? "border-primary bg-primary/5 ring-1 ring-primary"
+                              : "border-border bg-card hover:border-primary/20"
+                              }`}
+                          >
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                              }`}>
+                              <Icon className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-foreground">{extra.label}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground sm:line-clamp-1">{extra.description}</p>
+                            </div>
+                            <div className="text-sm font-bold text-foreground shrink-0">
+                              +{extra.price} {currencyShort}
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-  {step === 1 && selectedPackage !== "custom" && (
-    <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border z-50">
+      {step === 1 && selectedPackage !== "custom" && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border z-50">
           <div className="max-w-md mx-auto">
             <div className="text-center text-[11px] text-muted-foreground mb-2">
               {t("create.bottom.summary")
@@ -992,9 +1198,8 @@ function CreateInvitationContent() {
             )}
             <Button
               disabled={!canProceedToStep2}
-              className={`w-full h-14 text-xl font-bold rounded-full bg-primary text-primary-foreground shadow-xl transition-all group overflow-hidden relative ${
-                canProceedToStep2 ? "hover:bg-primary/90" : "opacity-60 cursor-not-allowed"
-              }`}
+              className={`w-full h-14 text-xl font-bold rounded-full bg-primary text-primary-foreground shadow-xl transition-all group overflow-hidden relative ${canProceedToStep2 ? "hover:bg-primary/90" : "opacity-60 cursor-not-allowed"
+                }`}
               onClick={() => {
                 if (!canProceedToStep2) return
                 setStep(2)
@@ -1055,21 +1260,21 @@ function CreateInvitationContent() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t("create.label.eventDate")}</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label className="text-[10px] uppercase text-muted-foreground font-bold">{t("create.label.eventDate")}</Label>
                 <Input
-                  className="rounded-xl h-11"
+                  className="rounded-xl h-6 text-xs px-1 bg-white"
                   type="date"
                   min={todayStr}
                   value={form.eventDate}
                   onChange={(e) => update("eventDate", e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>{t("create.label.eventTime")}</Label>
+              <div className="space-y-1">
+                <Label className="text-[10px] uppercase text-muted-foreground font-bold">{t("create.label.eventTime")}</Label>
                 <Input
-                  className="rounded-xl h-11"
+                  className="rounded-xl h-10 text-xs px-2 bg-white"
                   value={form.eventTime}
                   onChange={(e) => update("eventTime", e.target.value)}
                   placeholder={t("create.ph.eventTime")}
@@ -1085,7 +1290,395 @@ function CreateInvitationContent() {
                 placeholder={t("create.ph.venue")}
               />
             </div>
-            
+
+            {!["royal-entrance", "lamis", "sunset-love"].includes(form.templateId) && (
+              <div className="pt-4 border-t border-border space-y-4">
+                <div className="text-sm font-semibold text-primary uppercase tracking-wider mb-4">{t("create.label.bgImage")}</div>
+                <div className="grid grid-cols-2 gap-3 sm:gap-6 items-start">
+                  {/* Guide Image Section */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-px flex-1 bg-border" />
+                      <p className="text-[8px] sm:text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-1 sm:px-2 whitespace-nowrap">{t("create.guide.bgImageTitle")}</p>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                    <div className="rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-muted shadow-sm">
+                      <img
+                        src="/bg-img.jpg"
+                        alt="Background guide"
+                        className="w-full h-auto block"
+                      />
+                    </div>
+                    <p className="text-[9px] sm:text-[11px] text-muted-foreground text-center italic px-1">
+                      {t("create.guide.bgImageDesc")}
+                    </p>
+                  </div>
+
+                  {/* Upload Section */}
+                  <div className="space-y-3 mt-20 sm:mt-6">
+                    <div className="relative border-2 border-dashed border-border rounded-xl sm:rounded-2xl p-10 sm:p-8 transition-colors hover:border-primary/50 text-center cursor-pointer group bg-white/50 h-full flex flex-col justify-center min-h-[120px] sm:min-h-[200px]">
+                      <input
+                        type="file"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={(e) => setBgImage(e.target.files?.[0] || null)}
+                        accept="image/*"
+                      />
+                      <div className="flex flex-col items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Upload className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                        </div>
+                        <div className="space-y-0.5 sm:space-y-1">
+                          <p className="text-xs sm:text-base font-semibold text-foreground line-clamp-1">
+                            {bgImage ? bgImage.name : t("create.ph.bgImage")}
+                          </p>
+                          <p className="text-[9px] sm:text-xs text-muted-foreground">{t("create.help.bgImage")}</p>
+                        </div>
+                      </div>
+                    </div>
+                    {bgImage && (
+                      <div className="flex justify-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setBgImage(null)}
+                          className="text-destructive hover:text-destructive/80 text-[10px] sm:text-xs h-7 sm:h-8 gap-1.5 sm:gap-2"
+                        >
+                          <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                          {t("create.btn.removeBgImage")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {["lamis", "ahmed", "minimalist-chic", "ivory-romance"].includes(form.templateId) && (
+              <div className="pt-4 border-t border-border space-y-4">
+                <div className="text-sm font-semibold text-primary uppercase tracking-wider mb-4">{t("create.label.smallImage")}</div>
+                <div className="grid grid-cols-2 gap-3 sm:gap-6 items-start">
+                  {/* Guide Image Section */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-px flex-1 bg-border" />
+                      <p className="text-[8px] sm:text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-1 sm:px-2 whitespace-nowrap">{t("create.guide.smallImageTitle")}</p>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                    <div className="w-full mx-auto rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-muted shadow-sm">
+                      <img
+                        src="/small-img.jpg"
+                        alt="Small image guide"
+                        className="w-full h-auto block"
+                      />
+                    </div>
+                    <p className="text-[9px] sm:text-[11px] text-muted-foreground text-center italic px-1 mt-1 sm:mt-2">
+                      {t("create.guide.smallImageDesc")}
+                    </p>
+                  </div>
+
+                  {/* Upload Section */}
+                  <div className="space-y-3 mt-20 sm:mt-6">
+                    <div className="relative border-2 border-dashed border-border rounded-xl sm:rounded-2xl p-10 sm:p-8 transition-colors hover:border-primary/50 text-center cursor-pointer group bg-white/50 h-full flex flex-col justify-center min-h-[120px] sm:min-h-[200px]">
+                      <input
+                        type="file"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={(e) => setSmallImage(e.target.files?.[0] || null)}
+                        accept="image/*"
+                      />
+                      <div className="flex flex-col items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Upload className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                        </div>
+                        <div className="space-y-0.5 sm:space-y-1">
+                          <p className="text-xs sm:text-base font-semibold text-foreground line-clamp-1">
+                            {smallImage ? smallImage.name : t("create.ph.smallImage")}
+                          </p>
+                          <p className="text-[9px] sm:text-xs text-muted-foreground">{t("create.help.smallImage")}</p>
+                        </div>
+                      </div>
+                    </div>
+                    {smallImage && (
+                      <div className="flex justify-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSmallImage(null)}
+                          className="text-destructive hover:text-destructive/80 text-[10px] sm:text-xs h-7 sm:h-8 gap-1.5 sm:gap-2"
+                        >
+                          <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                          {t("create.lang.remove")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {["lamis", "ivory-romance"].includes(form.templateId) && (
+              <div className="pt-4 border-t border-border space-y-4">
+                <div className="text-sm font-semibold text-primary uppercase tracking-wider mb-4">{t("create.label.personalImages")}</div>
+                <div className="grid grid-cols-2 gap-3 sm:gap-6 items-start">
+                  {/* Guide Image Section */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-px flex-1 bg-border" />
+                      <p className="text-[8px] sm:text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-1 sm:px-2 whitespace-nowrap">{t("create.guide.personalImagesTitle")}</p>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                    <div className="w-full mx-auto rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-muted shadow-sm">
+                      <img
+                        src="/personal-img.jpg"
+                        alt="Personal image guide"
+                        className="w-full h-auto block"
+                      />
+                    </div>
+                    <p className="text-[9px] sm:text-[11px] text-muted-foreground text-center italic px-1 mt-1 sm:mt-2">
+                      {t("create.guide.personalImagesDesc")}
+                    </p>
+                  </div>
+
+                  {/* Upload Section */}
+                  <div className="space-y-3 mt-20 sm:mt-6">
+                    <div className="relative border-2 border-dashed border-border rounded-xl sm:rounded-2xl p-10 sm:p-8 transition-colors hover:border-primary/50 text-center cursor-pointer group bg-white/50 h-full flex flex-col justify-center min-h-[120px] sm:min-h-[200px]">
+                      <input
+                        type="file"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || [])
+                          if (files.length + personalImages.length > 2) {
+                            alert("Max 2 images allowed")
+                            return
+                          }
+                          setPersonalImages([...personalImages, ...files].slice(0, 2))
+                        }}
+                        accept="image/*"
+                        multiple
+                      />
+                      <div className="flex flex-col items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Upload className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                        </div>
+                        <div className="space-y-0.5 sm:space-y-1">
+                          <p className="text-xs sm:text-base font-semibold text-foreground line-clamp-1">
+                            {personalImages.length > 0
+                              ? `${personalImages.length} ${t("create.field.common.filesSelected")}`
+                              : t("create.ph.personalImages")}
+                          </p>
+                          <p className="text-[9px] sm:text-xs text-muted-foreground">{t("create.help.personalImages")}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {personalImages.length > 0 && (
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        {personalImages.map((file, idx) => (
+                          <div key={idx} className="relative group">
+                            <div className="aspect-square rounded-lg overflow-hidden border border-border">
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`Personal ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <button
+                              onClick={() => setPersonalImages(personalImages.filter((_, i) => i !== idx))}
+                              className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-destructive text-white flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-2.5 h-2.5 sm:w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+
+
+            {!["royal-entrance", "sunset-love", "green-essence"].includes(form.templateId) && (
+              <div className="pt-4 border-t border-border space-y-4">
+                <div className="text-sm font-semibold text-primary uppercase tracking-wider">{t("create.label.colorPalette")}</div>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-4">
+                      {/* Current Palette Display - Visual Chips */}
+                      <div className="flex flex-wrap gap-2 min-h-[44px] p-2 rounded-xl border border-border bg-muted/20">
+                        {colorPaletteText ? (
+                          colorPaletteText.split(',').map((c, i) => {
+                            const trimmed = c.trim();
+                            const isHex = trimmed.startsWith('#');
+                            return (
+                              <div
+                                key={i}
+                                className="flex items-center gap-1.5 pl-1.5 pr-1 py-1 rounded-lg bg-white border border-border shadow-sm group animate-in fade-in zoom-in duration-200"
+                              >
+                                {isHex && (
+                                  <div
+                                    className="w-4 h-4 rounded-full border border-black/10 flex-shrink-0"
+                                    style={{ backgroundColor: trimmed }}
+                                  />
+                                )}
+                                <span className="text-[10px] font-bold uppercase tracking-tight text-foreground">{trimmed}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const parts = colorPaletteText.split(',').map(p => p.trim());
+                                    parts.splice(i, 1);
+                                    setColorPaletteText(parts.join(', '));
+                                  }}
+                                  className="w-5 h-5 flex items-center justify-center rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <p className="text-xs text-muted-foreground/60 italic flex items-center h-full pl-2">
+                            {t("create.ph.colorPalette")}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Input
+                          className="rounded-xl h-12 flex-1 shadow-sm border-2 focus-visible:border-primary transition-all"
+                          value={colorPaletteText}
+                          onChange={(e) => setColorPaletteText(e.target.value)}
+                          placeholder={t("create.ph.colorPalette")}
+                        />
+
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="h-12 w-12 p-0 rounded-xl border-2 flex items-center justify-center bg-white shadow-sm hover:border-primary hover:text-primary transition-all relative overflow-hidden group"
+                            >
+                              <div
+                                className="w-7 h-7 rounded-full border border-black/10 shadow-inner z-10 group-hover:scale-110 transition-transform"
+                                style={{ backgroundColor: tempColor }}
+                              />
+                              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-72 p-4 rounded-3xl shadow-2xl border-border bg-white" align="end" sideOffset={8}>
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div className="text-[11px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                  <Palette className="w-3.5 h-3.5" />
+                                  {t("create.label.colorPalette")}
+                                </div>
+                                <code className="text-[10px] font-mono font-bold bg-muted px-2 py-0.5 rounded-full text-muted-foreground border border-border/50">
+                                  {tempColor.toUpperCase()}
+                                </code>
+                              </div>
+
+                              <div className="flex flex-col gap-4">
+                                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border-2 border-border shadow-inner group">
+                                  <input
+                                    type="color"
+                                    className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer"
+                                    value={tempColor}
+                                    onChange={(e) => setTempColor(e.target.value)}
+                                  />
+                                  <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-black/5" />
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button
+                                    type="button"
+                                    className="flex-1 rounded-2xl gap-2 font-bold py-6 text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                    onClick={() => {
+                                      setColorPaletteText(prev => {
+                                        const parts = prev ? prev.split(',').map(p => p.trim()) : [];
+                                        if (!parts.includes(tempColor)) {
+                                          return prev ? `${prev}, ${tempColor}` : tempColor;
+                                        }
+                                        return prev;
+                                      });
+                                    }}
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    {t("create.lang.add")}
+                                  </Button>
+
+                                  {colorPaletteText.includes(tempColor) && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      className="rounded-2xl w-12 h-12 p-0 border-2 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all"
+                                      onClick={() => {
+                                        const parts = colorPaletteText.split(',').map(p => p.trim());
+                                        const filtered = parts.filter(p => p !== tempColor);
+                                        setColorPaletteText(filtered.join(', '));
+                                      }}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>{t("create.label.colorPaletteImage")}</Label>
+                      <div className="relative border-2 border-dashed border-border rounded-2xl p-8 transition-colors hover:border-primary/50 text-center cursor-pointer group bg-white/50">
+                        <input
+                          type="file"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={(e) => setColorPaletteImage(e.target.files?.[0] || null)}
+                          accept="image/*"
+                        />
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Upload className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-base font-semibold text-foreground">
+                              {colorPaletteImage ? colorPaletteImage.name : t("create.ph.colorPaletteImage")}
+                            </p>
+                            <p className="text-xs text-muted-foreground">{t("create.help.colorPaletteImage")}</p>
+                          </div>
+                        </div>
+                      </div>
+                      {colorPaletteImage && (
+                        <div className="flex justify-center">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setColorPaletteImage(null)}
+                            className="text-destructive hover:text-destructive/80 text-xs h-8 gap-2"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            {t("create.lang.remove")}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-px flex-1 bg-border" />
+                      <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-2">{t("create.guide.colorPaletteTitle")}</p>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground text-center italic px-4">
+                      {t("create.guide.colorPaletteDesc")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="pt-4 border-t border-border space-y-4">
               <div className="text-sm font-semibold text-primary uppercase tracking-wider">{t("create.contactInfo")}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1138,12 +1731,33 @@ function CreateInvitationContent() {
               </div>
             </div>
 
-            <Button 
-              className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all" 
-              disabled={!canProceedToPayment}
+            {/* Dynamic Section Forms */}
+            <div className="pt-4 border-t border-border space-y-4">
+              <div className="text-sm font-semibold text-primary uppercase tracking-wider">
+                {t("create.sections.detailsTitle") || "Section Details"}
+              </div>
+              <DynamicFormContainer
+                selectedSections={selectedSections}
+                sectionsData={sectionsData}
+                onSectionDataChange={updateSectionData}
+                errors={sectionErrors}
+                getSectionLabel={(id) => t(`create.sec.${id}`)}
+              />
+              {hasSectionErrors && (
+                <p className="text-xs text-destructive text-center">
+                  {t("create.err.sectionsFix")}
+                </p>
+              )}
+            </div>
+
+            <Button
+              className="w-full h-12 text-lg rounded-full shadow-md hover:shadow-lg transition-all"
+              disabled={!canProceedToPayment || hasSectionErrors}
               onClick={() => {
                 if (validateStep2()) {
-                  setStep(3)
+                  if (validateSections(selectedSections)) {
+                    setStep(3)
+                  }
                 }
               }}
             >
@@ -1202,19 +1816,19 @@ function CreateInvitationContent() {
                   <div className="flex items-start gap-2">
                     <div className="flex-1 space-y-1">
                       <Input
-                        placeholder="Discount code"
+                        placeholder={t("create.ph.discountCode")}
                         value={discountCodeInput}
                         onChange={(e) => setDiscountCodeInput(e.target.value.toUpperCase())}
                         className="bg-background h-10"
                       />
                       {discountError && <p className="text-xs text-destructive pl-1">{discountError}</p>}
                     </div>
-                    <Button 
-                      onClick={handleApplyDiscount} 
+                    <Button
+                      onClick={handleApplyDiscount}
                       disabled={!discountCodeInput.trim() || applyingDiscount}
                       className="h-10"
                     >
-                      {applyingDiscount ? "..." : "Apply"}
+                      {applyingDiscount ? t("create.btn.applying") : t("create.btn.applyDiscount")}
                     </Button>
                   </div>
                 )}
@@ -1227,11 +1841,10 @@ function CreateInvitationContent() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("instapay")}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
-                    paymentMethod === "instapay"
-                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
-                      : "border-border hover:border-primary/30"
-                  }`}
+                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${paymentMethod === "instapay"
+                    ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                    : "border-border hover:border-primary/30"
+                    }`}
                 >
                   <Smartphone className="w-8 h-8 mb-2 text-primary" />
                   <span className="font-semibold">{t("create.payment.instapay")}</span>
@@ -1239,11 +1852,10 @@ function CreateInvitationContent() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("bank")}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
-                    paymentMethod === "bank"
-                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
-                      : "border-border hover:border-primary/30"
-                  }`}
+                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${paymentMethod === "bank"
+                    ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                    : "border-border hover:border-primary/30"
+                    }`}
                 >
                   <Landmark className="w-8 h-8 mb-2 text-primary" />
                   <span className="font-semibold">{t("create.payment.bank")}</span>
@@ -1251,11 +1863,10 @@ function CreateInvitationContent() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("vodafone_cash")}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${
-                    paymentMethod === "vodafone_cash"
-                      ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
-                      : "border-border hover:border-primary/30"
-                  }`}
+                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${paymentMethod === "vodafone_cash"
+                    ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
+                    : "border-border hover:border-primary/30"
+                    }`}
                 >
                   <Smartphone className="w-8 h-8 mb-2 text-primary" />
                   <span className="font-semibold">{t("create.payment.vodafoneCash")}</span>
