@@ -307,8 +307,8 @@ export function NewsletterPopup({
           {/* Deep gradient background */}
           <div className="relative bg-gradient-to-br from-[#064e3b] via-[#0f766e] to-[#115e59]">
             
-            {/* Glassmorphism overlay with subtle gold border */}
-            <div className="relative backdrop-blur-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.03] border-[1.5px] border-amber-400/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_0_60px_rgba(251,191,36,0.15)]">
+            {/* Glassmorphism overlay */}
+            <div className="relative backdrop-blur-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.03] border-[1.5px] border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
               <div className="flex flex-col items-center justify-center py-12 px-8 text-center">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400/20 to-emerald-400/20 backdrop-blur-sm flex items-center justify-center mb-5 border border-amber-400/20 shadow-[0_0_30px_rgba(20,184,166,0.3)]">
                   <svg
@@ -355,13 +355,13 @@ export function NewsletterPopup({
         {/* Deep gradient background */}
         <div className="relative bg-gradient-to-br from-[#064e3b] via-[#0f766e] to-[#115e59]">
           
-          {/* Glassmorphism overlay with subtle gold border */}
-          <div className="relative backdrop-blur-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.03] border-[1.5px] border-amber-400/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_0_60px_rgba(251,191,36,0.15)]">
+          {/* Glassmorphism overlay */}
+          <div className="relative backdrop-blur-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.03] border-[1.5px] border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="absolute right-4 top-4 sm:right-5 sm:top-5 z-10 text-amber-200/60 hover:text-amber-100 transition-all duration-300 hover:rotate-90"
+              className="absolute right-4 top-4 sm:right-5 sm:top-5 z-10 text-amber-200/60 hover:text-amber-100 transition-all duration-300 hover:rotate-90 focus:outline-none focus:ring-0"
               aria-label="Close"
             >
               <X className="h-4 w-4" strokeWidth={2} />
